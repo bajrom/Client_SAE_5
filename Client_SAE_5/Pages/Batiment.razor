@@ -1,0 +1,95 @@
+﻿@page "/batiments"
+@using Client_SAE_5.Models
+@inject BatimentViewModel BatimentViewModel
+
+<PageTitle>Liste des Batiments</PageTitle>
+
+<h1>Liste des Batiments</h1>
+
+@if (BatimentViewModel.Batiments == null)
+{
+    <p><em>Chargement...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom du batiment</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var batiment in BatimentViewModel.Batiments)
+            {
+                <tr>
+                    <td>@batiment.IdBatiment</td>
+                    <td>
+                        @if (batiment.IsEditable)
+                        {
+                            <input @bind="batiment.NomBatiment" />
+                        }
+                        else
+                        {
+                            <span>@batiment.NomBatiment</span>
+                        }
+                    </td>
+                    <td>
+                        @if (batiment.IsEditable)
+                        {
+                            <button class="btn btn-success" @onclick="() => SavePage(batiment)">Valider</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="() => EditPage(batiment)">Modifier</button>
+                        }
+                        <button class="btn btn-danger" @onclick="() => DeletePage(batiment.IdBatiment)">Supprimer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h2>Ajouter un nouveau batiment</h2>
+    <div>
+        <input type="text" @bind="BatimentViewModel.NewBatiment.NomBatiment" placeholder="Nom du batiment" />
+        <button class="btn btn-primary" @onclick="AddPage">Ajouter</button>
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await BatimentViewModel.LoadAsync();
+    }
+
+    private async Task SavePage(Models.Batiment batiment)
+    {
+        await BatimentViewModel.SaveAsync(batiment);
+        await BatimentViewModel.LoadAsync(); // Recharge les données après sauvegarde
+    }
+
+    private void EditPage(Models.Batiment batiment)
+    {
+        BatimentViewModel.Edit(batiment);
+    }
+
+    private async Task DeletePage(int idBatiment)
+    {
+        Console.WriteLine("supprime bonsant");
+        await BatimentViewModel.DeleteAsync(idBatiment);
+        await BatimentViewModel.LoadAsync(); // Recharge les données après suppression
+    }
+
+
+    private async Task AddPage()
+    {
+        await BatimentViewModel.AddAsync();
+        await BatimentViewModel.LoadAsync(); // Recharge les données après ajout
+    }
+
+    private void test()
+    {
+        Console.WriteLine("ça marche");
+    }
+}

@@ -1,0 +1,153 @@
+﻿@page "/salles"
+@using Client_SAE_5.Models
+@inject SalleViewModel SalleViewModel
+
+<PageTitle>Liste des Salles</PageTitle>
+
+<h1>Liste des Salles</h1>
+
+@if (SalleViewModel.Salles == null || SalleViewModel.Batiments == null || SalleViewModel.TypeSalles == null)
+{
+    <p><em>Chargement...</em></p>
+}
+else if (SalleViewModel.Batiments.Count == 0 || SalleViewModel.TypeSalles.Count == 0)
+{
+    <p><em>Aucun batiment ou de type de salle disponible.</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom de la salle</th>
+                <th>Superficie</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var salle in SalleViewModel.Salles)
+            {
+                <tr>
+                    <td>@salle.IdSalle</td>
+                    <td>
+                        @if (salle.IsEditable)
+                        {
+                            <input @bind="salle.NomSalle" />
+                        }
+                        else
+                        {
+                            <span>@salle.NomSalle</span>
+                        }
+                    </td>
+                    <td>
+                        @if (salle.IsEditable)
+                        {
+                            <input type="number" @bind="salle.SuperficieSalle" />
+                        }
+                        else
+                        {
+                            <span>@salle.SuperficieSalle</span>
+                        }
+                    </td>
+                    <td>
+                        @if (salle.IsEditable)
+                        {
+                            <select @bind="salle.IdBatiment">
+                                @foreach (var batiment in SalleViewModel.Batiments)
+                                {
+                                    <option value="@batiment.IdBatiment">@batiment.NomBatiment</option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <span>@SalleViewModel.Batiments.FirstOrDefault(m => m.IdBatiment == salle.IdBatiment)?.NomBatiment</span>
+                        }
+                    </td>
+                    <td>
+                        @if (salle.IsEditable)
+                        {
+                            <select @bind="salle.IdTypeSalle">
+                                @foreach (var typeSalle in SalleViewModel.TypeSalles)
+                                {
+                                    <option value="@typeSalle.IdTypeSalle">@typeSalle.NomTypeSalle</option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <span>@SalleViewModel.TypeSalles.FirstOrDefault(t => t.IdTypeSalle == salle.IdTypeSalle)?.NomTypeSalle</span>
+                        }
+                    </td>
+                    <td>
+                        @if (salle.IsEditable)
+                        {
+                            <button class="btn btn-success" @onclick="() => SavePage(salle)">Valider</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="() => EditPage(salle)">Modifier</button>
+                        }
+                        <button class="btn btn-danger" @onclick="() => DeletePage(salle.IdSalle)">Supprimer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h2>Ajouter une nouvelle salle</h2>
+    <div>
+        <input type="text" @bind="SalleViewModel.NewSalle.NomSalle" placeholder="Nom de la salle" />
+        <input type="text" @bind="SalleViewModel.NewSalle.SuperficieSalle" placeholder="Superficie (m²)" />
+        <select @bind="SalleViewModel.NewSalle.IdBatiment">
+            @foreach (var batiment in SalleViewModel.Batiments)
+            {
+                <option value="@batiment.IdBatiment">@batiment.NomBatiment</option>
+            }
+        </select>
+        <select @bind="SalleViewModel.NewSalle.IdTypeSalle">
+            @foreach (var typeSalle in SalleViewModel.TypeSalles)
+            {
+                <option value="@typeSalle.IdTypeSalle">@typeSalle.NomTypeSalle</option>
+            }
+        </select>
+        <button class="btn btn-primary" @onclick="AddPage">Ajouter</button>
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SalleViewModel.LoadAsync();
+    }
+
+    private async Task SavePage(Models.Salle salle)
+    {
+        await SalleViewModel.SaveAsync(salle);
+        await SalleViewModel.LoadAsync(); // Recharge les données après sauvegarde
+    }
+
+    private void EditPage(Models.Salle salle)
+    {
+        SalleViewModel.Edit(salle);
+    }
+
+    private async Task DeletePage(int idSalle)
+    {
+        Console.WriteLine("supprime bonsant");
+        await SalleViewModel.DeleteAsync(idSalle);
+        await SalleViewModel.LoadAsync(); // Recharge les données après suppression
+    }
+
+
+    private async Task AddPage()
+    {
+        await SalleViewModel.AddAsync();
+        await SalleViewModel.LoadAsync(); // Recharge les données après ajout
+    }
+
+    private void test()
+    {
+        Console.WriteLine("ça marche");
+    }
+}

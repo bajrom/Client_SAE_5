@@ -1,0 +1,95 @@
+﻿@page "/typeEquipements"
+@using Client_SAE_5.Models
+@inject TypeEquipementViewModel TypeEquipementViewModel
+
+<PageTitle>Liste des types d'équipements</PageTitle>
+
+<h1>Liste des types d'équipements</h1>
+
+@if (TypeEquipementViewModel.TypeEquipements == null)
+{
+    <p><em>Chargement...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom du type d'équipement</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var typeEquipement in TypeEquipementViewModel.TypeEquipements)
+            {
+                <tr>
+                    <td>@typeEquipement.IdTypeEquipement</td>
+                    <td>
+                        @if (typeEquipement.IsEditable)
+                        {
+                            <input @bind="typeEquipement.NomTypeEquipement" />
+                        }
+                        else
+                        {
+                            <span>@typeEquipement.NomTypeEquipement</span>
+                        }
+                    </td>
+                    <td>
+                        @if (typeEquipement.IsEditable)
+                        {
+                            <button class="btn btn-success" @onclick="() => SavePage(typeEquipement)">Valider</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="() => EditPage(typeEquipement)">Modifier</button>
+                        }
+                        <button class="btn btn-danger" @onclick="() => DeletePage(typeEquipement.IdTypeEquipement)">Supprimer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h2>Ajouter un nouveau type d'équipement</h2>
+    <div>
+        <input type="text" @bind="TypeEquipementViewModel.NewTypeEquipement.NomTypeEquipement" placeholder="Nom du type d'équipement" />
+        <button class="btn btn-primary" @onclick="AddPage">Ajouter</button>
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await TypeEquipementViewModel.LoadAsync();
+    }
+
+    private async Task SavePage(Models.TypeEquipement typeEquipement)
+    {
+        await TypeEquipementViewModel.SaveAsync(typeEquipement);
+        await TypeEquipementViewModel.LoadAsync(); // Recharge les données après sauvegarde
+    }
+
+    private void EditPage(Models.TypeEquipement typeEquipement)
+    {
+        TypeEquipementViewModel.Edit(typeEquipement);
+    }
+
+    private async Task DeletePage(int idTypeEquipement)
+    {
+        Console.WriteLine("supprime bonsant");
+        await TypeEquipementViewModel.DeleteAsync(idTypeEquipement);
+        await TypeEquipementViewModel.LoadAsync(); // Recharge les données après suppression
+    }
+
+
+    private async Task AddPage()
+    {
+        await TypeEquipementViewModel.AddAsync();
+        await TypeEquipementViewModel.LoadAsync(); // Recharge les données après ajout
+    }
+
+    private void test()
+    {
+        Console.WriteLine("ça marche");
+    }
+}
