@@ -38,7 +38,7 @@ namespace Client_SAE_5.ViewModel
                 Salles = await _serviceSalle.GetAllTAsync("Salles");
                 TypeEquipements = await _serviceTypeEquipement.GetAllTAsync("TypeEquipements");
                 Equipements = await _serviceEquipement.GetAllTAsync("Equipements");
-                Console.WriteLine("Recharger correctement");
+
                 foreach (var equipement in Equipements)
                 {
                     equipement.IsEditable = false; // initialement non modifiable
@@ -70,7 +70,7 @@ namespace Client_SAE_5.ViewModel
 
                 try
                 {
-                    await _serviceEquipement.PostTAsync("Equipement", equipement);
+                    await _serviceEquipement.PostTAsync("Equipements", equipement);
                     await LoadAsync();
                 }
                 catch (JsonException jsonEx)

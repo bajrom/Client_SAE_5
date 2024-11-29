@@ -29,7 +29,7 @@ namespace Client_SAE_5.ViewModel
             try
             {
                 TypeEquipements = await _serviceTypeEquipement.GetAllTAsync("TypeEquipements");
-                Console.WriteLine("Recharger correctement");
+
                 foreach (var typeEquipement in TypeEquipements)
                 {
                     typeEquipement.IsEditable = false; // initialement non modifiable
@@ -90,7 +90,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                await _serviceTypeEquipement.PutTAsync($"TypesEquipements/{typeEquipement.IdTypeEquipement}", typeEquipement);
+                await _serviceTypeEquipement.PutTAsync($"TypeEquipements/{typeEquipement.IdTypeEquipement}", typeEquipement);
                 await LoadAsync();
             }
             catch (Exception ex)
@@ -103,7 +103,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                await _serviceTypeEquipement.DeleteTAsync($"TypesEquipements", id);
+                await _serviceTypeEquipement.DeleteTAsync($"TypeEquipements", id);
                 await LoadAsync();
                 Console.WriteLine("Supprimer correctement");
 
