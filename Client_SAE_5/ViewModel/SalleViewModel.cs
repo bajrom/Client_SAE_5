@@ -1,130 +1,136 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using Client_SAE_5.DTO;
 using Client_SAE_5.Models.Services;
-using Client_SAE_5.Models;
 
 namespace Client_SAE_5.ViewModel
 {
     public class SalleViewModel
     {
-        private readonly HttpClient _httpClient;
-        private readonly WSService<Batiment> _serviceBatiment;
-        private readonly WSService<TypeSalle> _serviceTypeSalle;
-        private readonly WSService<Salle> _serviceSalle;
+        private readonly WSService<SalleDTO> _salleService;
+        private readonly WSService<SalleDetailDTO> _salleDetailService;
+        private readonly WSService<SalleSansNavigationDTO> _salleSansNavigationService;
 
-        public SalleViewModel(HttpClient httpClient)
+        public SalleViewModel()
         {
-            _httpClient = httpClient;
-            _serviceBatiment = new WSService<Batiment>();
-            _serviceTypeSalle = new WSService<TypeSalle>();
-            _serviceSalle = new WSService<Salle>();
+            _salleService = new WSService<SalleDTO>();
+            _salleDetailService = new WSService<SalleDetailDTO>();
+            _salleSansNavigationService = new WSService<SalleSansNavigationDTO>();
         }
 
-        public List<Salle> Salles { get; private set; } = new List<Salle>();
-        public List<Batiment> Batiments { get; private set; } = new List<Batiment>();
-        public List<TypeSalle> TypeSalles { get; private set; } = new List<TypeSalle>();
+        // Liste des salles pour l'affichage principal
+        public List<SalleDTO> Salles { get; private set; } = new List<SalleDTO>();
 
-        public Salle NewSalle { get; private set; } = new Salle();
+        // Détails d'une salle spécifique
+        public SalleDetailDTO SelectedSalleDetails { get; private set; }
 
-        public string ErrorMessage { get; private set; } // Pour stocker les messages d'erreur
+        // Salle pour l'ajout ou la modification
+        public SalleSansNavigationDTO EditableSalle { get; set; } = new SalleSansNavigationDTO();
 
-        public async Task LoadAsync()
+        // Indicateur d'erreur
+        public string ErrorMessage { get; private set; }
+
+        // Charger toutes les salles
+        public async Task LoadSallesAsync()
         {
             try
             {
-                Batiments = await _serviceBatiment.GetAllTAsync("Batiments");
-                TypeSalles = await _serviceTypeSalle.GetAllTAsync("TypeSalles");
-                Salles = await _serviceSalle.GetAllTAsync("Salles");
-                Console.WriteLine("Recharger correctement");
-                foreach (var salle in Salles)
-                {
-                    salle.IsEditable = false; // initialement non modifiable
-                }
+                Salles = await _salleService.GetAllTAsync("Salles");
+                ErrorMessage = string.Empty;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors du chargement : {ex.Message}";
+                ErrorMessage = $"Erreur lors du chargement des salles : {ex.Message}";
             }
         }
 
-        public async Task AddAsync()
+        // Charger les détails d'une salle
+        public async Task LoadSalleDetailsAsync(int idSalle)
         {
-            if (IsValidNew())
+            try
             {
-                var salle = new Salle
-                {
-                    NomSalle = NewSalle.NomSalle,
-                    SuperficieSalle = NewSalle.SuperficieSalle,
-                    IdBatiment = NewSalle.IdBatiment,
-                    IdTypeSalle = NewSalle.IdTypeSalle
-                };
+                SelectedSalleDetails = await _salleDetailService.GetTAsync("Salles", idSalle);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des détails de la salle : {ex.Message}";
+            }
+        }
 
+        // Ajouter une nouvelle salle
+        public async Task AddSalleAsync()
+        {
+            if (IsValidSalle(EditableSalle))
+            {
                 try
                 {
-                    await _serviceSalle.PostTAsync("Salles", salle);
-                    await LoadAsync();
-                }
-                catch (JsonException jsonEx)
-                {
-                    ErrorMessage = $"Erreur JSON : {jsonEx.Message}";
+                    await _salleSansNavigationService.PostTAsync("Salles", EditableSalle);
+                    await LoadSallesAsync();
+                    EditableSalle = new SalleSansNavigationDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
-                    ErrorMessage = $"Erreur dans AddSalle : {ex.Message}";
+                    ErrorMessage = $"Erreur lors de l'ajout de la salle : {ex.Message}";
                 }
             }
             else
             {
-                ErrorMessage = "Veuillez remplir tous les champs requis.";
+                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
             }
         }
 
-        private bool IsValidNew()
+        // Mettre à jour une salle existante
+        public async Task UpdateSalleAsync()
         {
-            return !string.IsNullOrWhiteSpace(NewSalle.NomSalle) &&
-                   NewSalle.SuperficieSalle > 0;
+            if (IsValidSalle(EditableSalle))
+            {
+                try
+                {
+                    await _salleSansNavigationService.PutTAsync($"Salles/{EditableSalle.IdSalle}", EditableSalle);
+                    await LoadSallesAsync();
+                    EditableSalle = new SalleSansNavigationDTO(); // Réinitialiser le formulaire
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Erreur lors de la mise à jour de la salle : {ex.Message}";
+                }
+            }
+            else
+            {
+                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
+            }
         }
 
-        public void Edit(Salle salle)
-        {
-            salle.IsEditable = true; // Active le mode d'édition
-        }
-
-        public async Task SaveAsync(Salle salle)
-        {
-            await UpdateAsync(salle);
-            salle.IsEditable = false; // Désactive le mode d'édition
-        }
-
-        private async Task UpdateAsync(Salle salle)
+        // Supprimer une salle
+        public async Task DeleteSalleAsync(int idSalle)
         {
             try
             {
-                await _serviceSalle.PutTAsync($"Salles/{salle.IdSalle}", salle);
-                await LoadAsync();
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Erreur dans UpdateSalle : {ex.Message}";
-            }
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            try
-            {
-                await _serviceSalle.DeleteTAsync($"Salles", id);
-                await LoadAsync();
-                Console.WriteLine("Supprimer correctement");
-
+                await _salleSansNavigationService.DeleteTAsync("Salles", idSalle);
+                await LoadSallesAsync();
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors de la suppression de la salle : {ex.Message}";
             }
+        }
+
+        // Définir une salle comme modifiable
+        public void EditSalle(SalleDTO salle)
+        {
+            EditableSalle = new SalleSansNavigationDTO
+            {
+                IdSalle = salle.IdSalle,
+                NomSalle = salle.NomSalle
+                // Vous pouvez inclure d'autres champs si nécessaire
+            };
+        }
+
+        // Vérifier si les données de la salle sont valides
+        private bool IsValidSalle(SalleSansNavigationDTO salle)
+        {
+            return !string.IsNullOrWhiteSpace(salle.NomSalle) &&
+                   salle.IdBatiment > 0 &&
+                   salle.IdTypeSalle > 0;
         }
     }
 }

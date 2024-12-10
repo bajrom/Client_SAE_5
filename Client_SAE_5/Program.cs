@@ -20,13 +20,7 @@ namespace Client_SAE_5
             /*            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });*/
             // Enregistre le HttpClient
             builder.Services.AddScoped<SalleViewModel>();
-            builder.Services.AddScoped<BatimentViewModel>();
-            builder.Services.AddScoped<TypeSalleViewModel>();
             builder.Services.AddScoped<CapteurViewModel>();
-            builder.Services.AddScoped<MurViewModel>();
-            builder.Services.AddScoped<EquipementViewModel>();
-            builder.Services.AddScoped<TypeEquipementViewModel>();
-            builder.Services.AddScoped<UniteViewModel>();
 
             await builder.Build().RunAsync();
         }

@@ -4,14 +4,14 @@ namespace Client_SAE_5.Models
 {
     public class UniteCapteur
     {
-        [JsonPropertyName("idUnite")]
+        [JsonPropertyName("idunite")]
         public int IdUnite { get; set; }
 
-        [JsonPropertyName("idCapteur")]
+        [JsonPropertyName("idcapteur")]
         public int IdCapteur { get; set; }
 
         [JsonIgnore]
-        [JsonPropertyName("isEditable")]
+        [JsonPropertyName("iseditable")]
         public bool IsEditable { get; set; }
     }
 }

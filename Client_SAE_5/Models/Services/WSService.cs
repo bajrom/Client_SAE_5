@@ -24,9 +24,22 @@ namespace Client_SAE_5.Models.Services
 
         public async Task<T> GetTAsync(string nomControleur, int id)
         {
-            var response = await _httpClient.GetAsync($"{nomControleur}/{id}");
+            Console.WriteLine("caca");
+            var response = await _httpClient.GetFromJsonAsync<T>($"{nomControleur}/GetById/{id}");
+/*            Console.WriteLine("caca");
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<T>();
+            Console.WriteLine("caca");
+            var jsonString = await response.Content.ReadFromJsonAsync<T>();*/
+            Console.WriteLine(response); // Pour voir la réponse JSON brute
+
+            try
+            {
+                return response;
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException($"Erreur lors de la désérialisation du JSON : {ex.Message}", ex);
+            }
         }
 
         public async Task<T> PostTAsync(string nomControleur, T table)

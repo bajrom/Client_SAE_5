@@ -6,38 +6,38 @@ namespace Client_SAE_5.Models
     {
         public int IdEquipement { get; set; }
 
-        [JsonPropertyName("nomEquipement")]
-        public String? NomEquipement { get; set; }
+        [JsonPropertyName("nomequipement")]
+        public string NomEquipement { get; set; }
 
         [JsonPropertyName("longueur")]
-        public int? Longeur { get; set; }
+        public decimal Longeur { get; set; }
 
         [JsonPropertyName("largeur")]
-        public int? Largeur { get; set; }
+        public decimal Largeur { get; set; }
 
         [JsonPropertyName("hauteur")]
-        public int? Hauteur { get; set; }
+        public decimal Hauteur { get; set; }
 
-        [JsonPropertyName("xEquipement")]
-        public int? XEquipement { get; set; }
+        [JsonPropertyName("xequipement")]
+        public decimal XEquipement { get; set; }
 
-        [JsonPropertyName("yEquipement")]
-        public int? YEquipement { get; set; }
+        [JsonPropertyName("yequipement")]
+        public decimal YEquipement { get; set; }
 
-        [JsonPropertyName("zEquipement")]
-        public int? ZEquipement { get; set; }
+        [JsonPropertyName("zequipement")]
+        public decimal ZEquipement { get; set; }
 
-        [JsonPropertyName("estActif")]
-        public string? EstActif { get; set; }
+        [JsonPropertyName("estactif")]
+        public string EstActif { get; set; }
 
-        [JsonPropertyName("idSalle")]
-        public int? IdSalle { get; set; }
+        [JsonPropertyName("idmur")]
+        public int IdMur { get; set; }
 
-        [JsonPropertyName("idTypeEquipement")]
-        public int? IdTypeEquipement { get; set; }
+        [JsonPropertyName("idtypeequipement")]
+        public int IdTypeEquipement { get; set; }
 
         [JsonIgnore]
-        [JsonPropertyName("isEditable")]
+        [JsonPropertyName("iseditable")]
         public bool IsEditable { get; set; }
     }
 }

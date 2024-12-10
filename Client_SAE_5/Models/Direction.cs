@@ -6,6 +6,7 @@ namespace Client_SAE_5.Models
     {
         public int IdDirection { get; set; }
 
-        public String? LettreDirection { get; set; }
+        [JsonPropertyName("lettredirection")]
+        public string LettreDirection { get; set; }
     }
 }

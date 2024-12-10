@@ -1,168 +1,169 @@
 ﻿@page "/capteurs"
-@using Client_SAE_5.Models
-@inject CapteurViewModel CapteurViewModel
+@inject Client_SAE_5.ViewModel.CapteurViewModel CapteurViewModel
 
-<PageTitle>Liste des Capteurs</PageTitle>
+<PageTitle>Gestion des Capteurs</PageTitle>
 
-<h1>Liste des Capteurs</h1>
+<h1>Gestion des Capteurs</h1>
 
-@if (CapteurViewModel.Capteurs == null || CapteurViewModel.Salles == null)
+@if (CapteurViewModel.Capteurs == null || CapteurViewModel.Capteurs.Count == 0)
 {
-    <p><em>Chargement...</em></p>
-}
-else if (CapteurViewModel.Salles.Count == 0)
-{
-    <p><em>Aucune salle disponible.</em></p>
+    <p><em>Chargement des capteurs ou aucun capteur trouvée...</em></p>
 }
 else
 {
     <table class="table">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Nom du type capteur</th>
-                <th>Est actif ?</th>
-                <th>X</th>
-                <th>Y</th>
-                <th>Z</th>
+                <th>Nom</th>
+                <th>Salle</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var capteur in CapteurViewModel.Capteurs)
             {
                 <tr>
-                    <td>@capteur.IdCapteur</td>
+                    <td>@capteur.NomCapteur</td>
+                    <td>@capteur.NomSalle</td>
                     <td>
-                        @if (capteur.IsEditable)
-                        {
-                            <input @bind="capteur.NomTypeCapteur" />
-                        }
-                        else
-                        {
-                            <span>@capteur.NomTypeCapteur</span>
-                        }
-                    </td>
-                    <td>
-                        @if (capteur.IsEditable)
-                        {
-                            <input type="number" @bind="capteur.EstActif" />
-                        }
-                        else
-                        {
-                            <span>@capteur.EstActif</span>
-                        }
-                    </td>
-                    <td>
-                        @if (capteur.IsEditable)
-                        {
-                            <input type="number" @bind="capteur.XCapteur" />
-                        }
-                        else
-                        {
-                            <span>@capteur.XCapteur</span>
-                        }
-                    </td>
-                    <td>
-                        @if (capteur.IsEditable)
-                        {
-                            <input type="number" @bind="capteur.YCapteur" />
-                        }
-                        else
-                        {
-                            <span>@capteur.YCapteur</span>
-                        }
-                    </td>
-                    <td>
-                        @if (capteur.IsEditable)
-                        {
-                            <input type="number" @bind="capteur.ZCapteur" />
-                        }
-                        else
-                        {
-                            <span>@capteur.ZCapteur</span>
-                        }
-                    </td>
-                    <td>
-                        @if (capteur.IsEditable)
-                        {
-                            <select @bind="capteur.IdSalle">
-                                @foreach (var salle in CapteurViewModel.Salles)
-                                {
-                                    <option value="@salle.IdSalle">@salle.NomSalle</option>
-                                }
-                            </select>
-                        }
-                        else
-                        {
-                            <span>@CapteurViewModel.Salles.FirstOrDefault(m => m.IdSalle == capteur.IdSalle)?.NomSalle</span>
-                        }
-                    </td>
-                    <td>
-                        @if (capteur.IsEditable)
-                        {
-                            <button class="btn btn-success" @onclick="() => SavePage(capteur)">Valider</button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-primary" @onclick="() => EditPage(capteur)">Modifier</button>
-                        }
-                        <button class="btn btn-danger" @onclick="() => DeletePage(capteur.IdCapteur)">Supprimer</button>
+                        <button class="btn btn-info" @onclick="() => ViewDetails(capteur.IdCapteur)">Détails</button>
+                        <button class="btn btn-primary" @onclick="() => EditCapteur(capteur)">Modifier</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteCapteur(capteur.IdCapteur)">Supprimer</button>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+}
 
-    <h2>Ajouter un nouveau capteur</h2>
-    <div>
-        <input type="text" @bind="CapteurViewModel.NewCapteur.NomTypeCapteur" placeholder="Nom du type de capteur" />
-        <input type="text" @bind="CapteurViewModel.NewCapteur.EstActif" placeholder="Est actif ? (True / False)" />
-        <input type="text" @bind="CapteurViewModel.NewCapteur.XCapteur" placeholder="X" />
-        <input type="text" @bind="CapteurViewModel.NewCapteur.YCapteur" placeholder="Y" />
-        <input type="text" @bind="CapteurViewModel.NewCapteur.ZCapteur" placeholder="Z" />
-        <select @bind="CapteurViewModel.NewCapteur.IdSalle">
-            @foreach (var salle in CapteurViewModel.Salles)
+@if (CapteurViewModel.SelectedCatpeurDetails != null)
+{
+    <h2>Détails du capteur</h2>
+    <p><strong>Nom :</strong> @CapteurViewModel.SelectedCatpeurDetails.NomCapteur</p>
+    <p><strong>Est actif :</strong> @CapteurViewModel.SelectedCatpeurDetails.EstActif</p>
+    <p><strong>X :</strong> @CapteurViewModel.SelectedCatpeurDetails.XCapteur</p>
+    <p><strong>Y :</strong> @CapteurViewModel.SelectedCatpeurDetails.YCapteur</p>
+    <p><strong>Z :</strong> @CapteurViewModel.SelectedCatpeurDetails.ZCapteur</p>
+
+    <h3>Unitée</h3>
+    @if (CapteurViewModel.SelectedCatpeurDetails.Unites?.Count > 0)
+    {
+        <ul>
+            @foreach (var unite in CapteurViewModel.SelectedCatpeurDetails.Unites)
             {
-                <option value="@salle.IdSalle">@salle.NomSalle</option>
+                <li>@unite.NomUnite</li>
             }
-        </select>
-        <button class="btn btn-primary" @onclick="AddPage">Ajouter</button>
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucune unitée</em></p>
+    }
+
+    <h3>Mur</h3>
+    @if (CapteurViewModel.SelectedCatpeurDetails.Mur != null)
+    {
+        <p><strong>Hauteur : </strong><li>@CapteurViewModel.SelectedCatpeurDetails.Mur.Hauteur</li></p>
+        <p><strong>Longueur : </strong><li>@CapteurViewModel.SelectedCatpeurDetails.Mur.Longueur</li></p>
+        <p><strong>Orientation : </strong><li>@CapteurViewModel.SelectedCatpeurDetails.Mur.Orientation</li></p>
+    }
+    else
+    {
+        <p><em>Le capteur n'est pas sur un mur</em></p>
+    }
+
+    <h3>Salle</h3>
+    @if (CapteurViewModel.SelectedCatpeurDetails.Salle != null)
+    {
+        <p><strong>Nom salle : </strong><li>@CapteurViewModel.SelectedCatpeurDetails.Salle.NomSalle</li></p>
+    }
+    else
+    {
+        <p><em>Le capteur n'a pas de salle</em></p>
+    }
+}
+
+<h2>Ajouter ou Modifier un capteur</h2>
+<div>
+    <label>Nom :</label>
+    <input type="text" @bind="CapteurViewModel.EditableCapteur.NomCapteur" class="form-control" />
+
+    <label>Est actif ? :</label>
+
+    <label>OUI</label>
+    <input type="radio" checked="@(CapteurViewModel.EditableCapteur.EstActif == "OUI")" name="OUI" @onchange="@(() => CapteurViewModel.EditableCapteur.EstActif = "OUI")" />
+    <label>NON</label>
+    <input type="radio" checked="@(CapteurViewModel.EditableCapteur.EstActif == "NON")" name="NON" @onchange="@(() => CapteurViewModel.EditableCapteur.EstActif = "NON")" />
+    <label>NSP</label>
+    <input type="radio" checked="@(CapteurViewModel.EditableCapteur.EstActif == "NSP")" name="NSP" @onchange="@(() => CapteurViewModel.EditableCapteur.EstActif = "NSP")" />
+
+    <label>X :</label>
+    <input type="number" @bind="CapteurViewModel.EditableCapteur.XCapteur" class="form-control" />
+
+    <label>Y :</label>
+    <input type="number" @bind="CapteurViewModel.EditableCapteur.YCapteur" class="form-control" />
+
+    <label>Z :</label>
+    <input type="number" @bind="CapteurViewModel.EditableCapteur.ZCapteur" class="form-control" />
+
+    <label>Mur :</label>
+    <select @bind="CapteurViewModel.EditableCapteur.IdMur" class="form-control">
+        <option value="">-- Sélectionnez un mur --</option>
+        @foreach (var mur in CapteurViewModel.Murs)
+        {
+            <option value="@mur.IdMur">@mur.Direction @mur.Orientation @mur.NomSalle</option>
+        }
+    </select>
+
+    <button class="btn btn-success" @onclick="SaveCapteur">Enregistrer</button>
+    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+</div>
+
+@if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @CapteurViewModel.ErrorMessage
     </div>
 }
 
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await CapteurViewModel.LoadAsync();
+        await CapteurViewModel.LoadCapteursAsync();
+        await CapteurViewModel.LoadMursAsync();
     }
 
-    private async Task SavePage(Models.Capteur capteur)
+    private async Task ViewDetails(int idCapteur)
     {
-        await CapteurViewModel.SaveAsync(capteur);
-        await CapteurViewModel.LoadAsync(); // Recharge les données après sauvegarde
+        await CapteurViewModel.LoadCapteurDetailsAsync(idCapteur);
     }
 
-    private void EditPage(Models.Capteur capteur)
+    private async Task EditCapteur(Client_SAE_5.DTO.CapteurDTO capteur)
     {
-        CapteurViewModel.Edit(capteur);
+        var temp = await CapteurViewModel.LoadCapteurDetailsWithoutDefAsync(capteur.IdCapteur);
+        CapteurViewModel.EditCapteur(temp);
     }
 
-    private async Task DeletePage(int idCapteur)
+    private async Task SaveCapteur()
     {
-        Console.WriteLine("supprime bonsant");
-        await CapteurViewModel.DeleteAsync(idCapteur);
-        await CapteurViewModel.LoadAsync(); // Recharge les données après suppression
+        if (CapteurViewModel.EditableCapteur.IdCapteur == 0)
+        {
+            await CapteurViewModel.AddCapteurAsync();
+        }
+        else
+        {
+            await CapteurViewModel.UpdateCapteurAsync();
+        }
+        CapteurViewModel.EditableCapteur = new Client_SAE_5.DTO.CapteurSansNavigationDTO(); // Réinitialiser
     }
 
-
-    private async Task AddPage()
+    private async Task DeleteCapteur(int idCapteur)
     {
-        await CapteurViewModel.AddAsync();
-        await CapteurViewModel.LoadAsync(); // Recharge les données après ajout
+        await CapteurViewModel.DeleteCapteurAsync(idCapteur);
     }
 
-    private void test()
+    private void CancelEdit()
     {
-        Console.WriteLine("ça marche");
+        CapteurViewModel.EditableCapteur = new Client_SAE_5.DTO.CapteurSansNavigationDTO();
     }
 }

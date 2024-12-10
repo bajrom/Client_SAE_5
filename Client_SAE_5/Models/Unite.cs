@@ -6,14 +6,14 @@ namespace Client_SAE_5.Models
     {
         public int IdUnite { get; set; }
 
-        [JsonPropertyName("nomUnite")]
-        public String? NomUnite { get; set; }
+        [JsonPropertyName("nomunite")]
+        public string NomUnite { get; set; }
 
-        [JsonPropertyName("sigleUnite")]
-        public String? SigleUnite { get; set; }
+        [JsonPropertyName("sigleunite")]
+        public string SigleUnite { get; set; }
 
         [JsonIgnore]
-        [JsonPropertyName("isEditable")]
+        [JsonPropertyName("iseditable")]
         public bool IsEditable { get; set; }
     }
 }

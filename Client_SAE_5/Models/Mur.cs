@@ -7,22 +7,22 @@ namespace Client_SAE_5.Models
         public int IdMur { get; set; }
 
         [JsonPropertyName("longueur")]
-        public float? Longueur { get; set; }
+        public decimal Longueur { get; set; }
 
         [JsonPropertyName("hauteur")]
-        public float? Hauteur { get; set; }
+        public decimal Hauteur { get; set; }
 
         [JsonPropertyName("orientation")]
-        public float? Orientation { get; set; }
+        public decimal Orientation { get; set; }
 
-        [JsonPropertyName("idDirection")]
-        public int? IdDirection { get; set; }
+        [JsonPropertyName("iddirection")]
+        public int IdDirection { get; set; }
 
-        [JsonPropertyName("idSalle")]
-        public int? IdSalle { get; set; }
+        [JsonPropertyName("idsalle")]
+        public int IdSalle { get; set; }
 
         [JsonIgnore]
-        [JsonPropertyName("isEditable")]
+        [JsonPropertyName("iseditable")]
         public bool IsEditable { get; set; }
     }
 }

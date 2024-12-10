@@ -1,128 +1,151 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Client_SAE_5.Models.Services;
+﻿using Client_SAE_5.DTO;
 using Client_SAE_5.Models;
+using Client_SAE_5.Models.Services;
 
 namespace Client_SAE_5.ViewModel
 {
     public class CapteurViewModel
     {
-        private readonly HttpClient _httpClient;
-        private readonly WSService<Salle> _serviceSalle;
-        private readonly WSService<Capteur> _serviceCapteur;
+        private readonly WSService<CapteurDTO> _capteurService;
+        private readonly WSService<CapteurDetailDTO> _capteurDetailService;
+        private readonly WSService<CapteurSansNavigationDTO> _capteurSansNavigationService;
 
-        public CapteurViewModel(HttpClient httpClient)
+        public CapteurViewModel()
         {
-            _httpClient = httpClient;
-            _serviceSalle = new WSService<Salle>();
-            _serviceCapteur = new WSService<Capteur>();
+            _capteurService = new WSService<CapteurDTO>();
+            _capteurDetailService = new WSService<CapteurDetailDTO>();
+            _capteurSansNavigationService = new WSService<CapteurSansNavigationDTO>();
         }
 
-        public List<Capteur> Capteurs { get; private set; } = new List<Capteur>();
-        public List<Salle> Salles { get; private set; } = new List<Salle>();
+        public List<CapteurDTO> Capteurs { get; private set; } = new List<CapteurDTO>();
 
-        public Capteur NewCapteur { get; private set; } = new Capteur();
+        public CapteurDetailDTO SelectedCatpeurDetails { get; private set; }
 
-        public string ErrorMessage { get; private set; } // Pour stocker les messages d'erreur
+        public CapteurSansNavigationDTO EditableCapteur { get; set; } = new CapteurSansNavigationDTO();
 
-        public async Task LoadAsync()
+        public List<MurDTO> Murs { get; private set; } = new List<MurDTO>();
+
+        public string ErrorMessage { get; private set; }
+
+        public async Task LoadCapteursAsync()
         {
             try
             {
-                Salles = await _serviceSalle.GetAllTAsync("Salles");
-                Capteurs = await _serviceCapteur.GetAllTAsync("Capteurs");
-                Console.WriteLine("Recharger correctement");
-                foreach (var capteur in Capteurs)
-                {
-                    capteur.IsEditable = false; // initialement non modifiable
-                }
+                Capteurs = await _capteurService.GetAllTAsync("Capteurs");
+                ErrorMessage = string.Empty;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors du chargement : {ex.Message}";
+                ErrorMessage = $"Erreur lors du chargement des salles : {ex.Message}";
             }
         }
 
-        public async Task AddAsync()
+        public async Task LoadMursAsync()
         {
-            if (IsValidNew())
+            try
             {
-                var capteur = new Capteur
-                {
-                    NomTypeCapteur = NewCapteur.NomTypeCapteur,
-                    EstActif = NewCapteur.EstActif,
-                    XCapteur = NewCapteur.XCapteur,
-                    YCapteur = NewCapteur.YCapteur,
-                    ZCapteur = NewCapteur.ZCapteur,
-                    IdSalle = NewCapteur.IdSalle,
-                };
+                var murService = new WSService<MurDTO>();
+                Murs = await murService.GetAllTAsync("Murs");
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des murs : {ex.Message}";
+            }
+        }
 
+        public async Task LoadCapteurDetailsAsync(int idCapteur)
+        {
+            try
+            {
+                SelectedCatpeurDetails = await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des détails du capteur : {ex.Message}";
+            }
+        }
+
+        public async Task<CapteurDetailDTO> LoadCapteurDetailsWithoutDefAsync(int idCapteur)
+        {
+            return await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
+        }
+
+        public async Task AddCapteurAsync()
+        {
+            if (IsValidCapteur(EditableCapteur))
+            {
                 try
                 {
-                    await _serviceCapteur.PostTAsync("Capteurs", capteur);
-                    await LoadAsync();
-                }
-                catch (JsonException jsonEx)
-                {
-                    ErrorMessage = $"Erreur JSON : {jsonEx.Message}";
+                    await _capteurSansNavigationService.PostTAsync("Capteurs", EditableCapteur);
+                    await LoadCapteursAsync();
+                    EditableCapteur = new CapteurSansNavigationDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
-                    ErrorMessage = $"Erreur dans AddCapteur : {ex.Message}";
+                    ErrorMessage = $"Erreur lors de l'ajout du capteur : {ex.Message}";
                 }
             }
             else
             {
-                ErrorMessage = "Veuillez remplir tous les champs requis.";
+                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
             }
         }
 
-        private bool IsValidNew()
+        public async Task UpdateCapteurAsync()
         {
-            return !string.IsNullOrWhiteSpace(NewCapteur.NomTypeCapteur) && NewCapteur.XCapteur > 0 && NewCapteur.YCapteur > 0 && NewCapteur.ZCapteur > 0 &&
-                   (NewCapteur.EstActif == "OUI" || NewCapteur.EstActif == "NON" || NewCapteur.EstActif == "NSP");
+            if (IsValidCapteur(EditableCapteur))
+            {
+                try
+                {
+                    await _capteurSansNavigationService.PutTAsync($"Capteurs/{EditableCapteur.IdCapteur}", EditableCapteur);
+                    await LoadCapteursAsync();
+                    EditableCapteur = new CapteurSansNavigationDTO(); // Réinitialiser le formulaire
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Erreur lors de la mise à jour du capteur : {ex.Message}";
+                }
+            }
+            else
+            {
+                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
+            }
         }
 
-        public void Edit(Capteur capteur)
-        {
-            capteur.IsEditable = true; // Active le mode d'édition
-        }
-
-        public async Task SaveAsync(Capteur capteur)
-        {
-            await UpdateAsync(capteur);
-            capteur.IsEditable = false; // Désactive le mode d'édition
-        }
-
-        private async Task UpdateAsync(Capteur capteur)
+        public async Task DeleteCapteurAsync(int idCapteur)
         {
             try
             {
-                await _serviceCapteur.PutTAsync($"Capteurs/{capteur.IdCapteur}", capteur);
-                await LoadAsync();
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Erreur dans UpdateCapteur : {ex.Message}";
-            }
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            try
-            {
-                await _serviceCapteur.DeleteTAsync($"Capteurs", id);
-                await LoadAsync();
-                Console.WriteLine("Supprimer correctement");
-
+                await _capteurService.DeleteTAsync("Capteurs", idCapteur);
+                await LoadCapteursAsync();
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors de la suppression du capteur : {ex.Message}";
             }
+        }
+
+
+        public void EditCapteur(CapteurDetailDTO capteur)
+        {
+            EditableCapteur = new CapteurSansNavigationDTO
+            {
+                IdCapteur = capteur.IdCapteur,
+                NomCapteur = capteur.NomCapteur,
+                EstActif = capteur.EstActif,
+                XCapteur = capteur.XCapteur,
+                YCapteur = capteur.YCapteur,
+                ZCapteur = capteur.ZCapteur,
+                IdMur = capteur.Mur.IdMur,
+            };
+        }
+
+        private bool IsValidCapteur(CapteurSansNavigationDTO capteur)
+        {
+            return !string.IsNullOrWhiteSpace(capteur.NomCapteur) &&
+                   capteur.IdMur > 0;
         }
     }
 }

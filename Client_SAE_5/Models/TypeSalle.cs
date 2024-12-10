@@ -6,11 +6,11 @@ namespace Client_SAE_5.Models
     {
         public int IdTypeSalle { get; set; }
 
-        [JsonPropertyName("NomTypeSalle")]
-        public String? NomTypeSalle { get; set; }
+        [JsonPropertyName("nomtypesalle")]
+        public string NomTypeSalle { get; set; }
 
         [JsonIgnore]
-        [JsonPropertyName("isEditable")]
+        [JsonPropertyName("iseditable")]
         public bool IsEditable { get; set; }
     }
 }
