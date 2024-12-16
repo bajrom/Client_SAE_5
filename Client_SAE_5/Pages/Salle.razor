@@ -42,8 +42,8 @@ else
 {
     <h2>Détails de la Salle</h2>
     <p><strong>Nom :</strong> @SalleViewModel.SelectedSalleDetails.NomSalle</p>
-    <p><strong>Bâtiment :</strong> @SalleViewModel.SelectedSalleDetails.NomBatiment</p>
-    <p><strong>Type :</strong> @SalleViewModel.SelectedSalleDetails.NomTypeSalle</p>
+    <p><strong>Bâtiment :</strong> @SalleViewModel.SelectedSalleDetails.Batiment.NomBatiment</p>
+    <p><strong>Type :</strong> @SalleViewModel.SelectedSalleDetails.TypeSalle.NomTypeSalle</p>
 
     <h3>Capteurs</h3>
     @if (SalleViewModel.SelectedSalleDetails.Capteurs?.Count > 0)
@@ -81,11 +81,23 @@ else
     <label>Nom de la Salle :</label>
     <input type="text" @bind="SalleViewModel.EditableSalle.NomSalle" class="form-control" />
 
-    <label>ID Bâtiment :</label>
-    <input type="number" @bind="SalleViewModel.EditableSalle.IdBatiment" class="form-control" />
+    <label>Batiment :</label>
+    <select @bind="SalleViewModel.EditableSalle.IdBatiment" class="form-control">
+        <option value="">-- Sélectionnez un batiment --</option>
+        @foreach (var batiment in SalleViewModel.Batiments)
+        {
+            <option value="@batiment.IdBatiment">@batiment.NomBatiment</option>
+        }
+    </select>
 
-    <label>ID Type de Salle :</label>
-    <input type="number" @bind="SalleViewModel.EditableSalle.IdTypeSalle" class="form-control" />
+    <label>Type de salle :</label>
+    <select @bind="SalleViewModel.EditableSalle.IdTypeSalle" class="form-control">
+        <option value="">-- Sélectionnez un type de salle --</option>
+        @foreach (var typesalle in SalleViewModel.TypeSalle)
+        {
+            <option value="@typesalle.IdTypeSalle">@typesalle.NomTypeSalle</option>
+        }
+    </select>
 
     <button class="btn btn-success" @onclick="SaveSalle">Enregistrer</button>
     <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
@@ -102,6 +114,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         await SalleViewModel.LoadSallesAsync();
+        await SalleViewModel.LoadBatimentsAsync();
+        await SalleViewModel.LoadTypeSalleAsync();
     }
 
     private async Task ViewDetails(int idSalle)
@@ -109,9 +123,10 @@ else
         await SalleViewModel.LoadSalleDetailsAsync(idSalle);
     }
 
-    private void EditSalle(Client_SAE_5.DTO.SalleDTO salle)
+    private async Task EditSalle(Client_SAE_5.DTO.SalleDTO salle)
     {
-        SalleViewModel.EditSalle(salle);
+        var temp = await SalleViewModel.LoadSalleDetailsWithoutDefAsync(salle.IdSalle);
+        SalleViewModel.EditSalle(temp);
     }
 
     private async Task SaveSalle()

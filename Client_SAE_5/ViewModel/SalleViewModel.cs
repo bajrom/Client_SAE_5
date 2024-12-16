@@ -22,6 +22,10 @@ namespace Client_SAE_5.ViewModel
         // Détails d'une salle spécifique
         public SalleDetailDTO SelectedSalleDetails { get; private set; }
 
+        public List<BatimentDTO> Batiments { get; private set; } = new List<BatimentDTO>();
+
+        public List<TypeSalleDTO> TypeSalle { get; private set; } = new List<TypeSalleDTO>();
+
         // Salle pour l'ajout ou la modification
         public SalleSansNavigationDTO EditableSalle { get; set; } = new SalleSansNavigationDTO();
 
@@ -54,6 +58,39 @@ namespace Client_SAE_5.ViewModel
             {
                 ErrorMessage = $"Erreur lors du chargement des détails de la salle : {ex.Message}";
             }
+        }
+
+        public async Task LoadBatimentsAsync()
+        {
+            try
+            {
+                var batimentService = new WSService<BatimentDTO>();
+                Batiments = await batimentService.GetAllTAsync("Batiments");
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des batiments : {ex.Message}";
+            }
+        }
+
+        public async Task LoadTypeSalleAsync()
+        {
+            try
+            {
+                var typesalleService = new WSService<TypeSalleDTO>();
+                TypeSalle = await typesalleService.GetAllTAsync("TypeSalles");
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des types de salles : {ex.Message}";
+            }
+        }
+
+        public async Task<SalleDetailDTO> LoadSalleDetailsWithoutDefAsync(int idSalle)
+        {
+            return await _salleDetailService.GetTAsync("Salles", idSalle);
         }
 
         // Ajouter une nouvelle salle
@@ -115,12 +152,14 @@ namespace Client_SAE_5.ViewModel
         }
 
         // Définir une salle comme modifiable
-        public void EditSalle(SalleDTO salle)
+        public void EditSalle(SalleDetailDTO salle)
         {
             EditableSalle = new SalleSansNavigationDTO
             {
                 IdSalle = salle.IdSalle,
-                NomSalle = salle.NomSalle
+                NomSalle = salle.NomSalle,
+                IdBatiment = salle.Batiment.IdBatiment,
+                IdTypeSalle = salle.TypeSalle.IdTypeSalle,
                 // Vous pouvez inclure d'autres champs si nécessaire
             };
         }

@@ -82,9 +82,10 @@ namespace Client_SAE_5.Models.Services
             response.EnsureSuccessStatusCode();
         }
 
-        Task<T> IService<T>.DeleteTAsync(string nomControleur, int id)
+        public async Task DeleteDoubleTAsync(string nomControleur, int id1, int id2)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.DeleteAsync($"{nomControleur}/{id1}-{id2}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }

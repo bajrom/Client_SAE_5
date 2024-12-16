@@ -52,6 +52,7 @@ else
             @foreach (var unite in CapteurViewModel.SelectedCatpeurDetails.Unites)
             {
                 <li>@unite.NomUnite</li>
+                <button class="btn btn-danger" @onclick="() => DeleteUniteCapteur(unite.IdUnite, CapteurViewModel.SelectedCatpeurDetails.IdCapteur)">Supprimer</button>
             }
         </ul>
     }
@@ -117,6 +118,14 @@ else
 
     <button class="btn btn-success" @onclick="SaveCapteur">Enregistrer</button>
     <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+    <h2>Ajouter une unitée</h2>
+    <select class="form-control" @onchange="(e) => AddUniteCapteur(CapteurViewModel.EditableCapteur.IdCapteur, e.Value)">
+        <option value="">-- Ajouter une unité --</option>
+        @foreach (var unite in CapteurViewModel.AvailableUnites)
+        {
+            <option value="@unite.IdUnite">@unite.NomUnite</option>
+        }
+    </select>
 </div>
 
 @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
@@ -136,6 +145,7 @@ else
     private async Task ViewDetails(int idCapteur)
     {
         await CapteurViewModel.LoadCapteurDetailsAsync(idCapteur);
+        StateHasChanged();
     }
 
     private async Task EditCapteur(Client_SAE_5.DTO.CapteurDTO capteur)
@@ -165,5 +175,22 @@ else
     private void CancelEdit()
     {
         CapteurViewModel.EditableCapteur = new Client_SAE_5.DTO.CapteurSansNavigationDTO();
+        CapteurViewModel.AvailableUnites.Clear();
+    }
+
+    private async Task AddUniteCapteur(int idCapteur, object idUnite)
+    {
+        if (idUnite is int idUniteInt || (idUnite is string strValue && int.TryParse(strValue, out idUniteInt)))
+        {
+            if (idUniteInt > 0)
+            {
+                await CapteurViewModel.AddUniteCapteurAsync(idCapteur, idUniteInt);
+            }
+        }
+    }
+
+    private async Task DeleteUniteCapteur(int idUnite, int idCapteur)
+    {
+        await CapteurViewModel.DeleteUniteCapteurAsync(idUnite, idCapteur);
     }
 }

@@ -1,0 +1,130 @@
+﻿@page "/murs"
+@inject Client_SAE_5.ViewModel.MurViewModel MurViewModel
+
+<PageTitle>Gestion des Murs</PageTitle>
+
+<h1>Gestion des Murs</h1>
+
+@if (MurViewModel.Murs == null || MurViewModel.Murs.Count == 0)
+{
+    <p><em>Chargement des murs ou aucun mur trouvée...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Direction</th>
+                <th>Nom salle</th>
+                <th>Orientation</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mur in MurViewModel.Murs)
+            {
+                <tr>
+                    <td>@mur.Direction</td>
+                    <td>@mur.NomSalle</td>
+                    <td>@mur.Orientation</td>
+                    <td>
+                        <button class="btn btn-info" @onclick="() => ViewDetails(mur.IdMur)">Détails</button>
+                        <button class="btn btn-primary" @onclick="() => EditMur(mur)">Modifier</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteMur(mur.IdMur)">Supprimer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (MurViewModel.SelectedMurDetails != null)
+{
+    <h2>Détails du mur</h2>
+    <p><strong>Longueur :</strong> @MurViewModel.SelectedMurDetails.Longueur</p>
+    <p><strong>Hauteur :</strong> @MurViewModel.SelectedMurDetails.Hauteur</p>
+    <p><strong>Orientation :</strong> @MurViewModel.SelectedMurDetails.Orientation</p>
+}
+
+<h2>Ajouter ou Modifier un mur</h2>
+<div>
+    <label>Longueur (cm) :</label>
+    <input type="text" @bind="MurViewModel.EditableMur.Longueur" class="form-control" />
+
+    <label>Hauteur (cm) :</label>
+    <input type="text" @bind="MurViewModel.EditableMur.Hauteur" class="form-control" />
+
+    <label>Orientation (°) :</label>
+    <input type="text" @bind="MurViewModel.EditableMur.Orientation" class="form-control" />
+
+    <label>Salle :</label>
+    <select @bind="MurViewModel.EditableMur.IdSalle" class="form-control">
+        <option value="">-- Sélectionnez une salle --</option>
+        @foreach (var salle in MurViewModel.Salles)
+        {
+            <option value="@salle.IdSalle">@salle.NomSalle @salle.NomBatiment @salle.NomType</option>
+        }
+    </select>
+
+    <label>Direction :</label>
+    <select @bind="MurViewModel.EditableMur.IdDirection" class="form-control">
+        <option value="">-- Sélectionnez une direction --</option>
+        @foreach (var direction in MurViewModel.Directions)
+        {
+            <option value="@direction.IdDirection">@direction.LettresDirection</option>
+        }
+    </select>
+
+    <button class="btn btn-success" @onclick="SaveMur">Enregistrer</button>
+    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+</div>
+
+@if (!string.IsNullOrEmpty(MurViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @MurViewModel.ErrorMessage
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await MurViewModel.LoadMursAsync();
+        await MurViewModel.LoadDirectionsAsync();
+        await MurViewModel.LoadSallesAsync();
+    }
+
+    private async Task ViewDetails(int idMur)
+    {
+        await MurViewModel.LoadMurDetailsAsync(idMur);
+    }
+
+    private async Task EditMur(Client_SAE_5.DTO.MurDTO mur)
+    {
+        var temp = await MurViewModel.LoadMurDetailsWithoutDefAsync(mur.IdMur);
+        MurViewModel.EditMur(temp);
+    }
+
+    private async Task SaveMur()
+    {
+        if (MurViewModel.EditableMur.IdMur == 0)
+        {
+            await MurViewModel.AddMurAsync();
+        }
+        else
+        {
+            await MurViewModel.UpdateMurAsync();
+        }
+        MurViewModel.EditableMur = new Client_SAE_5.DTO.MurSansNavigationDTO(); // Réinitialiser
+    }
+
+    private async Task DeleteMur(int idMur)
+    {
+        await MurViewModel.DeleteMurAsync(idMur);
+    }
+
+    private void CancelEdit()
+    {
+        MurViewModel.EditableMur = new Client_SAE_5.DTO.MurSansNavigationDTO();
+    }
+}

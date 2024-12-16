@@ -21,6 +21,12 @@ namespace Client_SAE_5
             // Enregistre le HttpClient
             builder.Services.AddScoped<SalleViewModel>();
             builder.Services.AddScoped<CapteurViewModel>();
+            builder.Services.AddScoped<MurViewModel>();
+            builder.Services.AddScoped<TypeSalleViewModel>();
+            builder.Services.AddScoped<BatimentViewModel>();
+            builder.Services.AddScoped<EquipementViewModel>();
+            builder.Services.AddScoped<TypeEquipementViewModel>();
+            builder.Services.AddScoped<UniteViewModel>();
 
             await builder.Build().RunAsync();
         }

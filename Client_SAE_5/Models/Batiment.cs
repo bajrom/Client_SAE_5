@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Client_SAE_5.Models
+namespace Client_SAE_5.DTO
 {
     public class Batiment
     {

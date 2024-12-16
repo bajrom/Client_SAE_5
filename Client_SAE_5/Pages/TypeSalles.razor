@@ -1,0 +1,85 @@
+﻿@page "/typesalles"
+@inject Client_SAE_5.ViewModel.TypeSalleViewModel TypeSalleViewModel
+
+<PageTitle>Gestion des types de salles</PageTitle>
+
+<h1>Gestion des types de salles</h1>
+
+@if (TypeSalleViewModel.TypeSalles == null || TypeSalleViewModel.TypeSalles.Count == 0)
+{
+    <p><em>Chargement des types de salles ou aucun type de salles trouvée...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var typesalle in TypeSalleViewModel.TypeSalles)
+            {
+                <tr>
+                    <td>@typesalle.NomTypeSalle</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => EditTypeSalle(typesalle)">Modifier</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteTypeSalle(typesalle.IdTypeSalle)">Supprimer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Ajouter ou Modifier un type de salle</h2>
+<div>
+    <label>Nom :</label>
+    <input type="text" @bind="TypeSalleViewModel.EditableTypeSalle.NomTypeSalle" class="form-control" />
+
+    <button class="btn btn-success" @onclick="SaveTypeSalle">Enregistrer</button>
+    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+</div>
+
+@if (!string.IsNullOrEmpty(TypeSalleViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @TypeSalleViewModel.ErrorMessage
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await TypeSalleViewModel.LoadTypesSallesAsync();
+    }
+
+    private async Task EditTypeSalle(Client_SAE_5.DTO.TypeSalleDTO typeSalle)
+    {
+        TypeSalleViewModel.EditTypeSalle(typeSalle);
+    }
+
+    private async Task SaveTypeSalle()
+    {
+        if (TypeSalleViewModel.EditableTypeSalle.IdTypeSalle == 0)
+        {
+            await TypeSalleViewModel.AddTypeSallesAsync();
+        }
+        else
+        {
+            await TypeSalleViewModel.UpdateTypeSallesAsync();
+        }
+        TypeSalleViewModel.EditableTypeSalle = new Client_SAE_5.DTO.TypeSalleDTO(); // Réinitialiser
+    }
+
+    private async Task DeleteTypeSalle(int idTypeSalle)
+    {
+        await TypeSalleViewModel.DeleteTypeSalleAsync(idTypeSalle);
+    }
+
+    private void CancelEdit()
+    {
+        TypeSalleViewModel.EditableTypeSalle = new Client_SAE_5.DTO.TypeSalleDTO();
+    }
+}
