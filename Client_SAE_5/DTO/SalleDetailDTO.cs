@@ -1,4 +1,4 @@
-﻿using Client_SAE_5.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Client_SAE_5.DTO
 {
@@ -6,18 +6,26 @@ namespace Client_SAE_5.DTO
     {
         private int idSalle;
         private string nomSalle;
-        private TypeSalle typeSalle;
-        private Batiment batiment;
-        private List<Capteur> capteurs;
-        private List<Equipement> equipements;
-        private List<Mur> murs;
+        private TypeSalleDTO typeSalle;
+        private BatimentSansNavigationDTO batiment;
+        private List<CapteurSansNavigationDTO> capteurs;
+        private List<EquipementSansNavigationDTO> equipements;
+        private List<MurSansNavigationDTO> murs;
 
-        public string NomSalle { get => nomSalle; set => nomSalle = value; }
+        [Required]
         public int IdSalle { get => idSalle; set => idSalle = value; }
-        public List<Mur> Murs { get => murs; set => murs = value; }
-        public List<Equipement> Equipements { get => equipements; set => equipements = value; }
-        public List<Capteur> Capteurs { get => capteurs; set => capteurs = value; }
-        public TypeSalle TypeSalle { get => typeSalle; set => typeSalle = value; }
-        public Batiment Batiment { get => batiment; set => batiment = value; }
+
+        [Required]
+        public string NomSalle { get => nomSalle; set => nomSalle = value; }
+        
+        public TypeSalleDTO TypeSalle { get => typeSalle; set => typeSalle = value; }
+        
+        public BatimentSansNavigationDTO Batiment { get => batiment; set => batiment = value; }
+        
+        public List<CapteurSansNavigationDTO> Capteurs { get => capteurs; set => capteurs = value; }
+        
+        public List<EquipementSansNavigationDTO> Equipements { get => equipements; set => equipements = value; }
+        
+        public List<MurSansNavigationDTO> Murs { get => murs; set => murs = value; }
     }
 }

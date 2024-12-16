@@ -24,6 +24,7 @@ else
                 <tr>
                     <td>@typeequipement.NomTypeEquipement</td>
                     <td>
+                        <button class="btn btn-info" @onclick="() => ViewDetails(typeequipement.IdTypeEquipement)">Détails</button>
                         <button class="btn btn-primary" @onclick="() => EditTypeEquipement(typeequipement)">Modifier</button>
                         <button class="btn btn-danger" @onclick="() => DeleteTypeEquipement(typeequipement.IdTypeEquipement)">Supprimer</button>
                     </td>
@@ -31,6 +32,25 @@ else
             }
         </tbody>
     </table>
+}
+
+@if (TypeEquipementViewModel.SelectedTypeEquipementDetails != null)
+{
+    <h2>Détails du type</h2>
+    <h3>Équipements</h3>
+    @if (TypeEquipementViewModel.SelectedTypeEquipementDetails.Equipements?.Count > 0)
+    {
+        <ul>
+            @foreach (var equipement in TypeEquipementViewModel.SelectedTypeEquipementDetails.Equipements)
+            {
+                <li>@equipement.NomEquipement</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucun équipement</em></p>
+    }
 }
 
 <h2>Ajouter ou Modifier un type d'équipement</h2>
@@ -55,9 +75,15 @@ else
         await TypeEquipementViewModel.LoadTypesEquipementAsync();
     }
 
+    private async Task ViewDetails(int idTypeEquipement)
+    {
+        await TypeEquipementViewModel.LoadTypeEquipementDetailsAsync(idTypeEquipement);
+    }
+
     private async Task EditTypeEquipement(Client_SAE_5.DTO.TypeEquipementDTO typeEquipement)
     {
-        TypeEquipementViewModel.EditTypeEquipement(typeEquipement);
+        var temp = await TypeEquipementViewModel.LoadTypeEquipementsDetailsWithoutDefAsync(typeEquipement.IdTypeEquipement);
+        TypeEquipementViewModel.EditTypeEquipement(temp);
     }
 
     private async Task SaveTypeEquipement()

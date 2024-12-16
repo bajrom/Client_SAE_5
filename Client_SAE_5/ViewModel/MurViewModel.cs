@@ -1,23 +1,26 @@
 ﻿using Client_SAE_5.DTO;
 using Client_SAE_5.Models;
 using Client_SAE_5.Models.Services;
+using Client_SAE_5.Pages;
 
 namespace Client_SAE_5.ViewModel
 {
     public class MurViewModel
     {
         private readonly WSService<MurDTO> _murService;
+        private readonly WSService<MurDetailDTO> _murDetailService;
         private readonly WSService<MurSansNavigationDTO> _murSansNavigationService;
 
         public MurViewModel()
         {
             _murService = new WSService<MurDTO>();
+            _murDetailService = new WSService<MurDetailDTO>();
             _murSansNavigationService = new WSService<MurSansNavigationDTO>();
         }
 
         public List<MurDTO> Murs { get; private set; } = new List<MurDTO>();
 
-        public MurSansNavigationDTO SelectedMurDetails { get; private set; }
+        public MurDetailDTO SelectedMurDetails { get; private set; }
 
         public MurSansNavigationDTO EditableMur { get; set; } = new MurSansNavigationDTO();
 
@@ -44,7 +47,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                SelectedMurDetails = await _murSansNavigationService.GetTAsync("Murs", idMur);
+                SelectedMurDetails = await _murDetailService.GetTAsync("Murs", idMur);
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -81,9 +84,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public async Task<MurSansNavigationDTO> LoadMurDetailsWithoutDefAsync(int idMur)
+        public async Task<MurDetailDTO> LoadMurDetailsWithoutDefAsync(int idMur)
         {
-            return await _murSansNavigationService.GetTAsync("Murs", idMur);
+            return await _murDetailService.GetTAsync("Murs", idMur);
         }
 
         public async Task AddMurAsync()
@@ -142,9 +145,17 @@ namespace Client_SAE_5.ViewModel
         }
 
 
-        public void EditMur(MurSansNavigationDTO mur)
+        public void EditMur(MurDetailDTO mur)
         {
-            EditableMur = mur;
+            EditableMur = new MurSansNavigationDTO
+            {
+                IdMur = mur.IdMur,
+                IdDirection = mur.IdDirection,
+                IdSalle = mur.IdSalle,
+                Longueur = mur.Longueur,
+                Hauteur = mur.Hauteur,
+                Orientation = mur.Orientation,
+            };
         }
 
         private bool IsValidMur(MurSansNavigationDTO mur)

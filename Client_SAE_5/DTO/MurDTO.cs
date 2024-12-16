@@ -1,4 +1,4 @@
-﻿using Client_SAE_5.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Client_SAE_5.DTO
 {
@@ -9,9 +9,13 @@ namespace Client_SAE_5.DTO
         private string nomSalle;
         private decimal orientation;
 
+        [Required]
         public int IdMur { get => idMur; set => idMur = value; }
+
         public string Direction { get => direction; set => direction = value; }
+
         public string NomSalle { get => nomSalle; set => nomSalle = value; }
+
         public decimal Orientation { get => orientation; set => orientation = value; }
 
     }

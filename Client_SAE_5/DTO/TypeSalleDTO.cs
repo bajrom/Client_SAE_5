@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Client_SAE_5.Models;
 
 namespace Client_SAE_5.DTO
 {
@@ -12,7 +11,6 @@ namespace Client_SAE_5.DTO
         public int IdTypeSalle { get => idTypeSalle; set => idTypeSalle = value; }
 
         [Required]
-        [MaxLength(20, ErrorMessage = "Le nom ne doit pas dépasser 20 caractères.")]
         public string NomTypeSalle { get => nomTypeSalle; set => nomTypeSalle = value; }
 
         public override bool Equals(object? obj)

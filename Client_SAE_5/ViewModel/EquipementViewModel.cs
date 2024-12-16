@@ -156,33 +156,12 @@ namespace Client_SAE_5.ViewModel
                 YEquipement = equipement.PositionY,
                 ZEquipement = equipement.PositionZ,
                 EstActif = equipement.EstActif,
+                Longueur = equipement.Longueur,
+                Largeur = equipement.Largeur,
+                Hauteur = equipement.Hauteur,
                 //IdMur = equipement.Murs.IdMur,
                 IdTypeEquipement = equipement.TypeEquipement.IdTypeEquipement,
             };
-
-            Console.WriteLine(equipement.Dimensions);
-
-            if (!string.IsNullOrEmpty(equipement.Dimensions))
-            {
-                var parts = equipement.Dimensions.Split('x');
-
-                if (parts.Length == 3)
-                {
-                    var culture = CultureInfo.InvariantCulture; // Utilise '.' comme séparateur décimal par défaut
-
-                    EditableEquipement.Longueur = decimal.Parse(parts[0], culture);
-                    EditableEquipement.Largeur = decimal.Parse(parts[1], culture);
-                    EditableEquipement.Hauteur = decimal.Parse(parts[2], culture);
-                }
-                else
-                {
-                    throw new FormatException("Le format des dimensions est incorrect. Attendu : L*l*H");
-                }
-            }
-            else
-            {
-                throw new ArgumentNullException("Dimensions est null ou vide.");
-            }
         }
 
         private bool IsValidEquipement(EquipementSansNavigationDTO equipement)
