@@ -24,6 +24,7 @@ else
                 <tr>
                     <td>@typesalle.NomTypeSalle</td>
                     <td>
+                        <button class="btn btn-info" @onclick="() => ViewDetails(typesalle.IdTypeSalle)">Détails</button>
                         <button class="btn btn-primary" @onclick="() => EditTypeSalle(typesalle)">Modifier</button>
                         <button class="btn btn-danger" @onclick="() => DeleteTypeSalle(typesalle.IdTypeSalle)">Supprimer</button>
                     </td>
@@ -31,6 +32,26 @@ else
             }
         </tbody>
     </table>
+}
+
+@if (TypeSalleViewModel.SelectedTypeSalleDetails != null)
+{
+    <h2>Détails du type de salle:</h2>
+
+    <h3>Salles</h3>
+    @if (TypeSalleViewModel.SelectedTypeSalleDetails.Salles?.Count > 0)
+    {
+        <ul>
+            @foreach (var salle in TypeSalleViewModel.SelectedTypeSalleDetails.Salles)
+            {
+                <li>@salle.NomSalle</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucune salle</em></p>
+    }
 }
 
 <h2>Ajouter ou Modifier un type de salle</h2>
@@ -55,9 +76,15 @@ else
         await TypeSalleViewModel.LoadTypesSallesAsync();
     }
 
+    private async Task ViewDetails(int idTypeSalle)
+    {
+        await TypeSalleViewModel.LoadTypeSalleDetailsAsync(idTypeSalle);
+    }
+
     private async Task EditTypeSalle(Client_SAE_5.DTO.TypeSalleDTO typeSalle)
     {
-        TypeSalleViewModel.EditTypeSalle(typeSalle);
+        var temp = await TypeSalleViewModel.LoadTypeSalleDetailsWithoutDefAsync(typeSalle.IdTypeSalle);
+        TypeSalleViewModel.EditTypeSalle(temp);
     }
 
     private async Task SaveTypeSalle()

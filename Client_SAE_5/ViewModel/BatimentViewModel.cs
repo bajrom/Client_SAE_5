@@ -7,15 +7,19 @@ namespace Client_SAE_5.ViewModel
     public class BatimentViewModel
     {
         private readonly WSService<BatimentDTO> _batimentService;
+        private readonly WSService<BatimentDetailDTO> _batimentDetailService;
         private readonly WSService<BatimentSansNavigationDTO> _batimentSansNavigationService;
 
         public BatimentViewModel()
         {
             _batimentService = new WSService<BatimentDTO>();
+            _batimentDetailService = new WSService<BatimentDetailDTO>();
             _batimentSansNavigationService = new WSService<BatimentSansNavigationDTO>();
         }
 
         public List<BatimentDTO> Batiments { get; private set; } = new List<BatimentDTO>();
+
+        public BatimentDetailDTO SelectedBatimentDetails { get; private set; }
 
         public BatimentSansNavigationDTO EditableBatiment { get; set; } = new BatimentSansNavigationDTO();
 
@@ -32,6 +36,23 @@ namespace Client_SAE_5.ViewModel
             {
                 ErrorMessage = $"Erreur lors du chargement des batiments : {ex.Message}";
             }
+        }
+
+        public async Task LoadBatimentDetailsAsync(int idBatiment)
+        {
+            try
+            {
+                SelectedBatimentDetails = await _batimentDetailService.GetTAsync("Batiments", idBatiment);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des détails du batiment : {ex.Message}";
+            }
+        }
+        public async Task<BatimentDetailDTO> LoadBatimentDetailsWithoutDefAsync(int idBatiment)
+        {
+            return await _batimentDetailService.GetTAsync("Batiments", idBatiment);
         }
 
         public async Task AddBatimentAsync()
@@ -90,7 +111,7 @@ namespace Client_SAE_5.ViewModel
         }
 
 
-        public void EditBatiment(BatimentDTO batiment)
+        public void EditBatiment(BatimentDetailDTO batiment)
         {
             EditableBatiment = new BatimentSansNavigationDTO
             {

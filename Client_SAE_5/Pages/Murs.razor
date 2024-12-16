@@ -43,7 +43,46 @@ else
     <h2>Détails du mur</h2>
     <p><strong>Longueur :</strong> @MurViewModel.SelectedMurDetails.Longueur</p>
     <p><strong>Hauteur :</strong> @MurViewModel.SelectedMurDetails.Hauteur</p>
-    <p><strong>Orientation :</strong> @MurViewModel.SelectedMurDetails.Orientation</p>
+
+    <h3>Orientation</h3>
+    @if (MurViewModel.SelectedMurDetails.DirectionNavigation != null)
+    {
+        <p><strong>Orientation : </strong><li>@MurViewModel.SelectedMurDetails.Orientation @MurViewModel.SelectedMurDetails.DirectionNavigation.LettresDirection</li></p>
+    }
+    else
+    {
+        <p><em>L'équipement n'a pas de direction</em></p>
+    }
+
+    <h3>Salles</h3>
+    @if (MurViewModel.SelectedMurDetails.Capteurs?.Count > 0)
+    {
+        <ul>
+            @foreach (var capteur in MurViewModel.SelectedMurDetails.Capteurs)
+            {
+                <li>@capteur.NomCapteur</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucune salle</em></p>
+    }
+
+    <h3>Équipements</h3>
+    @if (MurViewModel.SelectedMurDetails.Equipements?.Count > 0)
+    {
+        <ul>
+            @foreach (var equipement in MurViewModel.SelectedMurDetails.Equipements)
+            {
+                <li>@equipement.NomEquipement</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucun équipements</em></p>
+    }
 }
 
 <h2>Ajouter ou Modifier un mur</h2>
