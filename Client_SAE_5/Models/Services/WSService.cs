@@ -10,7 +10,7 @@ namespace Client_SAE_5.Models.Services
         public WSService()
         {
             _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri("https://localhost:7162/api/");
+            _httpClient.BaseAddress = new Uri("https://api-ovhiutannecy-sae5-gwbxhugwhjb2aqdu.canadacentral-01.azurewebsites.net/api/");
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
