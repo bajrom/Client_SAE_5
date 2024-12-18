@@ -1,12 +1,20 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+
+    
+    @if (GetLastSegment() == "crud")
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <a href="/crud">Gestion CRUD</a>
+            <a href="/grafana">Grafana</a>
+            <a href="/visu3D">Visualisation 3D</a>
         </div>
 
         <article class="content px-4">
@@ -14,3 +22,14 @@
         </article>
     </main>
 </div>
+
+@code {
+    [Inject] NavigationManager NavigationManager { get; set; }
+
+    private string GetLastSegment()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var segments = uri.AbsolutePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        return segments.Length > 0 ? segments[0] : string.Empty;
+    }
+}
