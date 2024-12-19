@@ -1,4 +1,4 @@
-﻿@page "/capteurs"
+﻿@page "/crud/capteurs"
 @inject Client_SAE_5.ViewModel.CapteurViewModel CapteurViewModel
 
 
@@ -9,10 +9,11 @@
 <h1>Gestion des Capteurs</h1>
 
 <button class="btn btn-success" @onclick="() => AddNewCapteur()">Ajouter un capteur</button>
-
+<br />
+<br />
 @if (CapteurViewModel.Capteurs == null || CapteurViewModel.Capteurs.Count == 0)
 {
-    <p><em>Chargement des capteurs ou aucun capteur trouvé...</em></p>
+    <Spinner></Spinner>
 }
 else
 {
@@ -27,11 +28,10 @@ else
         <tbody>
             @foreach (var capteur in CapteurViewModel.Capteurs)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(capteur.IdCapteur)">
                     <td>@capteur.NomCapteur</td>
                     <td>@capteur.NomSalle</td>
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(capteur.IdCapteur)">Détails</button>
                         <button class="btn btn-primary" @onclick="() => EditCapteur(capteur)">Modifier</button>
                         <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(capteur)">Supprimer</button>
                     </td>

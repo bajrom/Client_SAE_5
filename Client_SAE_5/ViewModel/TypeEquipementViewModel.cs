@@ -1,19 +1,24 @@
 ﻿using Client_SAE_5.DTO;
 using Client_SAE_5.Models;
 using Client_SAE_5.Models.Services;
+using Client_SAE_5.Pages;
 
 namespace Client_SAE_5.ViewModel
 {
     public class TypeEquipementViewModel
     {
         private readonly WSService<TypeEquipementDTO> _typeequipementService;
+        private readonly WSService<TypeEquipementDetailDTO> _typeequipementDetailService;
 
         public TypeEquipementViewModel()
         {
             _typeequipementService = new WSService<TypeEquipementDTO>();
+            _typeequipementDetailService = new WSService<TypeEquipementDetailDTO>();
         }
 
         public List<TypeEquipementDTO> TypesEquipement { get; private set; } = new List<TypeEquipementDTO>();
+
+        public TypeEquipementDetailDTO SelectedTypeEquipementDetails { get; private set; }
 
         public TypeEquipementDTO EditableTypeEquipement { get; set; } = new TypeEquipementDTO();
 
@@ -30,6 +35,23 @@ namespace Client_SAE_5.ViewModel
             {
                 ErrorMessage = $"Erreur lors du chargement des type d'équipement : {ex.Message}";
             }
+        }
+
+        public async Task LoadTypeEquipementDetailsAsync(int idTypeEquipement)
+        {
+            try
+            {
+                SelectedTypeEquipementDetails = await _typeequipementDetailService.GetTAsync("TypeEquipements", idTypeEquipement);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des détails du type : {ex.Message}";
+            }
+        }
+        public async Task<TypeEquipementDetailDTO> LoadTypeEquipementsDetailsWithoutDefAsync(int idTypeEquipement)
+        {
+            return await _typeequipementDetailService.GetTAsync("TypeEquipements", idTypeEquipement);
         }
 
         public async Task AddTypeEquipementAsync()
@@ -88,9 +110,13 @@ namespace Client_SAE_5.ViewModel
         }
 
 
-        public void EditTypeEquipement(TypeEquipementDTO typeEquipement)
+        public void EditTypeEquipement(TypeEquipementDetailDTO typeEquipement)
         {
-            EditableTypeEquipement = typeEquipement;
+            EditableTypeEquipement = new TypeEquipementDTO
+            {
+                IdTypeEquipement = typeEquipement.IdTypeEquipement,
+                NomTypeEquipement = typeEquipement.NomTypeEquipement,
+            };
         }
 
         private bool IsValidTypeEquipement(TypeEquipementDTO typeEquipement)

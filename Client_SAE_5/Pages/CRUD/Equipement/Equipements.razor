@@ -1,4 +1,4 @@
-﻿@page "/equipements"
+﻿@page "/crud/equipements"
 @inject Client_SAE_5.ViewModel.EquipementViewModel EquipementViewModel
 
 <PageTitle>Gestion des équipements</PageTitle>
@@ -7,7 +7,7 @@
 
 @if (EquipementViewModel.Equipements == null || EquipementViewModel.Equipements.Count == 0)
 {
-    <p><em>Chargement des équipements ou aucun équipement trouvée...</em></p>
+    <Spinner></Spinner>
 }
 else
 {
@@ -24,15 +24,14 @@ else
         <tbody>
             @foreach (var equipement in EquipementViewModel.Equipements)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(equipement.IdEquipement)">
                     <td>@equipement.NomEquipement</td>
                     <td>@equipement.NomSalleEquipement</td>
                     <td>@equipement.NomTypeEquipement</td>
                     <td>@equipement.Dimensions</td>
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(equipement.IdEquipement)">Détails</button>
-                        <button class="btn btn-primary" @onclick="() => EditEquipement(equipement)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteEquipement(equipement.IdEquipement)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditEquipement(equipement)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteEquipement(equipement.IdEquipement)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
@@ -44,7 +43,7 @@ else
 {
     <h2>Détails de l'équipement</h2>
     <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.NomEquipement</p>
-    <p><strong>Dimensions (Longueur*largeur*Hauteur) :</strong> @EquipementViewModel.SelectedEquipementDetails.Dimensions</p>
+    <p><strong>Dimensions :</strong>Longueur: @EquipementViewModel.SelectedEquipementDetails.Longueur (cm), largeur: @EquipementViewModel.SelectedEquipementDetails.Largeur (cm), hauteur: @EquipementViewModel.SelectedEquipementDetails.Hauteur</p>
     <p><strong>Est actif :</strong> @EquipementViewModel.SelectedEquipementDetails.EstActif</p>
     <p><strong>X :</strong> @EquipementViewModel.SelectedEquipementDetails.PositionX</p>
     <p><strong>Y :</strong> @EquipementViewModel.SelectedEquipementDetails.PositionY</p>

@@ -1,4 +1,4 @@
-﻿@page "/batiments"
+﻿@page "/crud/batiments"
 @inject Client_SAE_5.ViewModel.BatimentViewModel BatimentViewModel
 
 <PageTitle>Gestion des batiments</PageTitle>
@@ -7,7 +7,7 @@
 
 @if (BatimentViewModel.Batiments == null || BatimentViewModel.Batiments.Count == 0)
 {
-    <p><em>Chargement des batiments ou aucun batiment trouvée...</em></p>
+    <Spinner></Spinner>
 }
 else
 {
@@ -22,17 +22,38 @@ else
         <tbody>
             @foreach (var batiment in BatimentViewModel.Batiments)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(batiment.IdBatiment)">
                     <td>@batiment.NomBatiment</td>
                     <td>@batiment.NbSalle</td>
                     <td>
-                        <button class="btn btn-primary" @onclick="() => EditBatiment(batiment)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteBatiment(batiment.IdBatiment)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditBatiment(batiment)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteBatiment(batiment.IdBatiment)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+}
+
+@if (BatimentViewModel.SelectedBatimentDetails != null)
+{
+    <h2>Détails du bâtiment</h2>
+    <p><strong>Nom :</strong> @BatimentViewModel.SelectedBatimentDetails.NomBatiment</p>
+
+    <h3>Salles</h3>
+    @if (BatimentViewModel.SelectedBatimentDetails.Salles?.Count > 0)
+    {
+        <ul>
+            @foreach (var salle in BatimentViewModel.SelectedBatimentDetails.Salles)
+            {
+                <li>@salle.NomSalle</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucune salle</em></p>
+    }
 }
 
 <h2>Ajouter ou Modifier un batiment</h2>
@@ -57,9 +78,15 @@ else
         await BatimentViewModel.LoadBatimentsAsync();
     }
 
+    private async Task ViewDetails(int idBatiment)
+    {
+        await BatimentViewModel.LoadBatimentDetailsAsync(idBatiment);
+    }
+
     private async Task EditBatiment(Client_SAE_5.DTO.BatimentDTO batiment)
     {
-        BatimentViewModel.EditBatiment(batiment);
+        var temp = await BatimentViewModel.LoadBatimentDetailsWithoutDefAsync(batiment.IdBatiment);
+        BatimentViewModel.EditBatiment(temp);
     }
 
     private async Task SaveBatiment()

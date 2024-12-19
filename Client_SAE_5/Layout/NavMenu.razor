@@ -1,6 +1,6 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Client_SAE_5</a>
+        <a class="navbar-brand" href="/crud">Client_SAE_5</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -10,53 +10,48 @@
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            <NavLink class="nav-link d-flex align-items-center" href="crud" Match="NavLinkMatch.All">
+                <Icon Name="IconName.HouseDoorFill" Size="IconSize.x2" aria-hidden="true"></Icon> <p class="navText" style="margin: 0px 0px 0px 10px; font-weight:600;">Accueil</p>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link d-flex align-items-center" href="crud/salles">
+                <Icon Name="IconName.BoundingBox" Size="IconSize.x2" aria-hidden="true"></Icon> <p class="navText" style="margin: 0px 0px 0px 10px;font-weight:600;"> Salles</p>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="salles">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Salles
+            <NavLink class="nav-link d-flex align-items-center" href="crud/capteurs">
+                <Icon Name="IconName.ThermometerSun" Size="IconSize.x2" aria-hidden="true"></Icon> <p class="navText" style="margin: 0px 0px 0px 10px;font-weight:600;"> Capteurs</p>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="capteurs">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Capteurs
+            <NavLink class="nav-link d-flex align-items-center" href="crud/murs">
+                <Icon Name="IconName.Bricks" Size="IconSize.x2" aria-hidden="true"></Icon> <p class="navText" style="margin: 0px 0px 0px 10px;font-weight:600;">Murs</p>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="murs">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Murs
+            <NavLink class="nav-link d-flex align-items-center" href="crud/typesalles">
+                <Icon Name="IconName.HouseGearFill" Size="IconSize.x2" aria-hidden="true"></Icon> <p class="navText" style="margin: 0px 0px 0px 10px;font-weight:600;">Type de salles</p>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="typesalles">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Type de salles
+            <NavLink class="nav-link d-flex align-items-center" href="crud/batiments">
+                <Icon Name="IconName.BuildingFill" Size="IconSize.x2" aria-hidden="true"></Icon> <p class="navText" style="margin: 0px 0px 0px 10px;font-weight:600;">Batiments</p>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="batiments">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Batiments
+            <NavLink class="nav-link d-flex align-items-center" href="crud/equipements">
+                <Icon Name="IconName.PrinterFill" Size="IconSize.x2" aria-hidden="true"></Icon> <p class="navText" style="margin: 0px 0px 0px 10px;font-weight:600;">Équipements</p>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="equipements">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Équipements
+            <NavLink class="nav-link d-flex align-items-center" href="crud/typesequipement">
+                <Icon Name="IconName.DatabaseFillGear" Size="IconSize.x2" aria-hidden="true"></Icon> <p class="navText" style="margin: 0px 0px 0px 10px;font-weight:600;">Types d'équipement</p>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="typesequipement">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Types d'équipement
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="unites">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Unitées
+            <NavLink class="nav-link d-flex align-items-center" href="crud/unites">
+                <Icon Name="IconName.Rulers" Size="IconSize.x2" aria-hidden="true"></Icon> <p class="navText" style="margin: 0px 0px 0px 10px;font-weight:600;">Unités</p>
             </NavLink>
         </div>
     </nav>

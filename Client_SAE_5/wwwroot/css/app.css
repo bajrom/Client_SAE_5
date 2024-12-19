@@ -101,3 +101,18 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+table tr.selection:hover {
+    --bs-table-bg: none;
+    background-color: rgb(240, 240, 240);
+    transition: 0.5s all;
+    cursor: pointer;
+}
+
+table tr.selection {
+    transition: 0.2s ease all;
+}
+
+div a.mainMenuOption:hover{
+    filter:drop-shadow(0 5px 5px lightblue);
+}

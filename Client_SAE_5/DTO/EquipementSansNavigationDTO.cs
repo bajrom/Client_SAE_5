@@ -1,15 +1,17 @@
-﻿using Client_SAE_5.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Client_SAE_5.DTO
 {
     public class EquipementSansNavigationDTO
     {
+        [Required]
         public int IdEquipement { get; set; }
 
         public int IdMur { get; set; }
 
         public int IdTypeEquipement { get; set; }
 
+        [Required]
         public string NomEquipement { get; set; }
 
         public decimal Longueur { get; set; }

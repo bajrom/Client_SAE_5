@@ -1,12 +1,19 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inject NavigationManager NavigationManager
 
+<div class="page">
+
+    @if (GetMenuSection(NavigationManager.Uri) == "crud")
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <a class="mainMenuOption" href="/crud">Gestion CRUD</a>
+            <a class="mainMenuOption" href="/grafana">Grafana</a>
+            <a class="mainMenuOption" href="/visu3D">Visualisation 3D</a>
         </div>
 
         <article class="content px-4">
@@ -14,3 +21,16 @@
         </article>
     </main>
 </div>
+
+@code {
+    private string GetMenuSection(String? uri)
+    {
+        // Obtenir uniquement le chemin (sans le domaine)
+        string relativePath = NavigationManager.ToBaseRelativePath(uri);
+
+        // Diviser en segments et récupérer le premier
+        string[] segments = relativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        return segments.Length > 0 ? segments[0] : string.Empty; // Retourne le premier segment ou une chaîne vide
+    }
+}

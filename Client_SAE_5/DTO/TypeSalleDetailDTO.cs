@@ -2,8 +2,9 @@
 
 namespace Client_SAE_5.DTO
 {
-    public class TypeSalleDTO
+    public class TypeSalleDetailDTO
     {
+        private ICollection<SalleSansNavigationDTO> salles = [];
         private int idTypeSalle;
         private string nomTypeSalle;
 
@@ -13,11 +14,6 @@ namespace Client_SAE_5.DTO
         [Required]
         public string NomTypeSalle { get => nomTypeSalle; set => nomTypeSalle = value; }
 
-        public override bool Equals(object? obj)
-        {
-            return obj is TypeSalleDTO dTO &&
-                   this.IdTypeSalle == dTO.IdTypeSalle &&
-                   this.NomTypeSalle == dTO.NomTypeSalle;
-        }
+        public ICollection<SalleSansNavigationDTO> Salles { get => salles; set => salles = value; }
     }
 }

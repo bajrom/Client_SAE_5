@@ -1,4 +1,4 @@
-﻿@page "/unites"
+﻿@page "/crud/unites"
 @inject Client_SAE_5.ViewModel.UniteViewModel UniteViewModel
 
 <PageTitle>Gestion des unitées</PageTitle>
@@ -7,7 +7,7 @@
 
 @if (UniteViewModel.Unites == null || UniteViewModel.Unites.Count == 0)
 {
-    <p><em>Chargement des unitées ou aucune unitée trouvée...</em></p>
+    <Spinner></Spinner>
 }
 else
 {
@@ -22,13 +22,12 @@ else
         <tbody>
             @foreach (var unite in UniteViewModel.Unites)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(unite.IdUnite)">
                     <td>@unite.NomUnite</td>
                     <td>@unite.SigleUnite</td>
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(unite.IdUnite)">Détails</button>
-                        <button class="btn btn-primary" @onclick="() => EditUnite(unite)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteUnite(unite.IdUnite)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditUnite(unite)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteUnite(unite.IdUnite)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }

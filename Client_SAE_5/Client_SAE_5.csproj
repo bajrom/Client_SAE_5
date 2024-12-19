@@ -13,4 +13,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.6" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\Grafana\" />
+    <Folder Include="Pages\Divers\" />
+    <Folder Include="Pages\Visualisation3D\" />
+  </ItemGroup>
+
 </Project>
