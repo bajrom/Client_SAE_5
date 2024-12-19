@@ -3,6 +3,7 @@ using Client_SAE_5.Models;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Client_SAE_5.ViewModel;
+using Microsoft.AspNetCore.Components;
 
 namespace Client_SAE_5
 {
@@ -19,6 +20,7 @@ namespace Client_SAE_5
 
             /*            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });*/
             // Enregistre le HttpClient
+
             builder.Services.AddScoped<SalleViewModel>();
             builder.Services.AddScoped<CapteurViewModel>();
             builder.Services.AddScoped<MurViewModel>();
