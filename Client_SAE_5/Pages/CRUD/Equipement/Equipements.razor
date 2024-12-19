@@ -24,15 +24,14 @@ else
         <tbody>
             @foreach (var equipement in EquipementViewModel.Equipements)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(equipement.IdEquipement)">
                     <td>@equipement.NomEquipement</td>
                     <td>@equipement.NomSalleEquipement</td>
                     <td>@equipement.NomTypeEquipement</td>
                     <td>@equipement.Dimensions</td>
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(equipement.IdEquipement)">Détails</button>
-                        <button class="btn btn-primary" @onclick="() => EditEquipement(equipement)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteEquipement(equipement.IdEquipement)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditEquipement(equipement)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteEquipement(equipement.IdEquipement)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }

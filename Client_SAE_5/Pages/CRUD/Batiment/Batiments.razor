@@ -22,13 +22,12 @@ else
         <tbody>
             @foreach (var batiment in BatimentViewModel.Batiments)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(batiment.IdBatiment)">
                     <td>@batiment.NomBatiment</td>
                     <td>@batiment.NbSalle</td>
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(batiment.IdBatiment)">Détails</button>
-                        <button class="btn btn-primary" @onclick="() => EditBatiment(batiment)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteBatiment(batiment.IdBatiment)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditBatiment(batiment)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteBatiment(batiment.IdBatiment)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }

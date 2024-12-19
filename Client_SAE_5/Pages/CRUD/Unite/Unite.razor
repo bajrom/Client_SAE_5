@@ -22,13 +22,12 @@ else
         <tbody>
             @foreach (var unite in UniteViewModel.Unites)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(unite.IdUnite)">
                     <td>@unite.NomUnite</td>
                     <td>@unite.SigleUnite</td>
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(unite.IdUnite)">Détails</button>
-                        <button class="btn btn-primary" @onclick="() => EditUnite(unite)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteUnite(unite.IdUnite)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditUnite(unite)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteUnite(unite.IdUnite)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }

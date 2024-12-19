@@ -21,12 +21,11 @@ else
         <tbody>
             @foreach (var typesalle in TypeSalleViewModel.TypeSalles)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(typesalle.IdTypeSalle)">
                     <td>@typesalle.NomTypeSalle</td>
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(typesalle.IdTypeSalle)">Détails</button>
-                        <button class="btn btn-primary" @onclick="() => EditTypeSalle(typesalle)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteTypeSalle(typesalle.IdTypeSalle)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditTypeSalle(typesalle)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteTypeSalle(typesalle.IdTypeSalle)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }

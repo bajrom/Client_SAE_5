@@ -22,13 +22,12 @@ else
         <tbody>
             @foreach (var capteur in CapteurViewModel.Capteurs)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(capteur.IdCapteur)">
                     <td>@capteur.NomCapteur</td>
                     <td>@capteur.NomSalle</td>
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(capteur.IdCapteur)">Détails</button>
-                        <button class="btn btn-primary" @onclick="() => EditCapteur(capteur)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteCapteur(capteur.IdCapteur)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditCapteur(capteur)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteCapteur(capteur.IdCapteur)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }

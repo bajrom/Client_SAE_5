@@ -23,14 +23,13 @@ else
         <tbody>
             @foreach (var salle in SalleViewModel.Salles)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(salle.IdSalle)">
                     <td>@salle.NomSalle</td>
                     <td>@salle.NomBatiment</td>
                     <td>@salle.NomType</td>
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(salle.IdSalle)">Détails</button>
-                        <button class="btn btn-primary" @onclick="() => EditSalle(salle)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteSalle(salle.IdSalle)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditSalle(salle)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteSalle(salle.IdSalle)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }

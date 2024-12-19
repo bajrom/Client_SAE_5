@@ -22,13 +22,13 @@ else
         <tbody>
             @foreach (var mur in MurViewModel.Murs)
             {
-                <tr>
+                <tr class="selection" @onclick="() => ViewDetails(mur.IdMur)">
                     <td>@mur.NomSalle</td>
-                    <td>@string.Concat(string.Format("{0:F2}", mur.Orientation)," ",mur.Direction)</td>
+                    <td>@string.Concat(string.Format("{0:F2}", mur.Orientation),"° ",mur.Direction)</td>
+
                     <td>
-                        <button class="btn btn-info" @onclick="() => ViewDetails(mur.IdMur)">Détails</button>
-                        <button class="btn btn-primary" @onclick="() => EditMur(mur)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteMur(mur.IdMur)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditMur(mur)"><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteMur(mur.IdMur)"><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
