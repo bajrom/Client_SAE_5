@@ -28,6 +28,8 @@ namespace Client_SAE_5
             builder.Services.AddScoped<TypeEquipementViewModel>();
             builder.Services.AddScoped<UniteViewModel>();
 
+            builder.Services.AddBlazorBootstrap();
+
             await builder.Build().RunAsync();
         }
     }

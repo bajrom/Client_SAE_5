@@ -10,7 +10,7 @@ namespace Client_SAE_5.DTO
 
         public string NomCapteur { get; set; }
 
-        public string EstActif { get; set; }
+        public string EstActif { get; set; } = "NSP";
 
         public decimal XCapteur { get; set; }
 

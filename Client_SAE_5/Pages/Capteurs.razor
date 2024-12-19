@@ -1,13 +1,18 @@
 ﻿@page "/capteurs"
 @inject Client_SAE_5.ViewModel.CapteurViewModel CapteurViewModel
 
+
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Gestion des Capteurs</PageTitle>
 
 <h1>Gestion des Capteurs</h1>
 
+<button class="btn btn-success" @onclick="() => AddNewCapteur()">Ajouter un capteur</button>
+
 @if (CapteurViewModel.Capteurs == null || CapteurViewModel.Capteurs.Count == 0)
 {
-    <p><em>Chargement des capteurs ou aucun capteur trouvée...</em></p>
+    <p><em>Chargement des capteurs ou aucun capteur trouvé...</em></p>
 }
 else
 {
@@ -28,13 +33,68 @@ else
                     <td>
                         <button class="btn btn-info" @onclick="() => ViewDetails(capteur.IdCapteur)">Détails</button>
                         <button class="btn btn-primary" @onclick="() => EditCapteur(capteur)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteCapteur(capteur.IdCapteur)">Supprimer</button>
+                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(capteur)">Supprimer</button>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 }
+
+
+<!-- Modale pour l'édition -->
+<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du capteur">
+    <BodyTemplate>
+        <div>
+            <label>Nom :</label>
+            <input type="text" @bind="CapteurViewModel.EditableCapteur.NomCapteur" class="form-control" />
+
+            <label>Est actif ? :</label>
+            <div>
+                <label>OUI</label>
+                <input type="radio" checked="@(CapteurViewModel.EditableCapteur.EstActif == "OUI")" 
+                       @onchange="@(() => CapteurViewModel.EditableCapteur.EstActif = "OUI")" />
+                <label>NON</label>
+                <input type="radio" checked="@(CapteurViewModel.EditableCapteur.EstActif == "NON")" 
+                       @onchange="@(() => CapteurViewModel.EditableCapteur.EstActif = "NON")" />
+                <label>NSP</label>
+                <input type="radio" checked="@(CapteurViewModel.EditableCapteur.EstActif == "NSP")" 
+                       @onchange="@(() => CapteurViewModel.EditableCapteur.EstActif = "NSP")" />
+            </div>
+
+            <label>X :</label>
+            <input type="number" @bind="CapteurViewModel.EditableCapteur.XCapteur" class="form-control" />
+
+            <label>Y :</label>
+            <input type="number" @bind="CapteurViewModel.EditableCapteur.YCapteur" class="form-control" />
+
+            <label>Z :</label>
+            <input type="number" @bind="CapteurViewModel.EditableCapteur.ZCapteur" class="form-control" />
+
+            <label>Mur :</label>
+            <select @bind="CapteurViewModel.EditableCapteur.IdMur" class="form-control">
+                <option value="">-- Sélectionnez un mur --</option>
+                @foreach (var mur in CapteurViewModel.Murs)
+                {
+                    <option value="@mur.IdMur">@mur.Direction @mur.Orientation @mur.NomSalle</option>
+                }
+            </select>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        @if (CapteurViewModel.EditableCapteur.IdCapteur == 0)
+        {
+            <button class="btn btn-success" @onclick="SaveCapteur">Créer</button>
+        }
+        else
+        {
+            <button class="btn btn-success" @onclick="SaveCapteur">Modifier</button>
+        }
+        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+    </FooterTemplate>
+</Modal>
+
+<ConfirmDialog @ref="confirmSupprDialog" />
 
 @if (CapteurViewModel.SelectedCatpeurDetails != null)
 {
@@ -84,50 +144,6 @@ else
     }
 }
 
-<h2>Ajouter ou Modifier un capteur</h2>
-<div>
-    <label>Nom :</label>
-    <input type="text" @bind="CapteurViewModel.EditableCapteur.NomCapteur" class="form-control" />
-
-    <label>Est actif ? :</label>
-
-    <label>OUI</label>
-    <input type="radio" checked="@(CapteurViewModel.EditableCapteur.EstActif == "OUI")" name="OUI" @onchange="@(() => CapteurViewModel.EditableCapteur.EstActif = "OUI")" />
-    <label>NON</label>
-    <input type="radio" checked="@(CapteurViewModel.EditableCapteur.EstActif == "NON")" name="NON" @onchange="@(() => CapteurViewModel.EditableCapteur.EstActif = "NON")" />
-    <label>NSP</label>
-    <input type="radio" checked="@(CapteurViewModel.EditableCapteur.EstActif == "NSP")" name="NSP" @onchange="@(() => CapteurViewModel.EditableCapteur.EstActif = "NSP")" />
-
-    <label>X :</label>
-    <input type="number" @bind="CapteurViewModel.EditableCapteur.XCapteur" class="form-control" />
-
-    <label>Y :</label>
-    <input type="number" @bind="CapteurViewModel.EditableCapteur.YCapteur" class="form-control" />
-
-    <label>Z :</label>
-    <input type="number" @bind="CapteurViewModel.EditableCapteur.ZCapteur" class="form-control" />
-
-    <label>Mur :</label>
-    <select @bind="CapteurViewModel.EditableCapteur.IdMur" class="form-control">
-        <option value="">-- Sélectionnez un mur --</option>
-        @foreach (var mur in CapteurViewModel.Murs)
-        {
-            <option value="@mur.IdMur">@mur.Direction @mur.Orientation @mur.NomSalle</option>
-        }
-    </select>
-
-    <button class="btn btn-success" @onclick="SaveCapteur">Enregistrer</button>
-    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
-    <h2>Ajouter une unitée</h2>
-    <select class="form-control" @onchange="(e) => AddUniteCapteur(CapteurViewModel.EditableCapteur.IdCapteur, e.Value)">
-        <option value="">-- Ajouter une unité --</option>
-        @foreach (var unite in CapteurViewModel.AvailableUnites)
-        {
-            <option value="@unite.IdUnite">@unite.NomUnite</option>
-        }
-    </select>
-</div>
-
 @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
 {
     <div class="alert alert-danger">
@@ -136,10 +152,29 @@ else
 }
 
 @code {
+    private Modal formModal;
+
+    private ConfirmDialog confirmSupprDialog = default!;
+    List<ToastMessage> messages = new List<ToastMessage>();
+    [Inject] ToastService ToastService { get; set; } = default!;
+
+    private CapteurDTO capteurDeleteInConfirmation;
+
+
     protected override async Task OnInitializedAsync()
     {
         await CapteurViewModel.LoadCapteursAsync();
         await CapteurViewModel.LoadMursAsync();
+    }
+
+    private async void ClosePopup()
+    {
+        await formModal?.HideAsync();
+    }
+
+    private async void OpenPopup()
+    {
+        await formModal?.ShowAsync();
     }
 
     private async Task ViewDetails(int idCapteur)
@@ -152,6 +187,13 @@ else
     {
         var temp = await CapteurViewModel.LoadCapteurDetailsWithoutDefAsync(capteur.IdCapteur);
         CapteurViewModel.EditCapteur(temp);
+        OpenPopup();
+    }
+
+    private async Task AddNewCapteur()
+    {
+        CapteurViewModel.EditableCapteur = new Client_SAE_5.DTO.CapteurSansNavigationDTO();
+        OpenPopup();
     }
 
     private async Task SaveCapteur()
@@ -164,12 +206,42 @@ else
         {
             await CapteurViewModel.UpdateCapteurAsync();
         }
-        CapteurViewModel.EditableCapteur = new Client_SAE_5.DTO.CapteurSansNavigationDTO(); // Réinitialiser
+        ClosePopup();
+        StateHasChanged();
+    }
+
+    private async Task OpenDeleteConfirmation()
+    {
+        var options = new ConfirmDialogOptions
+        {
+            YesButtonText = "Supprimer",
+            YesButtonColor = ButtonColor.Danger,
+            NoButtonText = "Annuler",
+            NoButtonColor = ButtonColor.Primary
+        };
+
+        var confirmation = await confirmSupprDialog.ShowAsync(
+            title: "Confirmer la suppression du capteur",
+            message1: "Êtes vous sûr de vouloir supprimer le capteur \"" + capteurDeleteInConfirmation.NomCapteur + "\" de la salle \"" + capteurDeleteInConfirmation.NomSalle + "\" ?",
+            confirmDialogOptions: options);
+
+        if (confirmation)
+        {
+            await DeleteCapteur(capteurDeleteInConfirmation.IdCapteur);
+            ToastService.Notify(new ToastMessage(ToastType.Success, $"Le capteur a été supprimé avec succès"));
+        }
+    }
+
+    private async Task BeginDeleteConfirmation(CapteurDTO capteurToConfirmDeletion)
+    {
+        capteurDeleteInConfirmation = capteurToConfirmDeletion;
+        OpenDeleteConfirmation();
     }
 
     private async Task DeleteCapteur(int idCapteur)
     {
         await CapteurViewModel.DeleteCapteurAsync(idCapteur);
+        StateHasChanged();
     }
 
     private void CancelEdit()

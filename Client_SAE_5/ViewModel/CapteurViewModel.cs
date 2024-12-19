@@ -102,9 +102,8 @@ namespace Client_SAE_5.ViewModel
             {
                 try
                 {
-                    await _capteurSansNavigationService.PostTAsync("Capteurs", EditableCapteur);
+                    CapteurSansNavigationDTO test = await _capteurSansNavigationService.PostTAsync("Capteurs", EditableCapteur);
                     await LoadCapteursAsync();
-                    EditableCapteur = new CapteurSansNavigationDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -169,6 +168,7 @@ namespace Client_SAE_5.ViewModel
             try
             {
                 await _capteurService.DeleteTAsync("Capteurs", idCapteur);
+                Capteurs.Remove(Capteurs.Single(c => c.IdCapteur == idCapteur));
                 await LoadCapteursAsync();
             }
             catch (Exception ex)
