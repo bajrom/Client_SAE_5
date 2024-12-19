@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Grafana\" />
     <Folder Include="Pages\Divers\" />
     <Folder Include="Pages\Visualisation3D\" />
   </ItemGroup>
