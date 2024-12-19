@@ -1,0 +1,115 @@
+﻿@page "/crud/batiments"
+@inject Client_SAE_5.ViewModel.BatimentViewModel BatimentViewModel
+
+<PageTitle>Gestion des batiments</PageTitle>
+
+<h1>Gestion des batiments</h1>
+
+@if (BatimentViewModel.Batiments == null || BatimentViewModel.Batiments.Count == 0)
+{
+    <p><em>Chargement des batiments ou aucun batiment trouvée...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Nombre de salle</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var batiment in BatimentViewModel.Batiments)
+            {
+                <tr>
+                    <td>@batiment.NomBatiment</td>
+                    <td>@batiment.NbSalle</td>
+                    <td>
+                        <button class="btn btn-info" @onclick="() => ViewDetails(batiment.IdBatiment)">Détails</button>
+                        <button class="btn btn-primary" @onclick="() => EditBatiment(batiment)">Modifier</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteBatiment(batiment.IdBatiment)">Supprimer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (BatimentViewModel.SelectedBatimentDetails != null)
+{
+    <h2>Détails du bâtiment</h2>
+    <p><strong>Nom :</strong> @BatimentViewModel.SelectedBatimentDetails.NomBatiment</p>
+
+    <h3>Salles</h3>
+    @if (BatimentViewModel.SelectedBatimentDetails.Salles?.Count > 0)
+    {
+        <ul>
+            @foreach (var salle in BatimentViewModel.SelectedBatimentDetails.Salles)
+            {
+                <li>@salle.NomSalle</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucune salle</em></p>
+    }
+}
+
+<h2>Ajouter ou Modifier un batiment</h2>
+<div>
+    <label>Nom :</label>
+    <input type="text" @bind="BatimentViewModel.EditableBatiment.NomBatiment" class="form-control" />
+
+    <button class="btn btn-success" @onclick="SaveBatiment">Enregistrer</button>
+    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+</div>
+
+@if (!string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @BatimentViewModel.ErrorMessage
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await BatimentViewModel.LoadBatimentsAsync();
+    }
+
+    private async Task ViewDetails(int idBatiment)
+    {
+        await BatimentViewModel.LoadBatimentDetailsAsync(idBatiment);
+    }
+
+    private async Task EditBatiment(Client_SAE_5.DTO.BatimentDTO batiment)
+    {
+        var temp = await BatimentViewModel.LoadBatimentDetailsWithoutDefAsync(batiment.IdBatiment);
+        BatimentViewModel.EditBatiment(temp);
+    }
+
+    private async Task SaveBatiment()
+    {
+        if (BatimentViewModel.EditableBatiment.IdBatiment == 0)
+        {
+            await BatimentViewModel.AddBatimentAsync();
+        }
+        else
+        {
+            await BatimentViewModel.UpdatebatimentAsync();
+        }
+        BatimentViewModel.EditableBatiment = new Client_SAE_5.DTO.BatimentSansNavigationDTO(); // Réinitialiser
+    }
+
+    private async Task DeleteBatiment(int idBatiment)
+    {
+        await BatimentViewModel.DeletebatimentAsync(idBatiment);
+    }
+
+    private void CancelEdit()
+    {
+        BatimentViewModel.EditableBatiment = new Client_SAE_5.DTO.BatimentSansNavigationDTO();
+    }
+}

@@ -1,0 +1,154 @@
+﻿@page "/crud/salles"
+@inject Client_SAE_5.ViewModel.SalleViewModel SalleViewModel
+
+<PageTitle>Gestion des Salles</PageTitle>
+
+<h1>Gestion des Salles</h1>
+
+@if (SalleViewModel.Salles == null || SalleViewModel.Salles.Count == 0)
+{
+    <p><em>Chargement des salles ou aucune salle trouvée...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom de la Salle</th>
+                <th>Bâtiment</th>
+                <th>Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var salle in SalleViewModel.Salles)
+            {
+                <tr>
+                    <td>@salle.NomSalle</td>
+                    <td>@salle.NomBatiment</td>
+                    <td>@salle.NomType</td>
+                    <td>
+                        <button class="btn btn-info" @onclick="() => ViewDetails(salle.IdSalle)">Détails</button>
+                        <button class="btn btn-primary" @onclick="() => EditSalle(salle)">Modifier</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteSalle(salle.IdSalle)">Supprimer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (SalleViewModel.SelectedSalleDetails != null)
+{
+    <h2>Détails de la Salle</h2>
+    <p><strong>Nom :</strong> @SalleViewModel.SelectedSalleDetails.NomSalle</p>
+    <p><strong>Bâtiment :</strong> @SalleViewModel.SelectedSalleDetails.Batiment.NomBatiment</p>
+    <p><strong>Type :</strong> @SalleViewModel.SelectedSalleDetails.TypeSalle.NomTypeSalle</p>
+
+    <h3>Capteurs</h3>
+    @if (SalleViewModel.SelectedSalleDetails.Capteurs?.Count > 0)
+    {
+        <ul>
+            @foreach (var capteur in SalleViewModel.SelectedSalleDetails.Capteurs)
+            {
+                <li>@capteur.NomCapteur</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucun capteur</em></p>
+    }
+
+    <h3>Équipements</h3>
+    @if (SalleViewModel.SelectedSalleDetails.Equipements?.Count > 0)
+    {
+        <ul>
+            @foreach (var equipement in SalleViewModel.SelectedSalleDetails.Equipements)
+            {
+                <li>@equipement.NomEquipement</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucun équipement</em></p>
+    }
+}
+
+<h2>Ajouter ou Modifier une Salle</h2>
+<div>
+    <label>Nom de la Salle :</label>
+    <input type="text" @bind="SalleViewModel.EditableSalle.NomSalle" class="form-control" />
+
+    <label>Batiment :</label>
+    <select @bind="SalleViewModel.EditableSalle.IdBatiment" class="form-control">
+        <option value="">-- Sélectionnez un batiment --</option>
+        @foreach (var batiment in SalleViewModel.Batiments)
+        {
+            <option value="@batiment.IdBatiment">@batiment.NomBatiment</option>
+        }
+    </select>
+
+    <label>Type de salle :</label>
+    <select @bind="SalleViewModel.EditableSalle.IdTypeSalle" class="form-control">
+        <option value="">-- Sélectionnez un type de salle --</option>
+        @foreach (var typesalle in SalleViewModel.TypeSalle)
+        {
+            <option value="@typesalle.IdTypeSalle">@typesalle.NomTypeSalle</option>
+        }
+    </select>
+
+    <button class="btn btn-success" @onclick="SaveSalle">Enregistrer</button>
+    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+</div>
+
+@if (!string.IsNullOrEmpty(SalleViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @SalleViewModel.ErrorMessage
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SalleViewModel.LoadSallesAsync();
+        await SalleViewModel.LoadBatimentsAsync();
+        await SalleViewModel.LoadTypeSalleAsync();
+    }
+
+    private async Task ViewDetails(int idSalle)
+    {
+        await SalleViewModel.LoadSalleDetailsAsync(idSalle);
+    }
+
+    private async Task EditSalle(Client_SAE_5.DTO.SalleDTO salle)
+    {
+        var temp = await SalleViewModel.LoadSalleDetailsWithoutDefAsync(salle.IdSalle);
+        SalleViewModel.EditSalle(temp);
+    }
+
+    private async Task SaveSalle()
+    {
+        if (SalleViewModel.EditableSalle.IdSalle == 0)
+        {
+            await SalleViewModel.AddSalleAsync();
+        }
+        else
+        {
+            await SalleViewModel.UpdateSalleAsync();
+        }
+        SalleViewModel.EditableSalle = new Client_SAE_5.DTO.SalleSansNavigationDTO(); // Réinitialiser
+    }
+
+    private async Task DeleteSalle(int idSalle)
+    {
+        await SalleViewModel.DeleteSalleAsync(idSalle);
+    }
+
+    private void CancelEdit()
+    {
+        SalleViewModel.EditableSalle = new Client_SAE_5.DTO.SalleSansNavigationDTO();
+    }
+}

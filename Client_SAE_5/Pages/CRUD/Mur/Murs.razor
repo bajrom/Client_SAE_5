@@ -1,0 +1,167 @@
+﻿@page "/crud/murs"
+@inject Client_SAE_5.ViewModel.MurViewModel MurViewModel
+
+<PageTitle>Gestion des Murs</PageTitle>
+
+<h1>Gestion des Murs</h1>
+
+@if (MurViewModel.Murs == null || MurViewModel.Murs.Count == 0)
+{
+    <Spinner></Spinner>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom salle</th>
+                <th>Orientation</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mur in MurViewModel.Murs)
+            {
+                <tr>
+                    <td>@mur.NomSalle</td>
+                    <td>@string.Concat(string.Format("{0:F2}", mur.Orientation)," ",mur.Direction)</td>
+                    <td>
+                        <button class="btn btn-info" @onclick="() => ViewDetails(mur.IdMur)">Détails</button>
+                        <button class="btn btn-primary" @onclick="() => EditMur(mur)">Modifier</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteMur(mur.IdMur)">Supprimer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (MurViewModel.SelectedMurDetails != null)
+{
+    <h2>Détails du mur</h2>
+    <p><strong>Longueur :</strong> @MurViewModel.SelectedMurDetails.Longueur</p>
+    <p><strong>Hauteur :</strong> @MurViewModel.SelectedMurDetails.Hauteur</p>
+
+    <h3>Orientation</h3>
+    @if (MurViewModel.SelectedMurDetails.DirectionNavigation != null)
+    {
+        <p><strong>Orientation : </strong><li>@MurViewModel.SelectedMurDetails.Orientation @MurViewModel.SelectedMurDetails.DirectionNavigation.LettresDirection</li></p>
+    }
+    else
+    {
+        <p><em>L'équipement n'a pas de direction</em></p>
+    }
+
+    <h3>Salles</h3>
+    @if (MurViewModel.SelectedMurDetails.Capteurs?.Count > 0)
+    {
+        <ul>
+            @foreach (var capteur in MurViewModel.SelectedMurDetails.Capteurs)
+            {
+                <li>@capteur.NomCapteur</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucune salle</em></p>
+    }
+
+    <h3>Équipements</h3>
+    @if (MurViewModel.SelectedMurDetails.Equipements?.Count > 0)
+    {
+        <ul>
+            @foreach (var equipement in MurViewModel.SelectedMurDetails.Equipements)
+            {
+                <li>@equipement.NomEquipement</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucun équipements</em></p>
+    }
+}
+
+<h2>Ajouter ou Modifier un mur</h2>
+<div>
+    <label>Longueur (cm) :</label>
+    <input type="text" @bind="MurViewModel.EditableMur.Longueur" class="form-control" />
+
+    <label>Hauteur (cm) :</label>
+    <input type="text" @bind="MurViewModel.EditableMur.Hauteur" class="form-control" />
+
+    <label>Orientation (°) :</label>
+    <input type="text" @bind="MurViewModel.EditableMur.Orientation" class="form-control" />
+
+    <label>Salle :</label>
+    <select @bind="MurViewModel.EditableMur.IdSalle" class="form-control">
+        <option value="">-- Sélectionnez une salle --</option>
+        @foreach (var salle in MurViewModel.Salles)
+        {
+            <option value="@salle.IdSalle">@salle.NomSalle @salle.NomBatiment @salle.NomType</option>
+        }
+    </select>
+
+    <label>Direction :</label>
+    <select @bind="MurViewModel.EditableMur.IdDirection" class="form-control">
+        <option value="">-- Sélectionnez une direction --</option>
+        @foreach (var direction in MurViewModel.Directions)
+        {
+            <option value="@direction.IdDirection">@direction.LettresDirection</option>
+        }
+    </select>
+
+    <button class="btn btn-success" @onclick="SaveMur">Enregistrer</button>
+    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+</div>
+
+@if (!string.IsNullOrEmpty(MurViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @MurViewModel.ErrorMessage
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await MurViewModel.LoadMursAsync();
+        await MurViewModel.LoadDirectionsAsync();
+        await MurViewModel.LoadSallesAsync();
+    }
+
+    private async Task ViewDetails(int idMur)
+    {
+        await MurViewModel.LoadMurDetailsAsync(idMur);
+    }
+
+    private async Task EditMur(Client_SAE_5.DTO.MurDTO mur)
+    {
+        var temp = await MurViewModel.LoadMurDetailsWithoutDefAsync(mur.IdMur);
+        MurViewModel.EditMur(temp);
+    }
+
+    private async Task SaveMur()
+    {
+        if (MurViewModel.EditableMur.IdMur == 0)
+        {
+            await MurViewModel.AddMurAsync();
+        }
+        else
+        {
+            await MurViewModel.UpdateMurAsync();
+        }
+        MurViewModel.EditableMur = new Client_SAE_5.DTO.MurSansNavigationDTO(); // Réinitialiser
+    }
+
+    private async Task DeleteMur(int idMur)
+    {
+        await MurViewModel.DeleteMurAsync(idMur);
+    }
+
+    private void CancelEdit()
+    {
+        MurViewModel.EditableMur = new Client_SAE_5.DTO.MurSansNavigationDTO();
+    }
+}
