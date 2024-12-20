@@ -1,0 +1,90 @@
+﻿@page "/crud/capteurs/{idCapteur:int}"
+@inject Client_SAE_5.ViewModel.CapteurViewModel CapteurViewModel
+@inject NavigationManager NavigationManager
+
+<PageTitle>Détail du Capteur</PageTitle>
+
+<h1>Détail du Capteur</h1>
+
+@if (CapteurViewModel.SelectedCapteurDetail == null)
+{
+    <Spinner></Spinner>
+}
+else
+{
+    <div>
+        <h2>Informations générales</h2>
+        <p><strong>Nom :</strong> @CapteurViewModel.SelectedCapteurDetail.NomCapteur</p>
+        <p><strong>Etat:</strong> @(Utils.RenderEtatContent(CapteurViewModel.SelectedCapteurDetail.EstActif))</p>
+        <p>
+            <strong>Coordonnées :</strong> (@CapteurViewModel.SelectedCapteurDetail.XCapteur,
+            @CapteurViewModel.SelectedCapteurDetail.YCapteur,
+            @CapteurViewModel.SelectedCapteurDetail.ZCapteur)
+        </p>
+
+        <h3>Mur associé</h3>
+        @if (CapteurViewModel.SelectedCapteurDetail.Mur != null)
+        {
+            @* <p><strong>Nom de la salle :</strong> @CapteurViewModel.SelectedCapteurDetail.Mur.NomSalle</p> *@
+            <p><strong>Orientation :</strong> @CapteurViewModel.SelectedCapteurDetail.Mur.Orientation</p>
+            <p>
+                <strong>Dimensions :</strong> @CapteurViewModel.SelectedCapteurDetail.Mur.Hauteur m x
+                @CapteurViewModel.SelectedCapteurDetail.Mur.Longueur m
+            </p>
+        }
+        else
+        {
+            <p><em>Pas de mur associé.</em></p>
+        }
+
+        <h3>Unités</h3>
+        @if (CapteurViewModel.SelectedCapteurDetail.Unites?.Count > 0)
+        {
+            <ul>
+                @foreach (var unite in CapteurViewModel.SelectedCapteurDetail.Unites)
+                {
+                    <li>
+                        @unite.NomUnite
+                        <button class="btn btn-danger btn-sm"
+                                @onclick="() => SupprimerUniteCapteur(unite.IdUnite, CapteurViewModel.SelectedCapteurDetail.IdCapteur)">
+                            Supprimer
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p><em>Aucune unité associée.</em></p>
+        }
+    </div>
+    <button class="btn btn-secondary" @onclick="Retour">Retour</button>
+}
+
+@if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @CapteurViewModel.ErrorMessage
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int IdCapteur { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CapteurViewModel.LoadCapteurDetailsAsync(IdCapteur);
+    }
+
+    private async Task SupprimerUniteCapteur(int idUnite, int idCapteur)
+    {
+        await CapteurViewModel.DeleteUniteCapteurAsync(idUnite, idCapteur);
+        StateHasChanged();
+    }
+
+    private void Retour()
+    {
+        NavigationManager.NavigateTo("/crud/capteurs");
+    }
+}

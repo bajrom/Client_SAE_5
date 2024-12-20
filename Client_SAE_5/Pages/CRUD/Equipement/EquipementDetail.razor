@@ -1,0 +1,69 @@
+﻿@page "/crud/equipements/{idEquipement:int}"
+@inject NavigationManager NavigationManager
+@inject Client_SAE_5.ViewModel.EquipementViewModel EquipementViewModel
+
+<PageTitle>Détails de l'équipement</PageTitle>
+
+@if (EquipementViewModel.SelectedEquipementDetails == null)
+{
+    <Spinner></Spinner>
+}
+else
+{
+    <h1>Détails de l'équipement : @EquipementViewModel.SelectedEquipementDetails.NomEquipement</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Informations générales</h5>
+            <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.NomEquipement</p>
+            <p><strong>Dimensions :</strong> @EquipementViewModel.SelectedEquipementDetails.Longueur cm x @EquipementViewModel.SelectedEquipementDetails.Largeur cm x @EquipementViewModel.SelectedEquipementDetails.Hauteur cm</p>
+            <p><strong>Position :</strong> X: @EquipementViewModel.SelectedEquipementDetails.PositionX, Y: @EquipementViewModel.SelectedEquipementDetails.PositionY, Z: @EquipementViewModel.SelectedEquipementDetails.PositionZ</p>
+            <p><strong>Etat :</strong> @(Utils.RenderEtatContent(EquipementViewModel.SelectedEquipementDetails.EstActif))</p>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Salle associée</h5>
+            @if (EquipementViewModel.SelectedEquipementDetails.Salle != null)
+            {
+                <p><strong>Nom de la salle :</strong> @EquipementViewModel.SelectedEquipementDetails.Salle.NomSalle</p>
+            }
+            else
+            {
+                <p class="text-muted">Aucune salle associée.</p>
+            }
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Type d'équipement</h5>
+            @if (EquipementViewModel.SelectedEquipementDetails.TypeEquipement != null)
+            {
+                <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.TypeEquipement.NomTypeEquipement</p>
+            }
+            else
+            {
+                <p class="text-muted">Aucun type associé.</p>
+            }
+        </div>
+    </div>
+
+    <button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</button>
+}
+
+@code {
+    [Parameter]
+    public int IdEquipement { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await EquipementViewModel.LoadEquipementDetailsAsync(IdEquipement);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/crud/equipements");
+    }
+}
