@@ -58,16 +58,111 @@ else
     }
     <br />
     <Button class="btn btn-secondary mt-4" @onclick="GoBack">Annuler</Button>
+
+
 }
 
-@code {
-        [Parameter]
-        public int Idmur { get; set; }
-
-        protected override async Task OnInitializedAsync()
+<span>
+    <h1>Position des capteurs et équipements sur le mur</h1>
+    <div id="cadreMur" style="position: relative; width: @(MurLargeurPx + "px"); height: @(MurHauteurPx + "px"); border: 1px solid black;">
+        @if (MurViewModel.SelectedMurDetails != null)
         {
-            await MurViewModel.LoadMurDetailsAsync(Idmur);
+        @if (MurViewModel.SelectedMurDetails.Capteurs != null && MurViewModel.SelectedMurDetails.Capteurs.Count > 0)
+            {
+                @foreach (var capteur in MurViewModel.SelectedMurDetails.Capteurs)
+                {
+                    <div style="position: absolute; width: @(CapteurLargeurPx)px; height: @(CapteurHauteurPx)px; background-color: blue; border-radius: 5%; @GetCapteurPositionStyle(capteur)"
+                         title="Capteur: @capteur.NomCapteur (@capteur.XCapteur cm, @capteur.YCapteur cm)">
+                    </div>
+                }
+            }
+
+            @if (MurViewModel.SelectedMurDetails.Equipements != null && MurViewModel.SelectedMurDetails.Equipements.Count > 0)
+            {
+                @foreach (var equipement in MurViewModel.SelectedMurDetails.Equipements)
+                {
+                    <div style="position: absolute; 
+                                width: @((equipement.Longueur * ScaleX).ToString(System.Globalization.CultureInfo.InvariantCulture))px; 
+                                height: @((equipement.Hauteur * ScaleY).ToString(System.Globalization.CultureInfo.InvariantCulture))px;
+                                background-color: @(GetEquipementColor(equipement.IdTypeEquipement));
+                                @GetEquipementPositionStyle(equipement)"
+                         title="Équipement: @equipement.NomEquipement (@equipement.XEquipement cm, @equipement.YEquipement cm)">
+                    </div>
+                }
+            }
         }
+        else
+        {
+            <p><em>Les détails du mur ne sont pas disponibles.</em></p>
+        }
+    </div>
+</span>
+
+@code {
+    [Parameter]
+    public int IdMur { get; set; }
+
+    // Dimensions du mur en pixels
+    private const int MurLargeurPx = 575; // Largeur en pixels
+    private const int MurHauteurPx = 270; // Hauteur en pixels
+
+    // Échelle pour convertir cm -> pixels
+    private decimal ScaleX => MurViewModel.SelectedMurDetails?.Longueur > 0
+        ? MurLargeurPx / MurViewModel.SelectedMurDetails.Longueur
+        : 1; // Gérer les divisions par zéro
+    private decimal ScaleY => MurViewModel.SelectedMurDetails?.Hauteur > 0
+        ? MurHauteurPx / MurViewModel.SelectedMurDetails.Hauteur
+        : 1;
+
+    // Dimensions d'un capteur (exemple arbitraire)
+    private const int CapteurLargeurPx = 10; // Largeur en pixels
+    private const int CapteurHauteurPx = 10; // Hauteur en pixels
+
+    private string GetCapteurPositionStyle(CapteurSansNavigationDTO capteur)
+    {
+        if (capteur == null || MurViewModel.SelectedMurDetails == null) return "";
+
+        // Convertir les coordonnées des capteurs en pixels
+        decimal leftPx = capteur.XCapteur * ScaleX;
+        decimal topPx = capteur.YCapteur * ScaleY;
+
+        return $"left: {leftPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px; " +
+               $"top: {topPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;";
+    }
+
+    private string GetEquipementPositionStyle(EquipementSansNavigationDTO equipement)
+    {
+        if (equipement == null || MurViewModel.SelectedMurDetails == null) return "";
+
+        // Convertir les coordonnées des équipements en pixels
+        decimal leftPx = equipement.XEquipement * ScaleX;
+        decimal topPx = equipement.YEquipement * ScaleY;
+
+        return $"left: {leftPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px; " +
+               $"top: {topPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;";
+    }
+
+    private string GetEquipementColor(int typeEquipementSansNavigationDTO)
+    {
+        switch (typeEquipementSansNavigationDTO)
+        {
+            case 2:
+                return "gray";
+            case 3:
+                return "lightgray";
+            case 1:
+                return "lightgray";
+            case 5:
+                return "brown";
+            default:
+                return "black";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await MurViewModel.LoadMurDetailsAsync(IdMur);
+    }
 
         private void GoBack()
         {

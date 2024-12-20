@@ -6,6 +6,7 @@
 
 <h1>Détail du Capteur</h1>
 
+<span id="mainContainer" style="display:flex;flex-direction:row;justify-content:space-between;">
 @if (CapteurViewModel.SelectedCapteurDetail == null)
 {
     <Spinner></Spinner>
@@ -16,21 +17,21 @@ else
         <h2>Informations générales</h2>
         <p><strong>Nom :</strong> @CapteurViewModel.SelectedCapteurDetail.NomCapteur</p>
         <p><strong>Etat:</strong> @(Utils.RenderEtatContent(CapteurViewModel.SelectedCapteurDetail.EstActif))</p>
-        <p>
+@*         <p>
             <strong>Coordonnées :</strong> (@CapteurViewModel.SelectedCapteurDetail.XCapteur,
             @CapteurViewModel.SelectedCapteurDetail.YCapteur,
             @CapteurViewModel.SelectedCapteurDetail.ZCapteur)
-        </p>
+        </p> *@
 
         <h3>Mur associé</h3>
         @if (CapteurViewModel.SelectedCapteurDetail.Mur != null)
         {
             @* <p><strong>Nom de la salle :</strong> @CapteurViewModel.SelectedCapteurDetail.Mur.NomSalle</p> *@
-            <p><strong>Orientation :</strong> @CapteurViewModel.SelectedCapteurDetail.Mur.Orientation</p>
-            <p>
+            <p><strong>Orientation :</strong> @(Math.Round(CapteurViewModel.SelectedCapteurDetail.Mur.Orientation,2))°</p>
+@*             <p>
                 <strong>Dimensions :</strong> @CapteurViewModel.SelectedCapteurDetail.Mur.Hauteur m x
                 @CapteurViewModel.SelectedCapteurDetail.Mur.Longueur m
-            </p>
+            </p> *@
         }
         else
         {
@@ -58,9 +59,28 @@ else
             <p><em>Aucune unité associée.</em></p>
         }
     </div>
-    <button class="btn btn-secondary" @onclick="Retour">Retour</button>
-}
 
+    @if (CapteurViewModel.SelectedCapteurDetail.Mur == null || CapteurViewModel.SelectedCapteurDetail == null)
+    {
+        <p><em>Aucun détail disponible pour la position de ce capteur.</em></p>
+    }
+    else
+    {
+        <span>
+            <h1>Position du capteur sur le mur</h1>
+            <div id="cadreMur" style="position: relative; width: @(MurLargeurPx + "px"); height: @(MurHauteurPx + "px"); border: 1px solid black;">
+                <div style="position: absolute; width: 10px; height: 10px; background-color: red; border-radius: 50%; @GetCapteurPositionStyle(CapteurViewModel.SelectedCapteurDetail)"
+                        title="Positions: (@CapteurViewModel.SelectedCapteurDetail.XCapteur cm; @CapteurViewModel.SelectedCapteurDetail.YCapteur cm; @CapteurViewModel.SelectedCapteurDetail.ZCapteur cm)">
+                </div>
+            </div>
+        </span>
+            
+    }
+    
+    
+}
+</span>
+<button class="btn btn-secondary" @onclick="Retour">Retour</button>
 @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
 {
     <div class="alert alert-danger">
@@ -71,6 +91,32 @@ else
 @code {
     [Parameter]
     public int IdCapteur { get; set; }
+
+    // Dimensions du mur en cm (valeurs récupérées depuis le ViewModel ou DTO)
+    private decimal MurLongueurCm => CapteurViewModel.SelectedCapteurDetail.Mur.Longueur; // Exemple : 600 cm
+    private decimal MurHauteurCm => CapteurViewModel.SelectedCapteurDetail.Mur.Hauteur;  // Exemple : 300 cm
+
+    // Dimensions du mur affiché en pixels
+    private const int MurLargeurPx = 600; // Largeur en pixels (à ajuster selon l'interface)
+    private const int MurHauteurPx = 300; // Hauteur en pixels (à ajuster selon l'interface)
+
+    // Échelle pour convertir cm -> pixels
+    private decimal ScaleX => MurLargeurPx / MurLongueurCm; // Pixels par cm en largeur
+    private decimal ScaleY => MurHauteurPx / MurHauteurCm; // Pixels par cm en hauteur
+
+    private string GetCapteurPositionStyle(CapteurDetailDTO capteur)
+    {
+        if (CapteurViewModel.SelectedCapteurDetail.Mur == null) return "";
+
+        // Convertir les coordonnées en pixels
+        decimal leftPx = capteur.XCapteur * ScaleX;
+        decimal topPx = capteur.YCapteur * ScaleY;
+
+        // Retourner le style CSS avec les positions normalisées
+        return $"left: {leftPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px; " +
+               $"top: {topPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;";
+    }
+
 
     protected override async Task OnInitializedAsync()
     {

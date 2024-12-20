@@ -1,4 +1,5 @@
 ﻿@page "/crud/murs"
+@inject NavigationManager NavigationManager
 @inject Client_SAE_5.ViewModel.MurViewModel MurViewModel
 
 <PageTitle>Gestion des Murs</PageTitle>
@@ -27,8 +28,8 @@ else
                     <td>@string.Concat(string.Format("{0:F2}", mur.Orientation),"° ",mur.Direction)</td>
 
                     <td>
-                        <button class="btn btn-primary" @onclick="() => EditMur(mur)"><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => DeleteMur(mur.IdMur)"><Icon Name="IconName.Trash3Fill"></Icon></button>
+                        <button class="btn btn-primary" @onclick="() => EditMur(mur)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteMur(mur.IdMur)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
@@ -36,7 +37,7 @@ else
     </table>
 }
 
-@if (MurViewModel.SelectedMurDetails != null)
+@* @if (MurViewModel.SelectedMurDetails != null)
 {
     <h2>Détails du mur</h2>
     <p><strong>Longueur :</strong> @MurViewModel.SelectedMurDetails.Longueur</p>
@@ -82,7 +83,7 @@ else
         <p><em>Aucun équipements</em></p>
     }
 }
-
+ *@
 <h2>Ajouter ou Modifier un mur</h2>
 <div>
     <label>Longueur (cm) :</label>
@@ -133,7 +134,8 @@ else
 
     private async Task ViewDetails(int idMur)
     {
-        await MurViewModel.LoadMurDetailsAsync(idMur);
+        NavigationManager.NavigateTo("/crud/murs/" + idMur);
+        //await MurViewModel.LoadMurDetailsAsync(idMur);
     }
 
     private async Task EditMur(Client_SAE_5.DTO.MurDTO mur)

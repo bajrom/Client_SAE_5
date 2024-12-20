@@ -1,5 +1,80 @@
-﻿<h3>SalleDetail</h3>
+﻿@page "/crud/salles/{idSalle:int}"
+@inject NavigationManager NavigationManager
+@inject Client_SAE_5.ViewModel.SalleViewModel SalleViewModel
+
+@if (SalleViewModel.SelectedSalleDetails == null)
+{
+    <p><em>Chargement des détails de la salle...</em></p>
+}
+else
+{
+    <h2>Détails de la salle : @SalleViewModel.SelectedSalleDetails.NomSalle</h2>
+    <p><strong>Bâtiment :</strong> @SalleViewModel.SelectedSalleDetails.Batiment.NomBatiment</p>
+    <p><strong>Type :</strong> @SalleViewModel.SelectedSalleDetails.TypeSalle.NomTypeSalle</p>
+
+    <h3>Capteurs</h3>
+    @if (SalleViewModel.SelectedSalleDetails.Capteurs?.Count > 0)
+    {
+        <ul>
+            @foreach (var capteur in SalleViewModel.SelectedSalleDetails.Capteurs)
+            {
+                <a href="/crud/capteurs/@capteur.IdCapteur">
+                <li>@capteur.NomCapteur</li>
+                </a>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucun capteur associé</em></p>
+    }
+
+    <h3>Équipements</h3>
+    @if (SalleViewModel.SelectedSalleDetails.Equipements?.Count > 0)
+    {
+        <ul>
+            @foreach (var equipement in SalleViewModel.SelectedSalleDetails.Equipements)
+            {
+                <a href="/crud/equipements/@equipement.IdEquipement">
+                <li>@equipement.NomEquipement</li>
+                </a>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucun équipement associé</em></p>
+    }
+
+    <h2>Plan de la Salle</h2>
+
+    @if (SalleViewModel.SelectedSalleDetails?.Murs == null || SalleViewModel.SelectedSalleDetails.Murs.Count == 0)
+    {
+        <p><em>Aucun mur disponible pour cette salle</em></p>
+    }
+    else
+    {
+        <div style="width: 800px; height: 600px; border: 1px solid #ccc; margin: 20px auto;">
+            @((MarkupString)Utils.GenererPlanSalleSVG(SalleViewModel.SelectedSalleDetails.Murs
+                                                .OrderBy(m => m.Orientation)
+                                                .ToList()))
+        </div>
+    }
+
+    <Button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</Button>
+}
 
 @code {
+    [Parameter]
+    public int IdSalle { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await SalleViewModel.LoadSalleDetailsAsync(IdSalle);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/crud/salles");
+    }
 }

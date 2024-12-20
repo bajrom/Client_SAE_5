@@ -27,8 +27,8 @@ else
                     <td>@batiment.NomBatiment</td>
                     <td>@batiment.NbSalle</td>
                     <td>
-                        <button class="btn btn-primary" @onclick="() => EditBatiment(batiment)"><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => DeleteBatiment(batiment.IdBatiment)"><Icon Name="IconName.Trash3Fill"></Icon></button>
+                        <button class="btn btn-primary" @onclick="() => EditBatiment(batiment)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteBatiment(batiment.IdBatiment)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }

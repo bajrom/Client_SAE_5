@@ -1,5 +1,6 @@
 ﻿@page "/crud/salles"
 @inject Client_SAE_5.ViewModel.SalleViewModel SalleViewModel
+@inject NavigationManager NavigationManager
 
 <PageTitle>Gestion des Salles</PageTitle>
 
@@ -28,8 +29,8 @@ else
                     <td>@salle.NomBatiment</td>
                     <td>@salle.NomType</td>
                     <td>
-                        <button class="btn btn-primary" @onclick="() => EditSalle(salle)"><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => DeleteSalle(salle.IdSalle)"><Icon Name="IconName.Trash3Fill"></Icon></button>
+                        <button class="btn btn-primary" @onclick="() => EditSalle(salle)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteSalle(salle.IdSalle)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
@@ -119,7 +120,8 @@ else
 
     private async Task ViewDetails(int idSalle)
     {
-        await SalleViewModel.LoadSalleDetailsAsync(idSalle);
+        NavigationManager.NavigateTo("/crud/salles/" + idSalle);
+        //await SalleViewModel.LoadSalleDetailsAsync(idSalle);
     }
 
     private async Task EditSalle(Client_SAE_5.DTO.SalleDTO salle)

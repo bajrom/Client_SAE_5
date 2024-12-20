@@ -14,11 +14,13 @@ else
 {
     <div>
         <h2>@BatimentViewModel.SelectedBatimentDetails.NomBatiment</h2>
-        <p><strong>Nombre de salles :</strong> @BatimentViewModel.SelectedBatimentDetails.Salles?.Count ?? 0</p>
-
-        <h3>Liste des salles</h3>
         @if (BatimentViewModel.SelectedBatimentDetails.Salles?.Count > 0)
         {
+
+            <p><strong>Nombre de salles :</strong> @BatimentViewModel.SelectedBatimentDetails.Salles?.Count </p>
+
+            <h3>Liste des salles</h3>
+
             <ul>
                 @foreach (var salle in BatimentViewModel.SelectedBatimentDetails.Salles)
                 {
@@ -30,7 +32,7 @@ else
         }
         else
         {
-            <p><em>Aucune salle associée.</em></p>
+            <p><em>Aucune salle n'est associée à ce bâtiment.</em></p>
         }
     </div>
     <button class="btn btn-secondary" @onclick="NavigateBack" id="backBtn">Retour</button>
