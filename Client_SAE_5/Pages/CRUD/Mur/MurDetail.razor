@@ -1,0 +1,76 @@
+﻿@page "/crud/murs/{idMur:int}"
+@inject NavigationManager NavigationManager
+@inject Client_SAE_5.ViewModel.MurViewModel MurViewModel
+
+@if (MurViewModel.SelectedMurDetails == null)
+{
+    <p><em>Sélectionnez un mur pour voir les détails</em></p>
+}
+else
+{
+    <h2>Détails du mur @(Math.Round(MurViewModel.SelectedMurDetails.Orientation,2))° @(MurViewModel.SelectedMurDetails.DirectionNavigation.LettresDirection) en @(MurViewModel.SelectedMurDetails.SalleNavigation.NomSalle) </h2>
+    <p><strong>Longueur :</strong> @MurViewModel.SelectedMurDetails.Longueur cm</p>
+    <p><strong>Hauteur :</strong> @MurViewModel.SelectedMurDetails.Hauteur cm</p>
+
+    <h3>Orientation</h3>
+    @if (MurViewModel.SelectedMurDetails.Orientation != null)
+    {
+        <p><strong>Orientation :</strong> @(Math.Round(MurViewModel.SelectedMurDetails.Orientation,2))° @MurViewModel.SelectedMurDetails.DirectionNavigation.LettresDirection</p>
+    }
+    else
+    {
+        <p><em>Aucune direction associée</em></p>
+    }
+
+    <h3>Capteurs</h3>
+    @if (MurViewModel.SelectedMurDetails.Capteurs?.Count > 0)
+    {
+        <ul id="Murs_ListeCapteurs">
+            @foreach (var capteur in MurViewModel.SelectedMurDetails.Capteurs)
+            {
+                <a href="/crud/capteurs/@(capteur.IdCapteur)">
+                    <li>@capteur.NomCapteur</li>
+                </a>
+
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucune capteur associée</em></p>
+    }
+
+    <h3>Équipements</h3>
+    @if (MurViewModel.SelectedMurDetails.Equipements?.Count > 0)
+    {
+        <ul id="Murs_ListeEquipements">
+            @foreach (EquipementSansNavigationDTO equipement in MurViewModel.SelectedMurDetails.Equipements)
+            {
+                <a href="/crud/equipements/@(equipement.IdEquipement)">
+                    <li>@equipement.NomEquipement</li>
+                </a>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucun équipement associé</em></p>
+    }
+    <br />
+    <Button class="btn btn-secondary mt-4" @onclick="GoBack">Annuler</Button>
+}
+
+@code {
+        [Parameter]
+        public int Idmur { get; set; }
+
+        protected override async Task OnInitializedAsync()
+        {
+            await MurViewModel.LoadMurDetailsAsync(Idmur);
+        }
+
+        private void GoBack()
+        {
+            NavigationManager.NavigateTo("/crud/equipements");
+        }
+}

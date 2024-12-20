@@ -1,0 +1,59 @@
+﻿@page "/crud/batiments/{IdBatiment:int}"
+@inject Client_SAE_5.ViewModel.BatimentViewModel BatimentViewModel
+@inject NavigationManager NavigationManager
+
+<PageTitle>Détails du bâtiment</PageTitle>
+
+<h1>Détails du bâtiment</h1>
+
+@if (BatimentViewModel.SelectedBatimentDetails == null)
+{
+    <Spinner></Spinner>
+}
+else
+{
+    <div>
+        <h2>@BatimentViewModel.SelectedBatimentDetails.NomBatiment</h2>
+        <p><strong>Nombre de salles :</strong> @BatimentViewModel.SelectedBatimentDetails.Salles?.Count ?? 0</p>
+
+        <h3>Liste des salles</h3>
+        @if (BatimentViewModel.SelectedBatimentDetails.Salles?.Count > 0)
+        {
+            <ul>
+                @foreach (var salle in BatimentViewModel.SelectedBatimentDetails.Salles)
+                {
+
+                    <li>@salle.NomSalle</li>
+
+                }
+            </ul>
+        }
+        else
+        {
+            <p><em>Aucune salle associée.</em></p>
+        }
+    </div>
+    <button class="btn btn-secondary" @onclick="NavigateBack" id="backBtn">Retour</button>
+}
+
+@if (!string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @BatimentViewModel.ErrorMessage
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int IdBatiment { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await BatimentViewModel.LoadBatimentDetailsAsync(IdBatiment);
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/crud/batiments");
+    }
+}
