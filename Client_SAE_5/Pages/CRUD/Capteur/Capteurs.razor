@@ -82,15 +82,15 @@ else
         </div>
     </BodyTemplate>
     <FooterTemplate>
+        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
         @if (CapteurViewModel.EditableCapteur.IdCapteur == 0)
         {
-            <button class="btn btn-success" @onclick="SaveCapteur">Créer</button>
+            <button class="btn btn-success" @onclick="SaveCapteur">Ajouter</button>
         }
         else
         {
-            <button class="btn btn-success" @onclick="SaveCapteur">Modifier</button>
+            <button class="btn btn-primary" @onclick="SaveCapteur">Modifier</button>
         }
-        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
     </FooterTemplate>
 </Modal>
 
@@ -246,7 +246,7 @@ else
 
     private void CancelEdit()
     {
-        CapteurViewModel.EditableCapteur = new Client_SAE_5.DTO.CapteurSansNavigationDTO();
+        ClosePopup();
         CapteurViewModel.AvailableUnites.Clear();
     }
 
