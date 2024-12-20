@@ -26,7 +26,9 @@ namespace Client_SAE_5.ViewModel
 
         public CapteurDetailDTO SelectedCapteurDetail { get; private set; }
 
-        public CapteurSansNavigationDTO EditableCapteur { get; set; } = new CapteurSansNavigationDTO();
+        public CapteurDetailDTO CapteurInEdition { get; private set; }
+
+        public CapteurSansNavigationDTO newCapteur { get; set; } = new CapteurSansNavigationDTO();
 
         public List<MurDTO> Murs { get; private set; } = new List<MurDTO>();
 
@@ -76,7 +78,7 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public async Task<CapteurDetailDTO> LoadCapteurDetailsWithoutDefAsync(int idCapteur)
+        public async Task LoadCapteurDetailsWithoutDefAsync(int idCapteur)
         {
             CapteurDetailDTO temp = await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
             if (Unites.Count == 0)
@@ -93,16 +95,59 @@ namespace Client_SAE_5.ViewModel
             }
 
             AvailableUnites = Unites.Where(unite => temp.Unites.All(u => u.IdUnite != unite.IdUnite)).ToList();
-            return temp;
+            CapteurInEdition = temp;
+        }
+
+        public void ChangeSelectedUnites(UniteDTO uniteClicked, bool checkActivated)
+        {
+            if (checkActivated)
+            {
+                CapteurInEdition.Unites.Add(uniteClicked);
+            }
+            else
+            {
+                UniteDTO uniteToRemove = CapteurInEdition.Unites.FirstOrDefault(u => u.IdUnite == uniteClicked.IdUnite);
+                CapteurInEdition.Unites.Remove(uniteToRemove);
+            }
+        }
+
+        public async Task SetupNewCapteur()
+        {
+            if (Unites.Count == 0)
+            {
+                try
+                {
+                    Unites = await _uniteService.GetAllTAsync("Unites");
+                    ErrorMessage = string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Erreur lors du chargement des unitées : {ex.Message}";
+                }
+            }
+
+            CapteurInEdition = new CapteurDetailDTO();
         }
 
         public async Task AddCapteurAsync()
         {
-            if (IsValidCapteur(EditableCapteur))
+            CapteurSansNavigationDTO newCapteur = new CapteurSansNavigationDTO
+            {
+                IdCapteur = SelectedCapteurDetail.IdCapteur,
+                NomCapteur = SelectedCapteurDetail.NomCapteur,
+                EstActif = SelectedCapteurDetail.EstActif,
+                XCapteur = SelectedCapteurDetail.XCapteur,
+                YCapteur = SelectedCapteurDetail.YCapteur,
+                ZCapteur = SelectedCapteurDetail.ZCapteur,
+                IdMur = SelectedCapteurDetail.Mur.IdMur,
+            };
+
+            if (IsValidCapteur(newCapteur))
             {
                 try
                 {
-                    CapteurSansNavigationDTO test = await _capteurSansNavigationService.PostTAsync("Capteurs", EditableCapteur);
+                    await _capteurSansNavigationService.PostTAsync("Capteurs", newCapteur);
+                    //essayer de pas avoir à reload
                     await LoadCapteursAsync();
                 }
                 catch (Exception ex)
@@ -115,6 +160,38 @@ namespace Client_SAE_5.ViewModel
                 ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
             }
         }
+
+        public async Task UpdateCapteurAsync()
+        {
+            CapteurSansNavigationDTO newCapteur = new CapteurSansNavigationDTO
+            {
+                IdCapteur = SelectedCapteurDetail.IdCapteur,
+                NomCapteur = SelectedCapteurDetail.NomCapteur,
+                EstActif = SelectedCapteurDetail.EstActif,
+                XCapteur = SelectedCapteurDetail.XCapteur,
+                YCapteur = SelectedCapteurDetail.YCapteur,
+                ZCapteur = SelectedCapteurDetail.ZCapteur,
+                IdMur = SelectedCapteurDetail.Mur.IdMur,
+            };
+
+            if (IsValidCapteur(this.newCapteur))
+            {
+                try
+                {
+                    await _capteurSansNavigationService.PutTAsync($"Capteurs/{newCapteur.IdCapteur}", newCapteur);
+                    await LoadCapteursAsync();
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Erreur lors de la mise à jour du capteur : {ex.Message}";
+                }
+            }
+            else
+            {
+                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
+            }
+        }
+
 
         public async Task AddUniteCapteurAsync(int idCapteur, int idUnite)
         {
@@ -134,27 +211,6 @@ namespace Client_SAE_5.ViewModel
                 catch (Exception ex)
                 {
                     ErrorMessage = $"Erreur lors de l'ajout de l'unitée capteur : {ex.Message}";
-                }
-            }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
-        }
-
-        public async Task UpdateCapteurAsync()
-        {
-            if (IsValidCapteur(EditableCapteur))
-            {
-                try
-                {
-                    await _capteurSansNavigationService.PutTAsync($"Capteurs/{EditableCapteur.IdCapteur}", EditableCapteur);
-                    await LoadCapteursAsync();
-                    EditableCapteur = new CapteurSansNavigationDTO(); // Réinitialiser le formulaire
-                }
-                catch (Exception ex)
-                {
-                    ErrorMessage = $"Erreur lors de la mise à jour du capteur : {ex.Message}";
                 }
             }
             else
@@ -188,21 +244,6 @@ namespace Client_SAE_5.ViewModel
             {
                 ErrorMessage = $"Erreur lors de la suppression de l'unitée capteur : {ex.Message}";
             }
-        }
-
-
-        public void EditCapteur(CapteurDetailDTO capteur)
-        {
-            EditableCapteur = new CapteurSansNavigationDTO
-            {
-                IdCapteur = capteur.IdCapteur,
-                NomCapteur = capteur.NomCapteur,
-                EstActif = capteur.EstActif,
-                XCapteur = capteur.XCapteur,
-                YCapteur = capteur.YCapteur,
-                ZCapteur = capteur.ZCapteur,
-                IdMur = capteur.Mur.IdMur,
-            };
         }
 
         private bool IsValidCapteur(CapteurSansNavigationDTO capteur)
