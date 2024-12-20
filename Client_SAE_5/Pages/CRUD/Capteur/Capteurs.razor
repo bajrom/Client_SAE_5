@@ -1,6 +1,6 @@
 ﻿@page "/crud/capteurs"
 @inject Client_SAE_5.ViewModel.CapteurViewModel CapteurViewModel
-
+@inject NavigationManager NavigationManager
 
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
 
@@ -32,8 +32,8 @@ else
                     <td>@capteur.NomCapteur</td>
                     <td>@capteur.NomSalle</td>
                     <td>
-                        <button class="btn btn-primary" @onclick="() => EditCapteur(capteur)">Modifier</button>
-                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(capteur)">Supprimer</button>
+                        <button class="btn btn-primary" @onclick="() => EditCapteur(capteur)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(capteur)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
@@ -96,23 +96,23 @@ else
 
 <ConfirmDialog @ref="confirmSupprDialog" />
 
-@if (CapteurViewModel.SelectedCatpeurDetails != null)
+@if (CapteurViewModel.SelectedCapteurDetail != null)
 {
     <h2>Détails du capteur</h2>
-    <p><strong>Nom :</strong> @CapteurViewModel.SelectedCatpeurDetails.NomCapteur</p>
-    <p><strong>Est actif :</strong> @CapteurViewModel.SelectedCatpeurDetails.EstActif</p>
-    <p><strong>X :</strong> @CapteurViewModel.SelectedCatpeurDetails.XCapteur</p>
-    <p><strong>Y :</strong> @CapteurViewModel.SelectedCatpeurDetails.YCapteur</p>
-    <p><strong>Z :</strong> @CapteurViewModel.SelectedCatpeurDetails.ZCapteur</p>
+    <p><strong>Nom :</strong> @CapteurViewModel.SelectedCapteurDetail.NomCapteur</p>
+    <p><strong>Est actif :</strong> @CapteurViewModel.SelectedCapteurDetail.EstActif</p>
+    <p><strong>X :</strong> @CapteurViewModel.SelectedCapteurDetail.XCapteur</p>
+    <p><strong>Y :</strong> @CapteurViewModel.SelectedCapteurDetail.YCapteur</p>
+    <p><strong>Z :</strong> @CapteurViewModel.SelectedCapteurDetail.ZCapteur</p>
 
     <h3>Unitée</h3>
-    @if (CapteurViewModel.SelectedCatpeurDetails.Unites?.Count > 0)
+    @if (CapteurViewModel.SelectedCapteurDetail.Unites?.Count > 0)
     {
         <ul>
-            @foreach (var unite in CapteurViewModel.SelectedCatpeurDetails.Unites)
+            @foreach (var unite in CapteurViewModel.SelectedCapteurDetail.Unites)
             {
                 <li>@unite.NomUnite</li>
-                <button class="btn btn-danger" @onclick="() => DeleteUniteCapteur(unite.IdUnite, CapteurViewModel.SelectedCatpeurDetails.IdCapteur)">Supprimer</button>
+                <button class="btn btn-danger" @onclick="() => DeleteUniteCapteur(unite.IdUnite, CapteurViewModel.SelectedCapteurDetail.IdCapteur)">Supprimer</button>
             }
         </ul>
     }
@@ -122,11 +122,11 @@ else
     }
 
     <h3>Mur</h3>
-    @if (CapteurViewModel.SelectedCatpeurDetails.Mur != null)
+    @if (CapteurViewModel.SelectedCapteurDetail.Mur != null)
     {
-        <p><strong>Hauteur : </strong><li>@CapteurViewModel.SelectedCatpeurDetails.Mur.Hauteur</li></p>
-        <p><strong>Longueur : </strong><li>@CapteurViewModel.SelectedCatpeurDetails.Mur.Longueur</li></p>
-        <p><strong>Orientation : </strong><li>@CapteurViewModel.SelectedCatpeurDetails.Mur.Orientation</li></p>
+        <p><strong>Hauteur : </strong><li>@CapteurViewModel.SelectedCapteurDetail.Mur.Hauteur</li></p>
+        <p><strong>Longueur : </strong><li>@CapteurViewModel.SelectedCapteurDetail.Mur.Longueur</li></p>
+        <p><strong>Orientation : </strong><li>@CapteurViewModel.SelectedCapteurDetail.Mur.Orientation</li></p>
     }
     else
     {
@@ -134,9 +134,9 @@ else
     }
 
     <h3>Salle</h3>
-    @if (CapteurViewModel.SelectedCatpeurDetails.Salle != null)
+    @if (CapteurViewModel.SelectedCapteurDetail.Salle != null)
     {
-        <p><strong>Nom salle : </strong><li>@CapteurViewModel.SelectedCatpeurDetails.Salle.NomSalle</li></p>
+        <p><strong>Nom salle : </strong><li>@CapteurViewModel.SelectedCapteurDetail.Salle.NomSalle</li></p>
     }
     else
     {
@@ -179,7 +179,8 @@ else
 
     private async Task ViewDetails(int idCapteur)
     {
-        await CapteurViewModel.LoadCapteurDetailsAsync(idCapteur);
+        //await CapteurViewModel.LoadCapteurDetailsAsync(idCapteur);
+        NavigationManager.NavigateTo("/crud/capteurs/" + idCapteur);
         StateHasChanged();
     }
 

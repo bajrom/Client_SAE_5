@@ -24,7 +24,7 @@ namespace Client_SAE_5.ViewModel
 
         public List<CapteurDTO> Capteurs { get; private set; } = new List<CapteurDTO>();
 
-        public CapteurDetailDTO SelectedCatpeurDetails { get; private set; }
+        public CapteurDetailDTO SelectedCapteurDetail { get; private set; }
 
         public CapteurSansNavigationDTO EditableCapteur { get; set; } = new CapteurSansNavigationDTO();
 
@@ -53,7 +53,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                SelectedCatpeurDetails = await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
+                SelectedCapteurDetail = await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)

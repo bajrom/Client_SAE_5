@@ -1,5 +1,6 @@
 ﻿@page "/crud/batiments"
 @inject Client_SAE_5.ViewModel.BatimentViewModel BatimentViewModel
+@inject NavigationManager NavigationManager
 
 <PageTitle>Gestion des batiments</PageTitle>
 
@@ -80,7 +81,9 @@ else
 
     private async Task ViewDetails(int idBatiment)
     {
-        await BatimentViewModel.LoadBatimentDetailsAsync(idBatiment);
+        NavigationManager.NavigateTo("/crud/batiments/"+idBatiment);
+
+        //await BatimentViewModel.LoadBatimentDetailsAsync(idBatiment);
     }
 
     private async Task EditBatiment(Client_SAE_5.DTO.BatimentDTO batiment)

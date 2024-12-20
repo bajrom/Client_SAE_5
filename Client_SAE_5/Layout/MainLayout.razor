@@ -9,6 +9,7 @@
             <NavMenu />
         </div>
     }
+
     <main>
         <div class="top-row px-4">
             <a class="mainMenuOption" href="/crud">Gestion CRUD</a>
@@ -23,14 +24,20 @@
 </div>
 
 @code {
-    private string GetMenuSection(String? uri)
+    /// <summary>
+    /// Permet de récupérer le menu source. Exemple: /crud/batiment retourne crud ou /grafana retourne grafana.
+    /// </summary>
+    /// <param name="uri">URL à vérifier</param>
+    /// <returns>Le premier élément</returns>
+    private String? GetMenuSection(String? uri)
     {
-        // Obtenir uniquement le chemin (sans le domaine)
-        string relativePath = NavigationManager.ToBaseRelativePath(uri);
+        if (String.IsNullOrEmpty(uri))
+        {
+            throw new ArgumentNullException("L'URL fourni est incorrect");
+        }
 
-        // Diviser en segments et récupérer le premier
-        string[] segments = relativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-        return segments.Length > 0 ? segments[0] : string.Empty; // Retourne le premier segment ou une chaîne vide
+        String relativePath = NavigationManager.ToBaseRelativePath(uri);
+        String[] segments = relativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        return segments.Length > 0 ? segments[0] : String.Empty;
     }
 }
