@@ -1,5 +1,6 @@
 ﻿@page "/crud/equipements"
 @inject Client_SAE_5.ViewModel.EquipementViewModel EquipementViewModel
+@inject NavigationManager NavigationManager
 
 <PageTitle>Gestion des équipements</PageTitle>
 
@@ -30,8 +31,8 @@ else
                     <td>@equipement.NomTypeEquipement</td>
                     <td>@equipement.Dimensions</td>
                     <td>
-                        <button class="btn btn-primary" @onclick="() => EditEquipement(equipement)"><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => DeleteEquipement(equipement.IdEquipement)"><Icon Name="IconName.Trash3Fill"></Icon></button>
+                        <button class="btn btn-primary" @onclick="() => EditEquipement(equipement)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteEquipement(equipement.IdEquipement)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
@@ -141,7 +142,8 @@ else
 
     private async Task ViewDetails(int idEquipement)
     {
-        await EquipementViewModel.LoadEquipementDetailsAsync(idEquipement);
+        NavigationManager.NavigateTo("/crud/equipements/" + idEquipement);
+        //await EquipementViewModel.LoadEquipementDetailsAsync(idEquipement);
     }
 
     private async Task EditEquipement(Client_SAE_5.DTO.EquipementDTO equipement)
