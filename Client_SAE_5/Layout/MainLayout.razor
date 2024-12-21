@@ -11,12 +11,16 @@
     }
 
     <main>
-        <div class="top-row px-4">
-            <a class="mainMenuOption" href="/crud">Gestion CRUD</a>
-            <a class="mainMenuOption" href="/grafana">Grafana</a>
-            <a class="mainMenuOption" href="/visu3D">Visualisation 3D</a>
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="/images/datacare.png" alt="Logo" class="logo" />
+            </div>
+            <div class="top-row px-4">
+                <a class="mainMenuOption" href="/crud">Gestion CRUD</a>
+                <a class="mainMenuOption" href="/grafana">Grafana</a>
+                <a class="mainMenuOption" href="/visu3D">Visualisation 3D</a>
+            </div>
         </div>
-
         <article class="content px-4">
             @Body
         </article>
@@ -41,3 +45,30 @@
         return segments.Length > 0 ? segments[0] : String.Empty;
     }
 }
+
+<style>
+    .header-container {
+        display: flex;
+        align-items: center; /* Centre les éléments verticalement */
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Ajoute une ombre pour donner un effet visuel */
+        background-color: #f4f4f4; /* Couleur de fond, ajustez selon vos besoins */
+        position: relative; /* S'assure que tous les enfants sont correctement positionnés */
+    }
+
+    .logo-container {
+        flex-shrink: 0; /* Empêche la réduction de la div contenant le logo */
+        margin-right: 20px; /* Ajoute un espacement à droite du logo */
+    }
+
+    .logo {
+        width: 50px; /* Ajustez la largeur du logo selon vos besoins */
+        height: auto; /* Maintient le ratio de l'image */
+    }
+
+    .top-row {
+        display: flex;
+        align-items: center; /* Centre les liens verticalement */
+        gap: 15px; /* Espacement entre les liens */
+        flex-grow: 1; /* Permet au menu de prendre tout l’espace disponible à droite */
+    }
+</style>
