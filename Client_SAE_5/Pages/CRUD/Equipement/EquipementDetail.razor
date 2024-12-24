@@ -18,7 +18,7 @@ else
             <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.NomEquipement</p>
             <p><strong>Dimensions :</strong> @EquipementViewModel.SelectedEquipementDetails.Longueur cm x @EquipementViewModel.SelectedEquipementDetails.Largeur cm x @EquipementViewModel.SelectedEquipementDetails.Hauteur cm</p>
             <p><strong>Position :</strong> X: @EquipementViewModel.SelectedEquipementDetails.PositionX, Y: @EquipementViewModel.SelectedEquipementDetails.PositionY, Z: @EquipementViewModel.SelectedEquipementDetails.PositionZ</p>
-            <p><strong>Etat :</strong> @(Utils.RenderEtatContent(EquipementViewModel.SelectedEquipementDetails.EstActif))</p>
+            <p><strong>Etat :</strong> @(Utils.Utils.RenderEtatContent(EquipementViewModel.SelectedEquipementDetails.EstActif))</p>
         </div>
     </div>
 

@@ -1,67 +1,76 @@
 ﻿@page "/crud/salles/{idSalle:int}"
+@using Client_SAE_5.Utils
 @inject NavigationManager NavigationManager
 @inject Client_SAE_5.ViewModel.SalleViewModel SalleViewModel
 
+
 @if (SalleViewModel.SelectedSalleDetails == null)
 {
-    <p><em>Chargement des détails de la salle...</em></p>
+    <p><em><Spinner></Spinner></em></p>
 }
 else
 {
-    <h2>Détails de la salle : @SalleViewModel.SelectedSalleDetails.NomSalle</h2>
-    <p><strong>Bâtiment :</strong> @SalleViewModel.SelectedSalleDetails.Batiment.NomBatiment</p>
-    <p><strong>Type :</strong> @SalleViewModel.SelectedSalleDetails.TypeSalle.NomTypeSalle</p>
+    <span style="display:flex;flex-direction:row;justify-content:space-around;">
+        <div>
+            <h2>Détails de la salle : @SalleViewModel.SelectedSalleDetails.NomSalle</h2>
+            <p><strong>Bâtiment :</strong> @SalleViewModel.SelectedSalleDetails.Batiment.NomBatiment</p>
+            <p><strong>Type :</strong> @SalleViewModel.SelectedSalleDetails.TypeSalle.NomTypeSalle</p>
 
-    <h3>Capteurs</h3>
-    @if (SalleViewModel.SelectedSalleDetails.Capteurs?.Count > 0)
-    {
-        <ul>
-            @foreach (var capteur in SalleViewModel.SelectedSalleDetails.Capteurs)
+            <h3>Capteurs</h3>
+            @if (SalleViewModel.SelectedSalleDetails.Capteurs?.Count > 0)
             {
-                <a href="/crud/capteurs/@capteur.IdCapteur">
-                <li>@capteur.NomCapteur</li>
-                </a>
+                <ul>
+                    @foreach (var capteur in SalleViewModel.SelectedSalleDetails.Capteurs)
+                    {
+                        <a href="/crud/capteurs/@capteur.IdCapteur">
+                        <li>@capteur.NomCapteur</li>
+                        </a>
+                    }
+                </ul>
             }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucun capteur associé</em></p>
-    }
-
-    <h3>Équipements</h3>
-    @if (SalleViewModel.SelectedSalleDetails.Equipements?.Count > 0)
-    {
-        <ul>
-            @foreach (var equipement in SalleViewModel.SelectedSalleDetails.Equipements)
+            else
             {
-                <a href="/crud/equipements/@equipement.IdEquipement">
-                <li>@equipement.NomEquipement</li>
-                </a>
+                <p><em>Aucun capteur associé</em></p>
             }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucun équipement associé</em></p>
-    }
 
-    <h2>Plan de la Salle</h2>
+            <h3>Équipements</h3>
+            @if (SalleViewModel.SelectedSalleDetails.Equipements?.Count > 0)
+            {
+                <ul>
+                    @foreach (var equipement in SalleViewModel.SelectedSalleDetails.Equipements)
+                    {
+                        <a href="/crud/equipements/@equipement.IdEquipement">
+                        <li>@equipement.NomEquipement</li>
+                        </a>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p><em>Aucun équipement associé</em></p>
+            }
 
-    @if (SalleViewModel.SelectedSalleDetails?.Murs == null || SalleViewModel.SelectedSalleDetails.Murs.Count == 0)
-    {
-        <p><em>Aucun mur disponible pour cette salle</em></p>
-    }
-    else
-    {
-        <div style="width: 800px; height: 600px; border: 1px solid #ccc; margin: 20px auto;">
-            @((MarkupString)Utils.GenererPlanSalleSVG(SalleViewModel.SelectedSalleDetails.Murs
-                                                .OrderBy(m => m.Orientation)
-                                                .ToList()))
+            <Button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</Button>
         </div>
-    }
 
-    <Button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</Button>
+        <div>
+            <h2>Plan de la Salle</h2>
+
+            @if (SalleViewModel.SelectedSalleDetails?.Murs == null || SalleViewModel.SelectedSalleDetails.Murs.Count == 0)
+            {
+                <p><em>Aucun mur disponible pour cette salle</em></p>
+            }
+            else
+            {
+                <div style="width: 800px; height: 600px; border: 1px solid #ccc; margin: 20px auto;">
+                    @((MarkupString)SVG_Generator.GenererPlanSalleSVG(SalleViewModel.SelectedSalleDetails.Murs
+                                                        .OrderBy(m => m.Orientation)
+                                                        .ToList()))
+                </div>
+            }
+        </div>
+    </span>
+    
 }
 
 @code {

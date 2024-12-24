@@ -16,28 +16,28 @@ else
     <div>
         <h2>Informations générales</h2>
         <p><strong>Nom :</strong> @CapteurViewModel.SelectedCapteurDetail.NomCapteur</p>
-        <p><strong>Etat:</strong> @(Utils.RenderEtatContent(CapteurViewModel.SelectedCapteurDetail.EstActif))</p>
-@*         <p>
-            <strong>Coordonnées :</strong> (@CapteurViewModel.SelectedCapteurDetail.XCapteur,
-            @CapteurViewModel.SelectedCapteurDetail.YCapteur,
-            @CapteurViewModel.SelectedCapteurDetail.ZCapteur)
-        </p> *@
+        <p><strong>Etat:</strong> @(Utils.Utils.RenderEtatContent(CapteurViewModel.SelectedCapteurDetail.EstActif))</p>
 
-        <h3>Mur associé</h3>
+        <br />
+        <h3>Localisation</h3>
+            <h5 class="murInfo">
+                Salle:
+            <a href="/crud/salles/@(CapteurViewModel.SelectedCapteurDetail.Salle.IdSalle)">@(CapteurViewModel.SelectedCapteurDetail.Salle.NomSalle)</a>
+        </h5>
+        <h5 class="murInfo">Mur:
         @if (CapteurViewModel.SelectedCapteurDetail.Mur != null)
         {
-            @* <p><strong>Nom de la salle :</strong> @CapteurViewModel.SelectedCapteurDetail.Mur.NomSalle</p> *@
-            <p><strong>Orientation :</strong> @(Math.Round(CapteurViewModel.SelectedCapteurDetail.Mur.Orientation,2))°</p>
-@*             <p>
-                <strong>Dimensions :</strong> @CapteurViewModel.SelectedCapteurDetail.Mur.Hauteur m x
-                @CapteurViewModel.SelectedCapteurDetail.Mur.Longueur m
-            </p> *@
+            <a href="/crud/murs/@(CapteurViewModel.SelectedCapteurDetail.Mur.IdMur)">
+                <p> @(Math.Round(CapteurViewModel.SelectedCapteurDetail.Mur.Orientation, 2))°</p>
+            </a>
         }
         else
         {
             <p><em>Pas de mur associé.</em></p>
         }
+        </h5>
 
+        <br />
         <h3>Unités</h3>
         @if (CapteurViewModel.SelectedCapteurDetail.Unites?.Count > 0)
         {
@@ -73,6 +73,10 @@ else
                         title="Positions: (@CapteurViewModel.SelectedCapteurDetail.XCapteur cm; @CapteurViewModel.SelectedCapteurDetail.YCapteur cm; @CapteurViewModel.SelectedCapteurDetail.ZCapteur cm)">
                 </div>
             </div>
+            <p>
+                <strong>Coordonnées (<em>À partir d'en haut à gauche</em>)</strong> (X:@(CapteurViewModel.SelectedCapteurDetail.XCapteur/100)m;
+                                                                                     Y:@(CapteurViewModel.SelectedCapteurDetail.YCapteur/100)m)
+            </p> 
         </span>
             
     }
@@ -87,6 +91,12 @@ else
         @CapteurViewModel.ErrorMessage
     </div>
 }
+
+<style>
+    .murInfo{
+        display:flex;
+    }
+</style>
 
 @code {
     [Parameter]

@@ -4,7 +4,7 @@
 
 @if (MurViewModel.SelectedMurDetails == null)
 {
-    <p><em>Sélectionnez un mur pour voir les détails</em></p>
+    <p><em><Spinner></Spinner></em></p>
 }
 else
 {
@@ -102,9 +102,11 @@ else
     [Parameter]
     public int IdMur { get; set; }
 
+    private const int TAILLE_CAPTEUR_PX = 10;
+
     // Dimensions du mur en pixels
-    private const int MurLargeurPx = 575; // Largeur en pixels
-    private const int MurHauteurPx = 270; // Hauteur en pixels
+    private int MurLargeurPx => ((int?)(MurViewModel.SelectedMurDetails?.Longueur)) ?? 575;
+    private int MurHauteurPx => ((int?)(MurViewModel.SelectedMurDetails?.Hauteur)) ?? 270;
 
     // Échelle pour convertir cm -> pixels
     private decimal ScaleX => MurViewModel.SelectedMurDetails?.Longueur > 0
@@ -115,9 +117,14 @@ else
         : 1;
 
     // Dimensions d'un capteur (exemple arbitraire)
-    private const int CapteurLargeurPx = 10; // Largeur en pixels
-    private const int CapteurHauteurPx = 10; // Hauteur en pixels
+    private const int CapteurLargeurPx = TAILLE_CAPTEUR_PX;
+    private const int CapteurHauteurPx = TAILLE_CAPTEUR_PX;
 
+    /// <summary>
+    /// Fonction permettant de récupérer la position d'un capteur
+    /// </summary>
+    /// <param name="capteur">Capteur dont on veut récupérer la position</param>
+    /// <returns>Les attributs CSS correspondant à la position du capteur par rapport au mur.</returns>
     private string GetCapteurPositionStyle(CapteurSansNavigationDTO capteur)
     {
         if (capteur == null || MurViewModel.SelectedMurDetails == null) return "";
@@ -130,6 +137,11 @@ else
                $"top: {topPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;";
     }
 
+    /// <summary>
+    /// Fonction permettant de récupérer la position d'un équipement sur un mur
+    /// </summary>
+    /// <param name="equipement">Equipement dont on veut récupérer la position</param>
+    /// <returns>Les attributs CSS correspondant à la position de l'équipement par rapport au mur</returns>
     private string GetEquipementPositionStyle(EquipementSansNavigationDTO equipement)
     {
         if (equipement == null || MurViewModel.SelectedMurDetails == null) return "";
@@ -142,6 +154,11 @@ else
                $"top: {topPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;";
     }
 
+    /// <summary>
+    /// Récupère la couleur de l'équipement au mur
+    /// </summary>
+    /// <param name="typeEquipementSansNavigationDTO">ID du type d'équipement</param>
+    /// <returns>Une couleur CSS</returns>
     private string GetEquipementColor(int typeEquipementSansNavigationDTO)
     {
         switch (typeEquipementSansNavigationDTO)

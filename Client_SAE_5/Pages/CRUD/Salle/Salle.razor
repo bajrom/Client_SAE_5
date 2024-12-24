@@ -38,44 +38,6 @@ else
     </table>
 }
 
-@if (SalleViewModel.SelectedSalleDetails != null)
-{
-    <h2>Détails de la Salle</h2>
-    <p><strong>Nom :</strong> @SalleViewModel.SelectedSalleDetails.NomSalle</p>
-    <p><strong>Bâtiment :</strong> @SalleViewModel.SelectedSalleDetails.Batiment.NomBatiment</p>
-    <p><strong>Type :</strong> @SalleViewModel.SelectedSalleDetails.TypeSalle.NomTypeSalle</p>
-
-    <h3>Capteurs</h3>
-    @if (SalleViewModel.SelectedSalleDetails.Capteurs?.Count > 0)
-    {
-        <ul>
-            @foreach (var capteur in SalleViewModel.SelectedSalleDetails.Capteurs)
-            {
-                <li>@capteur.NomCapteur</li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucun capteur</em></p>
-    }
-
-    <h3>Équipements</h3>
-    @if (SalleViewModel.SelectedSalleDetails.Equipements?.Count > 0)
-    {
-        <ul>
-            @foreach (var equipement in SalleViewModel.SelectedSalleDetails.Equipements)
-            {
-                <li>@equipement.NomEquipement</li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucun équipement</em></p>
-    }
-}
-
 <h2>Ajouter ou Modifier une Salle</h2>
 <div>
     <label>Nom de la Salle :</label>
