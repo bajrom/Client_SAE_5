@@ -1,5 +1,59 @@
-﻿<h3>TypeSalleDetail</h3>
+﻿@page "/crud/typessalle/{idtypesalle:int}"
+@inject NavigationManager NavigationManager
+@inject Client_SAE_5.ViewModel.TypeSalleViewModel TypeSalleViewModel
+
+<link rel="stylesheet" href="css/DetailPages.css" />
+
+<PageTitle>Détails du type de salle</PageTitle>
+
+<h3>Détail du type de salle</h3>
+<br />
+@if (TypeSalleViewModel.SelectedTypeSalleDetails == null)
+{
+    <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails du type de salle en chargement...</p></p>
+}
+else
+{
+    <h5>Nom du type de salle: @(TypeSalleViewModel.SelectedTypeSalleDetails.NomTypeSalle)</h5>
+    <br />
+    <h5>Salles associées</h5>
+
+    @if (TypeSalleViewModel.SelectedTypeSalleDetails?.Salles != null && TypeSalleViewModel.SelectedTypeSalleDetails?.Salles.Count != 0)
+    {
+        <ul>
+            @foreach (SalleSansNavigationDTO salle in TypeSalleViewModel.SelectedTypeSalleDetails.Salles)
+            {
+                @if (salle != null)
+                {
+                    <li style="cursor:pointer;"
+                        @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", salle.IdSalle))'>
+
+                        @(salle.NomSalle)
+                    </li>
+
+                }
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucune salle n'est associée à ce type de salle.</em></p>
+    }
+}
+
+<Button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</Button>
 
 @code {
+    [Parameter]
+    public int IdTypeSalle { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await TypeSalleViewModel.LoadTypeSalleDetailsAsync(IdTypeSalle);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/crud/typessalle");
+    }
 }

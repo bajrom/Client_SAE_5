@@ -2,6 +2,8 @@
 @inject Client_SAE_5.ViewModel.BatimentViewModel BatimentViewModel
 @inject NavigationManager NavigationManager
 
+<link rel="stylesheet" href="/css/DetailPages.css"/>
+
 <PageTitle>Gestion des batiments</PageTitle>
 
 <h1>Gestion des batiments</h1>
@@ -36,7 +38,7 @@ else
     </table>
 }
 
-@if (BatimentViewModel.SelectedBatimentDetails != null)
+@* @if (BatimentViewModel.SelectedBatimentDetails != null)
 {
     <h2>Détails du bâtiment</h2>
     <p><strong>Nom :</strong> @BatimentViewModel.SelectedBatimentDetails.NomBatiment</p>
@@ -55,7 +57,7 @@ else
     {
         <p><em>Aucune salle</em></p>
     }
-}
+} *@
 
 <h2>Ajouter ou Modifier un batiment</h2>
 <div>
@@ -81,7 +83,7 @@ else
 
     private async Task ViewDetails(int idBatiment)
     {
-        NavigationManager.NavigateTo("/crud/batiments/"+idBatiment);
+        Utils.Utils.GoDetail(NavigationManager, "batiments", idBatiment);
 
         //await BatimentViewModel.LoadBatimentDetailsAsync(idBatiment);
     }

@@ -1,0 +1,24 @@
+﻿.murInfo {
+    display: flex;
+}
+
+div#cadreMur{
+    position:relative;
+    border:1px solid black;
+}
+
+div#cadreMur div{
+    position:absolute;
+    width: 10px;
+    height:10px;
+    background-color:red;
+}
+
+li.listeUnites{
+    gap:10px;
+    list-style:none;
+}
+
+li.listeUnites p{
+    font-size:1.2rem;
+}

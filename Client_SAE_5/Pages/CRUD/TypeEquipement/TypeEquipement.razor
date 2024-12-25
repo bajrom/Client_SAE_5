@@ -1,5 +1,6 @@
 ﻿@page "/crud/typesequipement"
 @inject Client_SAE_5.ViewModel.TypeEquipementViewModel TypeEquipementViewModel
+@inject NavigationManager NavigationManager
 
 <PageTitle>Gestion des types d'équipement</PageTitle>
 
@@ -33,7 +34,7 @@ else
     </table>
 }
 
-@if (TypeEquipementViewModel.SelectedTypeEquipementDetails != null)
+@* @if (TypeEquipementViewModel.SelectedTypeEquipementDetails != null)
 {
     <h2>Détails du type</h2>
     <h3>Équipements</h3>
@@ -51,7 +52,7 @@ else
         <p><em>Aucun équipement</em></p>
     }
 }
-
+ *@
 <h2>Ajouter ou Modifier un type d'équipement</h2>
 <div>
     <label>Nom :</label>
@@ -76,7 +77,8 @@ else
 
     private async Task ViewDetails(int idTypeEquipement)
     {
-        await TypeEquipementViewModel.LoadTypeEquipementDetailsAsync(idTypeEquipement);
+        Utils.Utils.GoDetail(NavigationManager, "typesequipement", idTypeEquipement);
+        //await TypeEquipementViewModel.LoadTypeEquipementDetailsAsync(idTypeEquipement);
     }
 
     private async Task EditTypeEquipement(Client_SAE_5.DTO.TypeEquipementDTO typeEquipement)

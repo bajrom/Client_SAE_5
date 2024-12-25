@@ -1,5 +1,59 @@
-﻿<h3>TypeEquipementDetail</h3>
+﻿@page "/crud/typesequipement/{idTypeEquipement:int}"
+@inject NavigationManager NavigationManager
+@inject Client_SAE_5.ViewModel.TypeEquipementViewModel TypeEquipementViewModel
+
+<link rel="stylesheet" href="css/DetailPages.css" />
+
+<PageTitle>Détails du type d'équipement</PageTitle>
+
+<h3>Détail du type d'équipement</h3>
+<br />
+@if (TypeEquipementViewModel.SelectedTypeEquipementDetails == null)
+{
+    <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails du type d'équipement en chargement...</p></p>
+}
+else
+{
+    <h5>Nom du type d'équipement: @(TypeEquipementViewModel.SelectedTypeEquipementDetails.NomTypeEquipement)</h5>
+    <br />
+    <h5>Equipements associés</h5>
+
+    @if (TypeEquipementViewModel.SelectedTypeEquipementDetails?.Equipements != null && TypeEquipementViewModel.SelectedTypeEquipementDetails?.Equipements.Count != 0)
+    {
+        <ul>
+            @foreach (EquipementSansNavigationDTO equipement in TypeEquipementViewModel.SelectedTypeEquipementDetails.Equipements)
+            {
+                @if (equipement != null)
+                {
+                    <li style="cursor:pointer;" 
+                        @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "equipements", equipement.IdEquipement))'>
+
+                        @(equipement.NomEquipement) (Etat: @(Utils.Utils.RenderEtatContent(equipement.EstActif)))
+                    </li>
+
+                }
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>Aucun équipement n'est associé à ce type d'équipement.</em></p>
+    }
+}
+
+<Button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</Button>
 
 @code {
+    [Parameter]
+    public int IdTypeEquipement { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await TypeEquipementViewModel.LoadTypeEquipementDetailsAsync(IdTypeEquipement);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/crud/typesequipement");
+    }
 }

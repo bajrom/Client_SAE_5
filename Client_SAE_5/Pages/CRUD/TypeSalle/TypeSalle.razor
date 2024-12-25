@@ -1,5 +1,6 @@
-﻿@page "/crud/typesalles"
+﻿@page "/crud/typessalle"
 @inject Client_SAE_5.ViewModel.TypeSalleViewModel TypeSalleViewModel
+@inject NavigationManager NavigationManager
 
 <PageTitle>Gestion des types de salles</PageTitle>
 
@@ -33,7 +34,7 @@ else
     </table>
 }
 
-@if (TypeSalleViewModel.SelectedTypeSalleDetails != null)
+@* @if (TypeSalleViewModel.SelectedTypeSalleDetails != null)
 {
     <h2>Détails du type de salle:</h2>
 
@@ -51,7 +52,7 @@ else
     {
         <p><em>Aucune salle</em></p>
     }
-}
+} *@
 
 <h2>Ajouter ou Modifier un type de salle</h2>
 <div>
@@ -77,7 +78,8 @@ else
 
     private async Task ViewDetails(int idTypeSalle)
     {
-        await TypeSalleViewModel.LoadTypeSalleDetailsAsync(idTypeSalle);
+        Utils.Utils.GoDetail(NavigationManager, "typessalle", idTypeSalle);
+        //await TypeSalleViewModel.LoadTypeSalleDetailsAsync(idTypeSalle);
     }
 
     private async Task EditTypeSalle(Client_SAE_5.DTO.TypeSalleDTO typeSalle)

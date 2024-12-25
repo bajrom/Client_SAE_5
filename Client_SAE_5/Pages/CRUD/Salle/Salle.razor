@@ -82,7 +82,7 @@ else
 
     private async Task ViewDetails(int idSalle)
     {
-        NavigationManager.NavigateTo("/crud/salles/" + idSalle);
+        Utils.Utils.GoDetail(NavigationManager, "salles", idSalle);
         //await SalleViewModel.LoadSalleDetailsAsync(idSalle);
     }
 

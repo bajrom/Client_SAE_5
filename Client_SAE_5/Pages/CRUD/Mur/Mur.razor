@@ -135,7 +135,7 @@ else
 
     private async Task ViewDetails(int idMur)
     {
-        NavigationManager.NavigateTo("/crud/murs/" + idMur);
+        Utils.Utils.GoDetail(NavigationManager, "murs", idMur);
         //await MurViewModel.LoadMurDetailsAsync(idMur);
     }
 

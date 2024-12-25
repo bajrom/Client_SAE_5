@@ -2,101 +2,105 @@
 @inject NavigationManager NavigationManager
 @inject Client_SAE_5.ViewModel.MurViewModel MurViewModel
 
+<link rel="stylesheet" href="css/MurStyle.css" />
+<link rel="stylesheet" href="css/DetailPages.css" />
+
+<PageTitle>Détails du mur</PageTitle>
+
+<h3>Détails du mur</h3>
+<br />
 @if (MurViewModel.SelectedMurDetails == null)
 {
-    <p><em><Spinner></Spinner></em></p>
+    <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails du mur en chargement...</p></p>
 }
 else
 {
-    <h2>Détails du mur @(Math.Round(MurViewModel.SelectedMurDetails.Orientation,2))° @(MurViewModel.SelectedMurDetails.DirectionNavigation.LettresDirection) en @(MurViewModel.SelectedMurDetails.SalleNavigation.NomSalle) </h2>
-    <p><strong>Longueur :</strong> @MurViewModel.SelectedMurDetails.Longueur cm</p>
-    <p><strong>Hauteur :</strong> @MurViewModel.SelectedMurDetails.Hauteur cm</p>
+    <div id="contentContainer">
+        <div>
+            <h5>Orientation: @(Math.Round(MurViewModel.SelectedMurDetails.Orientation,2))° @(MurViewModel.SelectedMurDetails.DirectionNavigation.LettresDirection) en @(MurViewModel.SelectedMurDetails.SalleNavigation.NomSalle) </h5>
+            <p><strong>Longueur :</strong> @MurViewModel.SelectedMurDetails.Longueur cm</p>
+            <p><strong>Hauteur :</strong> @MurViewModel.SelectedMurDetails.Hauteur cm</p>
 
-    <h3>Orientation</h3>
-    @if (MurViewModel.SelectedMurDetails.Orientation != null)
-    {
-        <p><strong>Orientation :</strong> @(Math.Round(MurViewModel.SelectedMurDetails.Orientation,2))° @MurViewModel.SelectedMurDetails.DirectionNavigation.LettresDirection</p>
-    }
-    else
-    {
-        <p><em>Aucune direction associée</em></p>
-    }
-
-    <h3>Capteurs</h3>
-    @if (MurViewModel.SelectedMurDetails.Capteurs?.Count > 0)
-    {
-        <ul id="Murs_ListeCapteurs">
-            @foreach (var capteur in MurViewModel.SelectedMurDetails.Capteurs)
+            <br />
+            <h5>Capteurs</h5>
+            @if (MurViewModel.SelectedMurDetails.Capteurs?.Count > 0)
             {
-                <a href="/crud/capteurs/@(capteur.IdCapteur)">
-                    <li>@capteur.NomCapteur</li>
-                </a>
-
+                <ul id="Murs_ListeCapteurs">
+                    @foreach (var capteur in MurViewModel.SelectedMurDetails.Capteurs)
+                    {
+                        <li class="listeCliquable" @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "capteurs", capteur.IdCapteur))">@capteur.NomCapteur</li>
+                    }
+                </ul>
             }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucune capteur associée</em></p>
-    }
-
-    <h3>Équipements</h3>
-    @if (MurViewModel.SelectedMurDetails.Equipements?.Count > 0)
-    {
-        <ul id="Murs_ListeEquipements">
-            @foreach (EquipementSansNavigationDTO equipement in MurViewModel.SelectedMurDetails.Equipements)
+            else
             {
-                <a href="/crud/equipements/@(equipement.IdEquipement)">
-                    <li>@equipement.NomEquipement</li>
-                </a>
+                <p><em>Aucun capteur associée</em></p>
             }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucun équipement associé</em></p>
-    }
-    <br />
-    <Button class="btn btn-secondary mt-4" @onclick="GoBack">Annuler</Button>
+
+            <br />
+            <h5>Équipements</h5>
+            @if (MurViewModel.SelectedMurDetails.Equipements?.Count > 0)
+            {
+                <ul id="Murs_ListeEquipements">
+                    @foreach (EquipementSansNavigationDTO equipement in MurViewModel.SelectedMurDetails.Equipements)
+                    {
+                        <li class="listeCliquable" @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "equipements", equipement.IdEquipement))">@equipement.NomEquipement</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p><em>Aucun équipement associé</em></p>
+            }
+            <br />
+
+            
+        </div>
 
 
+        <div>
+            <h1>Position des capteurs et équipements sur le mur</h1>
+            <div id="cadreMur" style="width: @(MurLargeurPx + "px"); height: @(MurHauteurPx + "px");">
+                @if (MurViewModel.SelectedMurDetails != null)
+                {
+                @if (MurViewModel.SelectedMurDetails.Capteurs != null && MurViewModel.SelectedMurDetails.Capteurs.Count > 0)
+                    {
+                        @foreach (var capteur in MurViewModel.SelectedMurDetails.Capteurs)
+                        {
+                            <div class="capteurMurSchema" style="width: @(CapteurLargeurPx)px; height: @(CapteurHauteurPx)px; @GetCapteurPositionStyle(capteur)"
+                                 title="Capteur: @capteur.NomCapteur (@capteur.XCapteur cm, @capteur.YCapteur cm)"
+                                 @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "capteurs", capteur.IdCapteur))">
+                            </div>
+                        }
+                    }
+
+                    @if (MurViewModel.SelectedMurDetails.Equipements != null && MurViewModel.SelectedMurDetails.Equipements.Count > 0)
+                    {
+                        @foreach (var equipement in MurViewModel.SelectedMurDetails.Equipements)
+                        {
+                            <div class="equipementMurSchema" style="
+                                        width: @((equipement.Longueur * ScaleX).ToString(System.Globalization.CultureInfo.InvariantCulture))px; 
+                                        height: @((equipement.Hauteur * ScaleY).ToString(System.Globalization.CultureInfo.InvariantCulture))px;
+                                        background-color: @(GetEquipementColor(equipement.IdTypeEquipement));
+                                        @GetEquipementPositionStyle(equipement)"
+                                        @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "equipements", equipement.IdEquipement))"
+                                 title="Équipement: @equipement.NomEquipement (@equipement.XEquipement cm, @equipement.YEquipement cm)"
+                                 
+                                 >
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <p><em>Les détails du mur ne sont pas disponibles.</em></p>
+                }
+            </div>
+        </div>
+    </div>
 }
 
-<span>
-    <h1>Position des capteurs et équipements sur le mur</h1>
-    <div id="cadreMur" style="position: relative; width: @(MurLargeurPx + "px"); height: @(MurHauteurPx + "px"); border: 1px solid black;">
-        @if (MurViewModel.SelectedMurDetails != null)
-        {
-        @if (MurViewModel.SelectedMurDetails.Capteurs != null && MurViewModel.SelectedMurDetails.Capteurs.Count > 0)
-            {
-                @foreach (var capteur in MurViewModel.SelectedMurDetails.Capteurs)
-                {
-                    <div style="position: absolute; width: @(CapteurLargeurPx)px; height: @(CapteurHauteurPx)px; background-color: blue; border-radius: 5%; @GetCapteurPositionStyle(capteur)"
-                         title="Capteur: @capteur.NomCapteur (@capteur.XCapteur cm, @capteur.YCapteur cm)">
-                    </div>
-                }
-            }
-
-            @if (MurViewModel.SelectedMurDetails.Equipements != null && MurViewModel.SelectedMurDetails.Equipements.Count > 0)
-            {
-                @foreach (var equipement in MurViewModel.SelectedMurDetails.Equipements)
-                {
-                    <div style="position: absolute; 
-                                width: @((equipement.Longueur * ScaleX).ToString(System.Globalization.CultureInfo.InvariantCulture))px; 
-                                height: @((equipement.Hauteur * ScaleY).ToString(System.Globalization.CultureInfo.InvariantCulture))px;
-                                background-color: @(GetEquipementColor(equipement.IdTypeEquipement));
-                                @GetEquipementPositionStyle(equipement)"
-                         title="Équipement: @equipement.NomEquipement (@equipement.XEquipement cm, @equipement.YEquipement cm)">
-                    </div>
-                }
-            }
-        }
-        else
-        {
-            <p><em>Les détails du mur ne sont pas disponibles.</em></p>
-        }
-    </div>
-</span>
+<Button class="btn btn-secondary mt-4" @onclick="GoBack">Annuler</Button>
 
 @code {
     [Parameter]
@@ -119,6 +123,9 @@ else
     // Dimensions d'un capteur (exemple arbitraire)
     private const int CapteurLargeurPx = TAILLE_CAPTEUR_PX;
     private const int CapteurHauteurPx = TAILLE_CAPTEUR_PX;
+
+
+
 
     /// <summary>
     /// Fonction permettant de récupérer la position d'un capteur
@@ -183,6 +190,6 @@ else
 
         private void GoBack()
         {
-            NavigationManager.NavigateTo("/crud/equipements");
+            NavigationManager.NavigateTo("/crud/murs");
         }
 }

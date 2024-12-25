@@ -1,5 +1,6 @@
 ﻿@page "/crud/unites"
 @inject Client_SAE_5.ViewModel.UniteViewModel UniteViewModel
+@inject NavigationManager NavigationManager
 
 <PageTitle>Gestion des unitées</PageTitle>
 
@@ -35,7 +36,7 @@ else
     </table>
 }
 
-@if (UniteViewModel.SelectedUniteDetails != null)
+@* @if (UniteViewModel.SelectedUniteDetails != null)
 {
     <h2>Détails de la Salle</h2>
     <p><strong>Nom :</strong> @UniteViewModel.SelectedUniteDetails.NomUnite</p>
@@ -55,7 +56,7 @@ else
     {
         <p><em>Aucun capteur attribuer</em></p>
     }
-}
+} *@
 
 <h2>Ajouter ou Modifier une unitée</h2>
 <div>
@@ -84,7 +85,8 @@ else
 
     private async Task ViewDetails(int idUnite)
     {
-        await UniteViewModel.LoadUniteDetailsAsync(idUnite);
+        Utils.Utils.GoDetail(NavigationManager, "unites", idUnite);
+        //await UniteViewModel.LoadUniteDetailsAsync(idUnite);
     }
 
     private async Task EditUnite(Client_SAE_5.DTO.UniteDTO unite)

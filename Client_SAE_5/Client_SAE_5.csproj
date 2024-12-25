@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <Folder Include="Pages\Divers\" />
-    <Folder Include="Pages\Visualisation3D\" />
   </ItemGroup>
 
 </Project>

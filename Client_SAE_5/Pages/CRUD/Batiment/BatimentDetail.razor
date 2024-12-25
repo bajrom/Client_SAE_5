@@ -2,30 +2,32 @@
 @inject Client_SAE_5.ViewModel.BatimentViewModel BatimentViewModel
 @inject NavigationManager NavigationManager
 
+<link rel="stylesheet" href="css/DetailPages.css" />
+
 <PageTitle>Détails du bâtiment</PageTitle>
 
-<h1>Détails du bâtiment</h1>
+<h3>Détails du bâtiment</h3>
 
 @if (BatimentViewModel.SelectedBatimentDetails == null)
 {
-    <Spinner></Spinner>
+    <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails du bâtiment en chargement...</p></p>
 }
 else
 {
     <div>
-        <h2>@BatimentViewModel.SelectedBatimentDetails.NomBatiment</h2>
+        <h5>@BatimentViewModel.SelectedBatimentDetails.NomBatiment</h5>
         @if (BatimentViewModel.SelectedBatimentDetails.Salles?.Count > 0)
         {
 
             <p><strong>Nombre de salles :</strong> @BatimentViewModel.SelectedBatimentDetails.Salles?.Count </p>
 
-            <h3>Liste des salles</h3>
+            <h5>Liste des salles</h5>
 
             <ul>
                 @foreach (var salle in BatimentViewModel.SelectedBatimentDetails.Salles)
                 {
 
-                    <li>@salle.NomSalle</li>
+                    <li class="listeCliquable" @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", salle.IdSalle))'>@salle.NomSalle</li>
 
                 }
             </ul>
@@ -35,8 +37,10 @@ else
             <p><em>Aucune salle n'est associée à ce bâtiment.</em></p>
         }
     </div>
-    <button class="btn btn-secondary" @onclick="NavigateBack" id="backBtn">Retour</button>
+    
 }
+
+<button class="btn btn-secondary" @onclick="NavigateBack" id="backBtn">Retour</button>
 
 @if (!string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
 {
@@ -44,6 +48,7 @@ else
         @BatimentViewModel.ErrorMessage
     </div>
 }
+
 
 @code {
     [Parameter]

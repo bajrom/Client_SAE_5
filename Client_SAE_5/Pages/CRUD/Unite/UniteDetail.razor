@@ -1,5 +1,60 @@
-﻿<h3>UniteDetail</h3>
+﻿@page "/crud/unites/{idUnite:int}"
+@inject NavigationManager NavigationManager
+@inject Client_SAE_5.ViewModel.UniteViewModel UniteViewModel
+
+<link rel="stylesheet" href="css/DetailPages.css" />
+
+<PageTitle>Détails de l'unité</PageTitle>
+
+<h3>Détails de l'unité</h3>
+<br />
+@if (UniteViewModel.SelectedUniteDetails  == null)
+{
+    <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails de l'unité en chargement...</p></p>
+} else
+{
+    <h4>Nom: @(UniteViewModel.SelectedUniteDetails.NomUnite)</h4>
+    @if (UniteViewModel.SelectedUniteDetails.SigleUnite != null){
+        <h4>Sigle: @(UniteViewModel.SelectedUniteDetails.SigleUnite)</h4>
+    }
+    <br />
+    @if (UniteViewModel.SelectedUniteDetails.Capteurs.Count > 1){
+        <h4>@(UniteViewModel.SelectedUniteDetails.Capteurs.Count) capteurs sont associés à cette unité:</h4>
+    } else 
+    {
+        <h4>@(UniteViewModel.SelectedUniteDetails.Capteurs.Count) capteur est associé à cette unité:</h4>
+    }
+    @if (UniteViewModel.SelectedUniteDetails.Capteurs.Count > 0){
+        <ul>
+            @foreach(CapteurSansNavigationDTO capteur in UniteViewModel.SelectedUniteDetails.Capteurs)
+            {
+                <li @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "capteurs", capteur.IdCapteur))'
+                    style="cursor:pointer;"> 
+
+                    @(capteur.NomCapteur) (ID: @(capteur.IdCapteur))
+            
+                </li>
+            }
+        </ul>
+    } else
+    {
+        <p><em>Aucun capteur ne mesure cette unité. <a href="/crud/capteurs">Voulez-vous en rajouter un ?</a></em></p>
+    }
+}
+
+<Button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</Button>
 
 @code {
+    [Parameter]
+    public int IdUnite { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await UniteViewModel.LoadUniteDetailsAsync(IdUnite);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/crud/unites");
+    }
 }

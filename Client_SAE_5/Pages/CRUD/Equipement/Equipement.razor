@@ -40,7 +40,7 @@ else
     </table>
 }
 
-@if (EquipementViewModel.SelectedEquipementDetails != null)
+@* @if (EquipementViewModel.SelectedEquipementDetails != null)
 {
     <h2>Détails de l'équipement</h2>
     <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.NomEquipement</p>
@@ -69,7 +69,7 @@ else
     {
         <p><em>L'éauipement n'a pas de type d'éauipement</em></p>
     }
-}
+} *@
 
 <h2>Ajouter ou Modifier un équipement</h2>
 <div>
@@ -142,7 +142,7 @@ else
 
     private async Task ViewDetails(int idEquipement)
     {
-        NavigationManager.NavigateTo("/crud/equipements/" + idEquipement);
+        Utils.Utils.GoDetail(NavigationManager, "equipements", idEquipement);
         //await EquipementViewModel.LoadEquipementDetailsAsync(idEquipement);
     }
 

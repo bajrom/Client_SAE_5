@@ -195,7 +195,7 @@ else
     private async Task ViewDetails(int idCapteur)
     {
         //await CapteurViewModel.LoadCapteurDetailsAsync(idCapteur);
-        NavigationManager.NavigateTo("/crud/capteurs/" + idCapteur);
+        Utils.Utils.GoDetail(NavigationManager, "capteurs", idCapteur);
         StateHasChanged();
     }
 

@@ -2,15 +2,18 @@
 @inject NavigationManager NavigationManager
 @inject Client_SAE_5.ViewModel.EquipementViewModel EquipementViewModel
 
+<link rel="stylesheet" href="css/DetailPages.css" />
+
 <PageTitle>Détails de l'équipement</PageTitle>
 
+<h3>Détails de l'équipement</h3>
 @if (EquipementViewModel.SelectedEquipementDetails == null)
 {
-    <Spinner></Spinner>
+    <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails de l'équipement en chargement...</p></p>
 }
 else
 {
-    <h1>Détails de l'équipement : @EquipementViewModel.SelectedEquipementDetails.NomEquipement</h1>
+    <h5>Nom de l'équipement: @EquipementViewModel.SelectedEquipementDetails.NomEquipement</h5>
 
     <div class="card">
         <div class="card-body">
@@ -48,10 +51,10 @@ else
                 <p class="text-muted">Aucun type associé.</p>
             }
         </div>
-    </div>
-
-    <button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</button>
+    </div>    
 }
+
+<button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</button>
 
 @code {
     [Parameter]

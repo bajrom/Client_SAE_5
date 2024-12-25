@@ -1,0 +1,37 @@
+﻿div#contentContainer{
+    display:flex;
+    flex-direction:row;
+    justify-content:space-between;
+    gap:10vw;
+}
+
+div#cadreMur{
+    position:relative;
+    border:1px solid black;
+}
+
+div.capteurMurSchema {
+    position: absolute;
+    cursor: pointer;
+    background-color: red;
+    border:1px solid transparent;
+    border-radius: 5%;
+    transition: 1s all ease;
+}
+
+div.capteurMurSchema:hover{
+    border:1px solid yellow;
+    transition:1s all ease;
+}
+
+div.equipementMurSchema {
+    border:1px solid transparent;
+    position: absolute;
+    cursor: pointer;
+    transition: 1s all ease;
+}
+
+div.equipementMurSchema:hover{
+    border:1px solid yellow;
+    transition:1s all ease;
+}

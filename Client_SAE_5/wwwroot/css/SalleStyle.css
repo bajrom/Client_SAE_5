@@ -1,0 +1,13 @@
+﻿div#contentContainer{
+    display:flex;
+    flex-direction:row;
+    justify-content:space-between;
+}
+
+div#schemaSalleContainer{
+    max-width:800px;
+    width:80vw;
+    height:600px;
+    border:1px solid #ccc;
+    margin:20px auto;
+}

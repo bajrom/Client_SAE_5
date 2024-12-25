@@ -2,54 +2,48 @@
 @inject Client_SAE_5.ViewModel.CapteurViewModel CapteurViewModel
 @inject NavigationManager NavigationManager
 
+<link rel="stylesheet" href="css/CapteurStyle.css" />
+<link rel="stylesheet" href="css/DetailPages.css" />
+
 <PageTitle>Détail du Capteur</PageTitle>
 
-<h1>Détail du Capteur</h1>
+<h3>Détail du Capteur</h3>
 
 <span id="mainContainer" style="display:flex;flex-direction:row;justify-content:space-between;">
 @if (CapteurViewModel.SelectedCapteurDetail == null)
 {
-    <Spinner></Spinner>
+        <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails du capteur en chargement...</p></p>
 }
 else
 {
     <div>
-        <h2>Informations générales</h2>
+        <h4>Informations générales</h4>
         <p><strong>Nom :</strong> @CapteurViewModel.SelectedCapteurDetail.NomCapteur</p>
         <p><strong>Etat:</strong> @(Utils.Utils.RenderEtatContent(CapteurViewModel.SelectedCapteurDetail.EstActif))</p>
 
         <br />
-        <h3>Localisation</h3>
-            <h5 class="murInfo">
-                Salle:
-            <a href="/crud/salles/@(CapteurViewModel.SelectedCapteurDetail.Salle.IdSalle)">@(CapteurViewModel.SelectedCapteurDetail.Salle.NomSalle)</a>
+        <h4>Localisation</h4>
+        <h5 class="murInfo listeCliquable" @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", CapteurViewModel.SelectedCapteurDetail.Salle.IdSalle))'>
+            Salle: @(CapteurViewModel.SelectedCapteurDetail.Salle.NomSalle)
         </h5>
-        <h5 class="murInfo">Mur:
-        @if (CapteurViewModel.SelectedCapteurDetail.Mur != null)
-        {
-            <a href="/crud/murs/@(CapteurViewModel.SelectedCapteurDetail.Mur.IdMur)">
-                <p> @(Math.Round(CapteurViewModel.SelectedCapteurDetail.Mur.Orientation, 2))°</p>
-            </a>
-        }
-        else
-        {
-            <p><em>Pas de mur associé.</em></p>
-        }
+        <h5 class="murInfo listeCliquable" @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "murs", CapteurViewModel.SelectedCapteurDetail.Mur.IdMur))'>
+            Mur: @(Math.Round(CapteurViewModel.SelectedCapteurDetail.Mur.Orientation, 2))°
         </h5>
 
         <br />
-        <h3>Unités</h3>
+        <h4>Unités</h4>
         @if (CapteurViewModel.SelectedCapteurDetail.Unites?.Count > 0)
         {
             <ul>
                 @foreach (var unite in CapteurViewModel.SelectedCapteurDetail.Unites)
                 {
-                    <li>
-                        @unite.NomUnite
-                        <button class="btn btn-danger btn-sm"
-                                @onclick="() => SupprimerUniteCapteur(unite.IdUnite, CapteurViewModel.SelectedCapteurDetail.IdCapteur)">
-                                <Icon Name="IconName.Trash3Fill"></Icon>
+                    <li class="d-flex flex-row listeUnites">
+                        <button class="btn btn-danger btn-sm" @onclick="() => SupprimerUniteCapteur(unite.IdUnite, CapteurViewModel.SelectedCapteurDetail.IdCapteur)">
+                            <Icon Name="IconName.Trash3Fill"></Icon>
                         </button>
+                        <p class="listeCliquable" @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "unites", unite.IdUnite))'>
+                            @unite.NomUnite
+                        </p>
                     </li>
                 }
             </ul>
@@ -68,11 +62,13 @@ else
     {
         <span>
             <h1>Position du capteur sur le mur</h1>
-            <div id="cadreMur" style="position: relative; width: @(MurLargeurPx + "px"); height: @(MurHauteurPx + "px"); border: 1px solid black;">
-                <div style="position: absolute; width: 10px; height: 10px; background-color: red; border-radius: 50%; @GetCapteurPositionStyle(CapteurViewModel.SelectedCapteurDetail)"
-                        title="Positions: (@CapteurViewModel.SelectedCapteurDetail.XCapteur cm; @CapteurViewModel.SelectedCapteurDetail.YCapteur cm; @CapteurViewModel.SelectedCapteurDetail.ZCapteur cm)">
+            <a href="/crud/murs/@(CapteurViewModel.SelectedCapteurDetail.Mur.IdMur)">
+                <div id="cadreMur" style="width: @(MurLargeurPx + "px"); height: @(MurHauteurPx + "px");">
+                    <div style="@GetCapteurPositionStyle(CapteurViewModel.SelectedCapteurDetail)"
+                         title="Positions: (@CapteurViewModel.SelectedCapteurDetail.XCapteur cm; @CapteurViewModel.SelectedCapteurDetail.YCapteur cm; @CapteurViewModel.SelectedCapteurDetail.ZCapteur cm)">
+                    </div>
                 </div>
-            </div>
+            </a>
             <p>
                 <strong>Coordonnées (<em>À partir d'en haut à gauche</em>)</strong> (X:@(CapteurViewModel.SelectedCapteurDetail.XCapteur/100)m;
                                                                                      Y:@(CapteurViewModel.SelectedCapteurDetail.YCapteur/100)m)
@@ -84,19 +80,15 @@ else
     
 }
 </span>
+
 <button class="btn btn-secondary" @onclick="Retour">Retour</button>
+
 @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
 {
     <div class="alert alert-danger">
         @CapteurViewModel.ErrorMessage
     </div>
 }
-
-<style>
-    .murInfo{
-        display:flex;
-    }
-</style>
 
 @code {
     [Parameter]
