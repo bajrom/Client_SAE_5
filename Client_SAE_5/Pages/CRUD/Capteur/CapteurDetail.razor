@@ -7,7 +7,7 @@
 
 <PageTitle>Détail du Capteur</PageTitle>
 
-<h3>Détail du Capteur</h3>
+<h1>Détail du Capteur</h1>
 
 <div id="mainContainer">
 @if (CapteurViewModel.SelectedCapteurDetail == null)
@@ -17,12 +17,12 @@
 else
 {
     <div>
-        <h4>Informations générales</h4>
+        <h3>Informations générales</h3>
         <p><strong>Nom :</strong> @CapteurViewModel.SelectedCapteurDetail.NomCapteur</p>
         <p><strong>Etat:</strong> @(Utils.Utils.RenderEtatContent(CapteurViewModel.SelectedCapteurDetail.EstActif))</p>
 
         <br />
-        <h4>Localisation</h4>
+        <h3>Localisation</h3>
         <h5 class="murInfo listeCliquable" @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", CapteurViewModel.SelectedCapteurDetail.Salle.IdSalle))'>
             Salle: @(CapteurViewModel.SelectedCapteurDetail.Salle.NomSalle)
         </h5>

@@ -6,7 +6,7 @@
 
 <PageTitle>Détails du bâtiment</PageTitle>
 
-<h3>Détails du bâtiment</h3>
+<h1>Détails du bâtiment</h1>
 
 @if (BatimentViewModel.SelectedBatimentDetails == null)
 {
@@ -15,13 +15,13 @@
 else
 {
     <div>
-        <h5>@BatimentViewModel.SelectedBatimentDetails.NomBatiment</h5>
+        <h3>@BatimentViewModel.SelectedBatimentDetails.NomBatiment</h3>
         @if (BatimentViewModel.SelectedBatimentDetails.Salles?.Count > 0)
         {
 
             <p><strong>Nombre de salles :</strong> @BatimentViewModel.SelectedBatimentDetails.Salles?.Count </p>
 
-            <h5>Liste des salles</h5>
+            <h3>Liste des salles</h3>
 
             <ul>
                 @foreach (var salle in BatimentViewModel.SelectedBatimentDetails.Salles)
