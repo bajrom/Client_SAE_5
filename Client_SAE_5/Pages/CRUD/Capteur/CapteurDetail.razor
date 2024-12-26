@@ -9,7 +9,7 @@
 
 <h3>Détail du Capteur</h3>
 
-<span id="mainContainer" style="display:flex;flex-direction:row;justify-content:space-between;">
+<div id="mainContainer">
 @if (CapteurViewModel.SelectedCapteurDetail == null)
 {
         <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails du capteur en chargement...</p></p>
@@ -79,7 +79,7 @@ else
     
     
 }
-</span>
+</div>
 
 <button class="btn btn-secondary" @onclick="Retour">Retour</button>
 

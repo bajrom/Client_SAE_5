@@ -81,7 +81,7 @@ else
         await BatimentViewModel.LoadBatimentsAsync();
     }
 
-    private async Task ViewDetails(int idBatiment)
+    private void ViewDetails(int idBatiment)
     {
         Utils.Utils.GoDetail(NavigationManager, "batiments", idBatiment);
 

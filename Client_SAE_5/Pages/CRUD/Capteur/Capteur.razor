@@ -169,11 +169,14 @@ else
     List<ToastMessage> messages = new List<ToastMessage>();
     [Inject] ToastService ToastService { get; set; } = default!;
 
-    private CapteurDTO capteurDeleteInConfirmation;
+    private CapteurDTO? capteurDeleteInConfirmation;
 
     private void Test(ChangeEventArgs e)
     {
-        Console.WriteLine(e.Value.ToString());
+        if (e.Value != null)
+        {
+            Console.WriteLine(e.Value.ToString());
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -184,15 +187,15 @@ else
 
     private async void ClosePopup()
     {
-        await formModal?.HideAsync();
+        await formModal.HideAsync();
     }
 
     private async void OpenPopup()
     {
-        await formModal?.ShowAsync();
+        await formModal.ShowAsync();
     }
 
-    private async Task ViewDetails(int idCapteur)
+    private void ViewDetails(int idCapteur)
     {
         //await CapteurViewModel.LoadCapteurDetailsAsync(idCapteur);
         Utils.Utils.GoDetail(NavigationManager, "capteurs", idCapteur);
@@ -235,6 +238,11 @@ else
             NoButtonColor = ButtonColor.Primary
         };
 
+        if (capteurDeleteInConfirmation == null)
+        {
+            throw new ArgumentNullException("Le capteur dont on veut récupérer la confirmation de suppression est NULL.");
+        }
+
         var confirmation = await confirmSupprDialog.ShowAsync(
             title: "Confirmer la suppression du capteur",
             message1: "Êtes vous sûr de vouloir supprimer le capteur \"" + capteurDeleteInConfirmation.NomCapteur + "\" de la salle \"" + capteurDeleteInConfirmation.NomSalle + "\" ?",
@@ -250,7 +258,7 @@ else
     private async Task BeginDeleteConfirmation(CapteurDTO capteurToConfirmDeletion)
     {
         capteurDeleteInConfirmation = capteurToConfirmDeletion;
-        OpenDeleteConfirmation();
+        await OpenDeleteConfirmation();
     }
 
     private async Task DeleteCapteur(int idCapteur)

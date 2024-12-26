@@ -66,7 +66,7 @@ namespace Client_SAE_5.Utils
                 currentY = endY;
             }
 
-            svg += $@"<image x={Utils.FormatNumber(width - 50)} y={Utils.FormatNumber(0)} width=""50px"" height=""50px"" href={"/images/boussole.png"} class='image'></image>";
+            svg += $@"<image x={Utils.FormatNumber(width - 50)} y={Utils.FormatNumber(0)} width=""50px"" height=""50px"" alt=""boussole nord"" href={"/images/boussole.png"} class='image'></image>";
 
             svg += "</svg>";
             return svg;

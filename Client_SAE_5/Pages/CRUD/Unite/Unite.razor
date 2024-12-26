@@ -83,7 +83,7 @@ else
         await UniteViewModel.LoadUnitesAsync();
     }
 
-    private async Task ViewDetails(int idUnite)
+    private void ViewDetails(int idUnite)
     {
         Utils.Utils.GoDetail(NavigationManager, "unites", idUnite);
         //await UniteViewModel.LoadUniteDetailsAsync(idUnite);

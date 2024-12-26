@@ -18,14 +18,14 @@ else
     <br />
     <h5>Salles associées</h5>
 
-    @if (TypeSalleViewModel.SelectedTypeSalleDetails?.Salles != null && TypeSalleViewModel.SelectedTypeSalleDetails?.Salles.Count != 0)
+    @if (TypeSalleViewModel.SelectedTypeSalleDetails?.Salles != null && TypeSalleViewModel.SelectedTypeSalleDetails?.Salles.Count != 0 && TypeSalleViewModel.SelectedTypeSalleDetails != null)
     {
         <ul>
             @foreach (SalleSansNavigationDTO salle in TypeSalleViewModel.SelectedTypeSalleDetails.Salles)
             {
                 @if (salle != null)
                 {
-                    <li style="cursor:pointer;"
+                    <li class="listeCliquable"
                         @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", salle.IdSalle))'>
 
                         @(salle.NomSalle)

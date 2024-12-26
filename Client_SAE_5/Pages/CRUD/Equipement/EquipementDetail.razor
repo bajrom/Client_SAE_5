@@ -30,7 +30,13 @@ else
             <h5 class="card-title">Salle associée</h5>
             @if (EquipementViewModel.SelectedEquipementDetails.Salle != null)
             {
-                <p><strong>Nom de la salle :</strong> @EquipementViewModel.SelectedEquipementDetails.Salle.NomSalle</p>
+                <p>
+                    <strong>Nom:</strong> 
+                    <p class="listeCliquable" 
+                        @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", EquipementViewModel.SelectedEquipementDetails.Salle.IdSalle))'>
+                        @EquipementViewModel.SelectedEquipementDetails.Salle.NomSalle
+                    </p>
+                </p>
             }
             else
             {
@@ -44,7 +50,13 @@ else
             <h5 class="card-title">Type d'équipement</h5>
             @if (EquipementViewModel.SelectedEquipementDetails.TypeEquipement != null)
             {
-                <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.TypeEquipement.NomTypeEquipement</p>
+                <p>
+                    <strong>Nom: </strong>
+                    <p class="listeCliquable" 
+                        @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "typesequipement", EquipementViewModel.SelectedEquipementDetails.TypeEquipement.IdTypeEquipement))'>
+                        @EquipementViewModel.SelectedEquipementDetails.TypeEquipement.NomTypeEquipement
+                    </p>
+                </p>
             }
             else
             {

@@ -140,7 +140,7 @@ else
         await EquipementViewModel.LoadTypesEquipementAsync();
     }
 
-    private async Task ViewDetails(int idEquipement)
+    private void ViewDetails(int idEquipement)
     {
         Utils.Utils.GoDetail(NavigationManager, "equipements", idEquipement);
         //await EquipementViewModel.LoadEquipementDetailsAsync(idEquipement);

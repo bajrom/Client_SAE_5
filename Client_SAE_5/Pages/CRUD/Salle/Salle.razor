@@ -80,7 +80,7 @@ else
         await SalleViewModel.LoadTypeSalleAsync();
     }
 
-    private async Task ViewDetails(int idSalle)
+    private void ViewDetails(int idSalle)
     {
         Utils.Utils.GoDetail(NavigationManager, "salles", idSalle);
         //await SalleViewModel.LoadSalleDetailsAsync(idSalle);

@@ -22,3 +22,9 @@ li.listeUnites{
 li.listeUnites p{
     font-size:1.2rem;
 }
+
+div#mainContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

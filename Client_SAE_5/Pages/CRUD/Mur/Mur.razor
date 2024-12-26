@@ -133,7 +133,7 @@ else
         await MurViewModel.LoadSallesAsync();
     }
 
-    private async Task ViewDetails(int idMur)
+    private void ViewDetails(int idMur)
     {
         Utils.Utils.GoDetail(NavigationManager, "murs", idMur);
         //await MurViewModel.LoadMurDetailsAsync(idMur);

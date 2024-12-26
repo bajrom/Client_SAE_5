@@ -17,9 +17,13 @@ else
 {
     <div id="contentContainer">
         <div>
-            <h5>Orientation: @(Math.Round(MurViewModel.SelectedMurDetails.Orientation,2))° @(MurViewModel.SelectedMurDetails.DirectionNavigation.LettresDirection) en @(MurViewModel.SelectedMurDetails.SalleNavigation.NomSalle) </h5>
-            <p><strong>Longueur :</strong> @MurViewModel.SelectedMurDetails.Longueur cm</p>
-            <p><strong>Hauteur :</strong> @MurViewModel.SelectedMurDetails.Hauteur cm</p>
+            <h5>
+                Localisation: @(RenderOrientationEtSalle(MurViewModel.SelectedMurDetails.Orientation,
+                                                         MurViewModel.SelectedMurDetails.DirectionNavigation,
+                                                         MurViewModel.SelectedMurDetails.SalleNavigation)) 
+            </h5>
+            <h5>Longueur: @(Math.Round(MurViewModel.SelectedMurDetails.Longueur/100,2))m</h5>
+            <h5>Hauteur: @(Math.Round(MurViewModel.SelectedMurDetails.Hauteur/100,2))m</h5>
 
             <br />
             <h5>Capteurs</h5>
@@ -31,11 +35,7 @@ else
                         <li class="listeCliquable" @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "capteurs", capteur.IdCapteur))">@capteur.NomCapteur</li>
                     }
                 </ul>
-            }
-            else
-            {
-                <p><em>Aucun capteur associée</em></p>
-            }
+            } else { <p><em>Aucun capteur associée</em></p> }
 
             <br />
             <h5>Équipements</h5>
@@ -48,18 +48,13 @@ else
                     }
                 </ul>
             }
-            else
-            {
-                <p><em>Aucun équipement associé</em></p>
-            }
-            <br />
-
-            
+            else { <p><em>Aucun équipement associé</em></p> }
+            <br /> 
         </div>
 
 
         <div>
-            <h1>Position des capteurs et équipements sur le mur</h1>
+            <h1>Position des objets sur le mur</h1>
             <div id="cadreMur" style="width: @(MurLargeurPx + "px"); height: @(MurHauteurPx + "px");">
                 @if (MurViewModel.SelectedMurDetails != null)
                 {
@@ -84,9 +79,7 @@ else
                                         background-color: @(GetEquipementColor(equipement.IdTypeEquipement));
                                         @GetEquipementPositionStyle(equipement)"
                                         @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "equipements", equipement.IdEquipement))"
-                                 title="Équipement: @equipement.NomEquipement (@equipement.XEquipement cm, @equipement.YEquipement cm)"
-                                 
-                                 >
+                                 title="Équipement: @equipement.NomEquipement (@equipement.XEquipement cm, @equipement.YEquipement cm)">
                             </div>
                         }
                     }
@@ -180,6 +173,17 @@ else
                 return "brown";
             default:
                 return "black";
+        }
+    }
+
+    private String? RenderOrientationEtSalle(decimal Orientation, DirectionSansNavigationDTO? direction, SalleSansNavigationDTO? salle)
+    {
+        // Vérification déférencement null
+        if ((direction != null && salle != null) && (!String.IsNullOrEmpty(direction.LettresDirection) && !string.IsNullOrEmpty(salle.NomSalle))){
+            return $"{Math.Round(Orientation, 1)}° {direction.LettresDirection} en {salle.NomSalle}";
+        } else
+        {
+            return "Inconnue";
         }
     }
 

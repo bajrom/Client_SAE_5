@@ -18,14 +18,14 @@ else
     <br />
     <h5>Equipements associés</h5>
 
-    @if (TypeEquipementViewModel.SelectedTypeEquipementDetails?.Equipements != null && TypeEquipementViewModel.SelectedTypeEquipementDetails?.Equipements.Count != 0)
+    @if (TypeEquipementViewModel.SelectedTypeEquipementDetails?.Equipements != null && TypeEquipementViewModel.SelectedTypeEquipementDetails?.Equipements.Count != 0 && TypeEquipementViewModel.SelectedTypeEquipementDetails != null)
     {
         <ul>
             @foreach (EquipementSansNavigationDTO equipement in TypeEquipementViewModel.SelectedTypeEquipementDetails.Equipements)
             {
                 @if (equipement != null)
                 {
-                    <li style="cursor:pointer;" 
+                    <li class="listeCliquable"
                         @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "equipements", equipement.IdEquipement))'>
 
                         @(equipement.NomEquipement) (Etat: @(Utils.Utils.RenderEtatContent(equipement.EstActif)))

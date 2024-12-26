@@ -13,15 +13,14 @@
     <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails de l'unité en chargement...</p></p>
 } else
 {
-    <h4>Nom: @(UniteViewModel.SelectedUniteDetails.NomUnite)</h4>
-    @if (UniteViewModel.SelectedUniteDetails.SigleUnite != null){
-        <h4>Sigle: @(UniteViewModel.SelectedUniteDetails.SigleUnite)</h4>
-    }
+    <h4>
+        Nom: @(UniteViewModel.SelectedUniteDetails.NomUnite)  @(sigleRender(UniteViewModel.SelectedUniteDetails.SigleUnite))
+    </h4>
+
     <br />
     @if (UniteViewModel.SelectedUniteDetails.Capteurs.Count > 1){
         <h4>@(UniteViewModel.SelectedUniteDetails.Capteurs.Count) capteurs sont associés à cette unité:</h4>
-    } else 
-    {
+    } else {
         <h4>@(UniteViewModel.SelectedUniteDetails.Capteurs.Count) capteur est associé à cette unité:</h4>
     }
     @if (UniteViewModel.SelectedUniteDetails.Capteurs.Count > 0){
@@ -29,7 +28,7 @@
             @foreach(CapteurSansNavigationDTO capteur in UniteViewModel.SelectedUniteDetails.Capteurs)
             {
                 <li @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "capteurs", capteur.IdCapteur))'
-                    style="cursor:pointer;"> 
+                    class="listeCliquable"> 
 
                     @(capteur.NomCapteur) (ID: @(capteur.IdCapteur))
             
@@ -47,6 +46,17 @@
 @code {
     [Parameter]
     public int IdUnite { get; set; }
+
+    private String? sigleRender(String? sigle)
+    {
+        if (String.IsNullOrEmpty(sigle))
+        {
+            return String.Empty;
+        } else
+        {
+            return String.Concat("(", sigle, ")");
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

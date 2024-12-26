@@ -76,7 +76,7 @@ else
         await TypeSalleViewModel.LoadTypesSallesAsync();
     }
 
-    private async Task ViewDetails(int idTypeSalle)
+    private void ViewDetails(int idTypeSalle)
     {
         Utils.Utils.GoDetail(NavigationManager, "typessalle", idTypeSalle);
         //await TypeSalleViewModel.LoadTypeSalleDetailsAsync(idTypeSalle);
