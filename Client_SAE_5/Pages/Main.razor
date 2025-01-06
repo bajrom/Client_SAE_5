@@ -1,5 +1,12 @@
 ﻿@page "/"
-<h3>DataCare</h3>
+<span id="mainPageTitle">
+    <div class="logo-container">
+        <img src="/images/datacare.png" alt="Logo" class="logo" />
+    </div>
+    <h3>
+        DataCare
+    </h3>
+</span>
 
 <div class="hero-section">
     <div class="text-container">
@@ -31,6 +38,7 @@
         justify-content: space-between;
         padding: 20px;
     }
+
 
     .text-container {
         flex: 1;
@@ -93,5 +101,10 @@
 
     #laptop{
         z-index: 50;
+    }
+
+    span#mainPageTitle {
+        display:flex;
+        flex-direction:row;
     }
 </style>
