@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\css\LayoutStyle.css" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Blazor.Bootstrap" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.6" />
@@ -19,6 +15,7 @@
 
   <ItemGroup>
     <Folder Include="Pages\Divers\" />
+    <Folder Include="Pages\Visualisation3D\" />
   </ItemGroup>
 
 </Project>
