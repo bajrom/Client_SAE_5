@@ -6,7 +6,7 @@ namespace PlaywrightE2ETests
         [TestMethod]
         public async Task HomepageHasPlaywrightInTitleAndGetStartedLinkLinkingtoTheIntroPage()
         {
-            await Page.GotoAsync("https://localhost:7283/crud/batiments");
+            await Page.GotoAsync("https://127.0.0.1:7283/crud/batiments");
 
             // Expect a title "to contain" a substring.
             await Expect(Page).ToHaveTitleAsync(new Regex("Gestion des batiments"));
