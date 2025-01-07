@@ -41,7 +41,7 @@ jobs:
       # Attendre que l'application Blazor démarre (vous pouvez ajuster le délai en fonction de votre projet)
       - name: Wait for the Blazor app to start
         run: |
-          sleep 15  # Attendre que l'application démarre (ajustez la durée selon la vitesse de démarrage de votre app)
+          sleep 15
 
       # Installer Playwright et ses dépendances
       - name: Install Playwright dependencies
@@ -54,7 +54,6 @@ jobs:
         run: |
           dotnet test --filter "TestCategory=E2E"
 
-      # Optionnel : arrêter l'application Blazor après les tests
       - name: Stop Blazor app
         run: |
           pkill dotnet
