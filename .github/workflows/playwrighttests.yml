@@ -12,14 +12,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    services:
-      # Ajouter un service si nécessaire, par exemple pour une base de données
-      # services:
-      #   redis:
-      #     image: "redis:alpine"
-      #     ports:
-      #       - 6379:6379
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
