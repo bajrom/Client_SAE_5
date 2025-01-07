@@ -3,25 +3,16 @@ namespace PlaywrightE2ETests
     [TestClass]
     public class GestionBatimentsTests : PageTest
     {
+        private readonly string baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "https://localhost:7283";
+
         [TestMethod]
         public async Task HomepageHasPlaywrightInTitleAndGetStartedLinkLinkingtoTheIntroPage()
         {
-            await Page.GotoAsync("https://127.0.0.1:7283/crud/batiments");
+            var url = $"{baseUrl}/crud/batiments";
+            await Page.GotoAsync(url);
 
             // Expect a title "to contain" a substring.
             await Expect(Page).ToHaveTitleAsync(new Regex("Gestion des batiments"));
-
-            // create a locator
-            //var getStarted = Page.Locator("text=Get Started");
-
-            // Expect an attribute "to be strictly equal" to the value.
-            //await Expect(getStarted).ToHaveAttributeAsync("href", "/docs/intro");
-
-            // Click the get started link.
-            //await getStarted.ClickAsync();
-
-            // Expects the URL to contain intro.
-            //await Expect(Page).ToHaveURLAsync(new Regex(".*intro"));
         }
     }
 }
