@@ -1,22 +1,68 @@
-name: Playwright Tests
+name: Blazor E2E Tests
+
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
+
 jobs:
-  test:
-    timeout-minutes: 60
+  build-and-test:
     runs-on: ubuntu-latest
+
+    services:
+      # Ajouter un service si nécessaire, par exemple pour une base de données
+      # services:
+      #   redis:
+      #     image: "redis:alpine"
+      #     ports:
+      #       - 6379:6379
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Build & Install
-      run: dotnet build
-    - name: Ensure browsers are installed
-      run: pwsh PlaywrightE2ETests/bin/Debug/net8.0/playwright.ps1 install --with-deps
-    - name: Run your tests
-      run: dotnet test
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install dependencies
+        run: |
+          dotnet restore
+
+      - name: Build the project
+        run: |
+          dotnet build
+
+      - name: Publish the Blazor app
+        run: |
+          dotnet publish -c Release -o ./publish
+
+      # Démarrer l'application Blazor en arrière-plan
+      - name: Start Blazor app
+        run: |
+          nohup dotnet ./publish/YourBlazorApp.dll > app.log 2>&1 &
+
+      # Attendre que l'application Blazor démarre (vous pouvez ajuster le délai en fonction de votre projet)
+      - name: Wait for the Blazor app to start
+        run: |
+          sleep 15  # Attendre que l'application démarre (ajustez la durée selon la vitesse de démarrage de votre app)
+
+      # Installer Playwright et ses dépendances
+      - name: Install Playwright dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      # Exécuter les tests Playwright
+      - name: Run Playwright tests
+        run: |
+          dotnet test --filter "TestCategory=E2E"
+
+      # Optionnel : arrêter l'application Blazor après les tests
+      - name: Stop Blazor app
+        run: |
+          pkill dotnet
