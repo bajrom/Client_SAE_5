@@ -31,5 +31,17 @@ namespace Client_SAE_5.DTO
         public List<UniteDTO> Unites { get => unites; set => unites = value; }
         public MurSansNavigationDTO Mur { get => mur; set => mur = value; }
         public SalleSansNavigationDTO Salle { get => salle; set => salle = value; }
+
+        public CapteurDetailDTO()
+        {
+            idCapteur = 0;
+            NomCapteur = "";
+            estActif = "NSP";
+            XCapteur = 0;
+            YCapteur = 0;
+            ZCapteur = 0;
+            Unites = new List<UniteDTO>();
+            Mur = new MurSansNavigationDTO();
+        }
     }
 }

@@ -28,8 +28,6 @@ namespace Client_SAE_5.ViewModel
 
         public CapteurDetailDTO CapteurInEdition { get; private set; }
 
-        public CapteurSansNavigationDTO newCapteur { get; set; } = new CapteurSansNavigationDTO();
-
         public List<MurDTO> Murs { get; private set; } = new List<MurDTO>();
 
         public List<UniteDTO> Unites { get; private set; } = new List<UniteDTO>();
@@ -133,13 +131,13 @@ namespace Client_SAE_5.ViewModel
         {
             CapteurSansNavigationDTO newCapteur = new CapteurSansNavigationDTO
             {
-                IdCapteur = SelectedCapteurDetail.IdCapteur,
-                NomCapteur = SelectedCapteurDetail.NomCapteur,
-                EstActif = SelectedCapteurDetail.EstActif,
-                XCapteur = SelectedCapteurDetail.XCapteur,
-                YCapteur = SelectedCapteurDetail.YCapteur,
-                ZCapteur = SelectedCapteurDetail.ZCapteur,
-                IdMur = SelectedCapteurDetail.Mur.IdMur,
+                IdCapteur = CapteurInEdition.IdCapteur,
+                NomCapteur = CapteurInEdition.NomCapteur,
+                EstActif = CapteurInEdition.EstActif,
+                XCapteur = CapteurInEdition.XCapteur,
+                YCapteur = CapteurInEdition.YCapteur,
+                ZCapteur = CapteurInEdition.ZCapteur,
+                IdMur = CapteurInEdition.Mur.IdMur,
             };
 
             if (IsValidCapteur(newCapteur))
@@ -174,7 +172,7 @@ namespace Client_SAE_5.ViewModel
                 IdMur = SelectedCapteurDetail.Mur.IdMur,
             };
 
-            if (IsValidCapteur(this.newCapteur))
+            if (IsValidCapteur(newCapteur))
             {
                 try
                 {
