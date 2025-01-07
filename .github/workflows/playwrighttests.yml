@@ -36,8 +36,10 @@ jobs:
       # Installer Playwright CLI pour télécharger les navigateurs
       - name: Install Playwright CLI
         run: |
-          dotnet tool install --global Microsoft.Playwright.CLI
-          playwright install
+          cd PlaywrightE2ETests
+          dotnet add package Microsoft.Playwright.MSTest
+          dotnet build
+          pwsh bin/Debug/net8.0/playwright.ps1 install
 
       # Démarrer l'application Blazor en arrière-plan
       - name: Start Blazor app
