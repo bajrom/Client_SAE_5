@@ -47,32 +47,32 @@ else
     <BodyTemplate>
         <div>
             <label>Nom :</label>
-            <input type="text" @bind="CapteurViewModel.newCapteur.NomCapteur" class="form-control" />
+            <input type="text" @bind="CapteurViewModel.CapteurInEdition.NomCapteur" class="form-control" />
 
             <label>Est actif ? :</label>
             <div>
                 <label>OUI</label>
-                <input type="radio" checked="@(CapteurViewModel.newCapteur.EstActif == "OUI")" 
-                       @onchange="@(() => CapteurViewModel.newCapteur.EstActif = "OUI")" />
+                <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "OUI")"
+                       @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "OUI")" />
                 <label>NON</label>
-                <input type="radio" checked="@(CapteurViewModel.newCapteur.EstActif == "NON")" 
-                       @onchange="@(() => CapteurViewModel.newCapteur.EstActif = "NON")" />
+                <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "NON")"
+                       @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "NON")" />
                 <label>NSP</label>
-                <input type="radio" checked="@(CapteurViewModel.newCapteur.EstActif == "NSP")" 
-                       @onchange="@(() => CapteurViewModel.newCapteur.EstActif = "NSP")" />
+                <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "NSP")"
+                       @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "NSP")" />
             </div>
 
             <label>X :</label>
-            <input type="number" @bind="CapteurViewModel.newCapteur.XCapteur" class="form-control" />
+            <input type="number" @bind="CapteurViewModel.CapteurInEdition.XCapteur" class="form-control" />
 
             <label>Y :</label>
-            <input type="number" @bind="CapteurViewModel.newCapteur.YCapteur" class="form-control" />
+            <input type="number" @bind="CapteurViewModel.CapteurInEdition.YCapteur" class="form-control" />
 
             <label>Z :</label>
-            <input type="number" @bind="CapteurViewModel.newCapteur.ZCapteur" class="form-control" />
+            <input type="number" @bind="CapteurViewModel.CapteurInEdition.ZCapteur" class="form-control" />
 
             <label>Mur :</label>
-            <select @bind="CapteurViewModel.newCapteur.IdMur" class="form-control">
+            <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
                 @foreach (var mur in CapteurViewModel.Murs)
                 {
                     <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
@@ -94,7 +94,7 @@ else
     </BodyTemplate>
     <FooterTemplate>
         <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
-        @if (CapteurViewModel.newCapteur.IdCapteur == 0)
+        @if (CapteurViewModel.CapteurInEdition.IdCapteur == 0)
         {
             <button class="btn btn-success" @onclick="SaveCapteur">Ajouter</button>
         }
@@ -216,7 +216,7 @@ else
 
     private async Task SaveCapteur()
     {
-        if (CapteurViewModel.newCapteur.IdCapteur == 0)
+        if (CapteurViewModel.CapteurInEdition.IdCapteur == 0)
         {
             await CapteurViewModel.AddCapteurAsync();
         }
