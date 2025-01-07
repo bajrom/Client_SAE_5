@@ -3,12 +3,10 @@ namespace PlaywrightE2ETests
     [TestClass]
     public class GestionBatimentsTests : PageTest
     {
-        private readonly string baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "https://localhost:7283";
-
         [TestMethod]
         public async Task HomepageHasPlaywrightInTitleAndGetStartedLinkLinkingtoTheIntroPage()
         {
-            var url = $"{baseUrl}/crud/batiments";
+            var url = $"http://localhost:5258/crud/batiments";
             await Page.GotoAsync(url);
 
             // Expect a title "to contain" a substring.
