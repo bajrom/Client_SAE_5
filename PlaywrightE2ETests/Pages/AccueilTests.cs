@@ -6,7 +6,7 @@ namespace PlaywrightE2ETests.Pages
     [TestClass]
     public class AccueilTests : PageTest
     {
-        private const string Url = $"https://data-care.azurewebsites.net";
+        private const string Url = $"http://localhost:5258";
 
         [TestMethod]
         public async Task HomePageHaveTitleDatacare()
@@ -15,6 +15,27 @@ namespace PlaywrightE2ETests.Pages
 
             // Expect a title "to contain" a substring.
             await Expect(Page).ToHaveTitleAsync(new Regex("Datacare"));
+        }
+
+        [TestMethod]
+        public async Task HomePageHaveImgLaptop()
+        {
+            await Page.GotoAsync(Url);
+
+            var img = Page.GetByTestId("laptop");
+
+            await img.IsVisibleAsync();
+        }
+
+        [TestMethod]
+        public async Task HomePageHaveMainText()
+        {
+            await Page.GotoAsync(Url);
+
+            var txt = Page.GetByTestId("text-container");
+
+            await txt.GetByRole(AriaRole.Paragraph, new() { Name = "txtDesc" }).IsVisibleAsync();
+            await txt.GetByRole(AriaRole.Heading, new() { Name = "txtH1" }).IsVisibleAsync();
         }
 
         [TestMethod]
@@ -52,8 +73,11 @@ namespace PlaywrightE2ETests.Pages
         {
             await Page.GotoAsync(Url);
 
-            await Page.GetByRole(AriaRole.Button, new() { Name = "Démarrer" }).ClickAsync();
+            var btn = Page.GetByRole(AriaRole.Button, new() { Name = "Démarrer" });
 
+            await btn.IsVisibleAsync();
+
+            await btn.ClickAsync();
             await Expect(Page).ToHaveTitleAsync(new Regex("Gestion des Capteurs"));
         }
     }

@@ -9,7 +9,7 @@ namespace PlaywrightE2ETests.Pages.CRUD
     [TestClass]
     public class GestionCapteurTests : PageTest
     {
-        private const string Url = $"https://data-care.azurewebsites.net/crud/capteurs";
+        private const string Url = $"http://localhost:5258/crud/capteurs";
 
         [TestMethod]
         public async Task GestionCapteursTitreCorrect()
@@ -34,6 +34,16 @@ namespace PlaywrightE2ETests.Pages.CRUD
             await Expect(columns).ToHaveCountAsync(3);
         }
 
+        [TestMethod]
+        public async Task BoutonRajouter_Visible_Cliquable()
+        {
+            await Page.GotoAsync(Url);
+
+            var btnRajouter = Page.Locator("button.btn.btn-success");
+            Assert.IsNotNull(btnRajouter, "le bouton d'ajout n'est pas présent");
+
+            await btnRajouter.IsVisibleAsync();
+        }
 
     }
 }

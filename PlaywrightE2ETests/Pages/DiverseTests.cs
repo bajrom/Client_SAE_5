@@ -9,7 +9,7 @@ namespace PlaywrightE2ETests.Pages
     [TestClass]
     public class DiverseTests : PageTest
     {
-        private const string BaseUrl = $"https://data-care.azurewebsites.net/";
+        private const string BaseUrl = $"http://localhost:5258/";
 
         [TestMethod]
         public async Task NotFoundWhenRandomURL()
@@ -30,6 +30,19 @@ namespace PlaywrightE2ETests.Pages
             // Check if the paragraph with id "pNotFound" has the expected text
             var notFoundText = await Page.Locator("p#pNotFound").InnerTextAsync();
             Assert.AreEqual("Désolé, il n'y a rien à cette adresse.", notFoundText);
+        }
+
+        [TestMethod]
+        public async Task ClickDatacareGoHome()
+        {
+            await Page.GotoAsync(BaseUrl+"/crud/batiments");
+
+            var dataCare = Page.Locator("a.navbar-brand");
+            await dataCare.IsVisibleAsync();
+
+            dataCare.ClickAsync();
+            await Expect(Page).ToHaveTitleAsync("Datacare");
+
         }
     }
 }
