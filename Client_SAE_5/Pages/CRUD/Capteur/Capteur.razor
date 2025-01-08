@@ -11,7 +11,7 @@
 <button class="btn btn-success" @onclick="() => AddNewCapteur()">Ajouter un capteur</button>
 <br />
 <br />
-@if (CapteurViewModel.Capteurs == null || CapteurViewModel.Capteurs.Count == 0)
+@if (CapteurViewModel.DBData.Capteurs == null || CapteurViewModel.DBData.Capteurs.Count == 0)
 {
     <Spinner></Spinner>
 }
@@ -26,7 +26,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var capteur in CapteurViewModel.Capteurs)
+            @foreach (var capteur in CapteurViewModel.DBData.Capteurs)
             {
                 <tr class="selection" @onclick="() => ViewDetails(capteur.IdCapteur)">
                     <td>@capteur.NomCapteur</td>
@@ -73,7 +73,11 @@ else
 
             <label>Mur :</label>
             <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
-                @foreach (var mur in CapteurViewModel.Murs)
+                @if(CapteurViewModel.CapteurInEdition.Mur.IdMur == 0)
+                {
+                    <option selected value="0">--- Sélectionner un mur ---</option>
+                }
+                @foreach (var mur in CapteurViewModel.DBData.Murs)
                 {
                     <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
                 }
@@ -81,7 +85,7 @@ else
 
             <label>Unités :</label>
             <div id="divUnitesCapteur">
-                @foreach (var unite in CapteurViewModel.Unites)
+                @foreach (var unite in CapteurViewModel.DBData.Unites)
                 {
                     <div class="form-check">
                         <label class="form-check-label">@unite.NomUnite (@unite.SigleUnite)</label>
@@ -181,8 +185,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await CapteurViewModel.LoadCapteursAsync();
-        await CapteurViewModel.LoadMursAsync();
+        if (CapteurViewModel.DBData.Capteurs == null || CapteurViewModel.DBData.Capteurs.Count == 0)
+        {
+            await CapteurViewModel.LoadCapteursAsync();
+        }
+        if (CapteurViewModel.DBData.Murs == null || CapteurViewModel.DBData.Murs.Count == 0)
+        {
+            await CapteurViewModel.LoadMursAsync();
+        }
     }
 
     private async void ClosePopup()

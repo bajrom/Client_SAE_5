@@ -2,6 +2,7 @@
 using Client_SAE_5.Models;
 using Client_SAE_5.Models.Services;
 using Client_SAE_5.Pages;
+using Client_SAE_5.Utils.Singleton;
 
 namespace Client_SAE_5.ViewModel
 {
@@ -12,25 +13,25 @@ namespace Client_SAE_5.ViewModel
         private readonly WSService<CapteurSansNavigationDTO> _capteurSansNavigationService;
         private readonly WSService<UniteDTO> _uniteService;
         private readonly WSService<UniteCapteurSansNavigationDTO> _unitecapteurService;
+        private readonly WSService<MurDTO> _murService;
+        public DataStorage DBData;
 
-        public CapteurViewModel()
+        public CapteurViewModel(DataStorage data)
         {
             _capteurService = new WSService<CapteurDTO>();
             _capteurDetailService = new WSService<CapteurDetailDTO>();
             _capteurSansNavigationService = new WSService<CapteurSansNavigationDTO>();
             _uniteService = new WSService<UniteDTO>();
             _unitecapteurService = new WSService<UniteCapteurSansNavigationDTO>();
+            _murService = new WSService<MurDTO>();
+            this.DBData = data;
         }
-
-        public List<CapteurDTO> Capteurs { get; private set; } = new List<CapteurDTO>();
 
         public CapteurDetailDTO SelectedCapteurDetail { get; private set; }
 
         public CapteurDetailDTO CapteurInEdition { get; private set; }
 
-        public List<MurDTO> Murs { get; private set; } = new List<MurDTO>();
-
-        public List<UniteDTO> Unites { get; private set; } = new List<UniteDTO>();
+        public List<UniteDTO> CapteurInEditionOldUnites { get; private set; }
 
         public List<UniteDTO> AvailableUnites { get; private set; } = new List<UniteDTO>();
 
@@ -40,7 +41,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                Capteurs = await _capteurService.GetAllTAsync("Capteurs");
+                DBData.Capteurs = await _capteurService.GetAllTAsync("Capteurs");
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -66,8 +67,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                var murService = new WSService<MurDTO>();
-                Murs = await murService.GetAllTAsync("Murs");
+                DBData.Murs = await _murService.GetAllTAsync("Murs");
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -79,11 +79,11 @@ namespace Client_SAE_5.ViewModel
         public async Task LoadCapteurDetailsWithoutDefAsync(int idCapteur)
         {
             CapteurDetailDTO temp = await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
-            if (Unites.Count == 0)
+            if (DBData.Unites.Count == 0)
             {
                 try
                 {
-                    Unites = await _uniteService.GetAllTAsync("Unites");
+                    DBData.Unites = await _uniteService.GetAllTAsync("Unites");
                     ErrorMessage = string.Empty;
                 }
                 catch (Exception ex)
@@ -92,8 +92,9 @@ namespace Client_SAE_5.ViewModel
                 }
             }
 
-            AvailableUnites = Unites.Where(unite => temp.Unites.All(u => u.IdUnite != unite.IdUnite)).ToList();
+            AvailableUnites = DBData.Unites.Where(unite => temp.Unites.All(u => u.IdUnite != unite.IdUnite)).ToList();
             CapteurInEdition = temp;
+            CapteurInEditionOldUnites = new List<UniteDTO>(CapteurInEdition.Unites); // on garde la liste des unites au début de la modif pour pouvoir la comparer à celle lors de la confirmation de modif pour faire les changements correspondant dans les UniteCapteur
         }
 
         public void ChangeSelectedUnites(UniteDTO uniteClicked, bool checkActivated)
@@ -111,11 +112,11 @@ namespace Client_SAE_5.ViewModel
 
         public async Task SetupNewCapteur()
         {
-            if (Unites.Count == 0)
+            if (DBData.Unites.Count == 0)
             {
                 try
                 {
-                    Unites = await _uniteService.GetAllTAsync("Unites");
+                    DBData.Unites = await _uniteService.GetAllTAsync("Unites");
                     ErrorMessage = string.Empty;
                 }
                 catch (Exception ex)
@@ -144,7 +145,11 @@ namespace Client_SAE_5.ViewModel
             {
                 try
                 {
-                    await _capteurSansNavigationService.PostTAsync("Capteurs", newCapteur);
+                    newCapteur = await _capteurSansNavigationService.PostTAsync("Capteurs", newCapteur);
+                    foreach(UniteDTO unite in CapteurInEdition.Unites)
+                    {
+                        await AddUniteCapteurAsync(newCapteur.IdCapteur, unite.IdUnite);
+                    }
                     //essayer de pas avoir à reload
                     await LoadCapteursAsync();
                 }
@@ -163,13 +168,13 @@ namespace Client_SAE_5.ViewModel
         {
             CapteurSansNavigationDTO newCapteur = new CapteurSansNavigationDTO
             {
-                IdCapteur = SelectedCapteurDetail.IdCapteur,
-                NomCapteur = SelectedCapteurDetail.NomCapteur,
-                EstActif = SelectedCapteurDetail.EstActif,
-                XCapteur = SelectedCapteurDetail.XCapteur,
-                YCapteur = SelectedCapteurDetail.YCapteur,
-                ZCapteur = SelectedCapteurDetail.ZCapteur,
-                IdMur = SelectedCapteurDetail.Mur.IdMur,
+                IdCapteur = CapteurInEdition.IdCapteur,
+                NomCapteur = CapteurInEdition.NomCapteur,
+                EstActif = CapteurInEdition.EstActif,
+                XCapteur = CapteurInEdition.XCapteur,
+                YCapteur = CapteurInEdition.YCapteur,
+                ZCapteur = CapteurInEdition.ZCapteur,
+                IdMur = CapteurInEdition.Mur.IdMur,
             };
 
             if (IsValidCapteur(newCapteur))
@@ -177,6 +182,25 @@ namespace Client_SAE_5.ViewModel
                 try
                 {
                     await _capteurSansNavigationService.PutTAsync($"Capteurs/{newCapteur.IdCapteur}", newCapteur);
+
+                    //Ajout des liens avec les unites qui n'étaient pas déjà liées auparavant
+                    foreach(UniteDTO unite in CapteurInEdition.Unites)
+                    {
+                        if (!CapteurInEditionOldUnites.Contains(unite)) // si c'est une nouvelle unite
+                        {
+                            await AddUniteCapteurAsync(newCapteur.IdCapteur, unite.IdUnite);
+                        }
+                    }
+
+                    //supression des liens avec les unites qui étaient liées avant mais ne le sont plus
+                    foreach(UniteDTO ancienneUnite in CapteurInEditionOldUnites)
+                    {
+                        if (!CapteurInEdition.Unites.Contains(ancienneUnite)) // si elle n'est plus liée
+                        {
+                            await DeleteUniteCapteurAsync(newCapteur.IdCapteur, ancienneUnite.IdUnite);
+                        }
+                    }
+
                     await LoadCapteursAsync();
                 }
                 catch (Exception ex)
@@ -204,7 +228,6 @@ namespace Client_SAE_5.ViewModel
                 try
                 {
                     await _unitecapteurService.PostTAsync("UniteCapteur", uniteCapteur);
-                    AvailableUnites = AvailableUnites.Where(unite => unite.IdUnite != idUnite).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -222,7 +245,7 @@ namespace Client_SAE_5.ViewModel
             try
             {
                 await _capteurService.DeleteTAsync("Capteurs", idCapteur);
-                Capteurs.Remove(Capteurs.Single(c => c.IdCapteur == idCapteur));
+                DBData.Capteurs.Remove(DBData.Capteurs.Single(c => c.IdCapteur == idCapteur));
                 await LoadCapteursAsync();
             }
             catch (Exception ex)
@@ -231,12 +254,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public async Task DeleteUniteCapteurAsync(int idUnite, int idCapteur)
+        public async Task DeleteUniteCapteurAsync(int idCapteur, int idUnite)
         {
             try
             {
                 await _unitecapteurService.DeleteDoubleTAsync("UniteCapteur", idCapteur, idUnite);
-                await LoadCapteurDetailsAsync(idCapteur);
             }
             catch (Exception ex)
             {

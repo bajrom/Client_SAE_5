@@ -2,6 +2,7 @@
 using Client_SAE_5.Models;
 using Client_SAE_5.Models.Services;
 using Client_SAE_5.Pages;
+using Client_SAE_5.Utils.Singleton;
 
 namespace Client_SAE_5.ViewModel
 {
