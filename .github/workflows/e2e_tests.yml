@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: setup file
-      run: cd PlaywrightE2ETests
+      run: dir
     - name: Setup dotnet
       uses: actions/setup-dotnet@v4
       with:
