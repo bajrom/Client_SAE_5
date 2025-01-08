@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: setup file
-      run: cd /home/runner/work/Client_SAE_5/Client_SAE_5/PlaywrightE2ETests
     - name: Setup dotnet
       uses: actions/setup-dotnet@v4
       with:
@@ -19,6 +17,6 @@ jobs:
     - name: Build & Install
       run: dotnet build
     - name: Ensure browsers are installed
-      run: bin/Debug/net8.0/playwright.ps1 install --with-deps
+      run: /home/runner/work/Client_SAE_5/Client_SAE_5/PlaywrightE2ETests/bin/Debug/net8.0/playwright.ps1 install --with-deps
     - name: Run your tests
       run: dotnet test
