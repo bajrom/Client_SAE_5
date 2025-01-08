@@ -30,6 +30,8 @@ namespace Client_SAE_5.ViewModel
 
         public List<MurDTO> Murs { get; private set; } = new List<MurDTO>();
 
+        public List<string> NomSalles { get; private set; } = new List<string>();
+
         public List<UniteDTO> Unites { get; private set; } = new List<UniteDTO>();
 
         public List<UniteDTO> AvailableUnites { get; private set; } = new List<UniteDTO>();
@@ -68,6 +70,14 @@ namespace Client_SAE_5.ViewModel
             {
                 var murService = new WSService<MurDTO>();
                 Murs = await murService.GetAllTAsync("Murs");
+
+                // Récupère les noms de salles non null et uniques
+                NomSalles = Murs
+                    .Where(mur => !string.IsNullOrEmpty(mur.NomSalle)) // Filtre les noms non nulls
+                    .Select(mur => mur.NomSalle)
+                    .Distinct() // Supprime les doublons
+                    .ToList();
+
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -253,6 +263,11 @@ namespace Client_SAE_5.ViewModel
         private bool IsValidUniteCapteur(UniteCapteurSansNavigationDTO uniteCapteur)
         {
             return uniteCapteur.IdUnite > 0 && uniteCapteur.IdCapteur > 0;
+        }
+
+        public void ResetError()
+        {
+            ErrorMessage = "";
         }
     }
 }

@@ -50,7 +50,6 @@ else
             <input type="text" @bind="CapteurViewModel.CapteurInEdition.NomCapteur" class="form-control" />
 
             <label>Est actif ? :</label>
-            <div>
                 <label>OUI</label>
                 <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "OUI")"
                        @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "OUI")" />
@@ -60,7 +59,7 @@ else
                 <label>NSP</label>
                 <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "NSP")"
                        @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "NSP")" />
-            </div>
+            <br/>
 
             <label>X :</label>
             <input type="number" @bind="CapteurViewModel.CapteurInEdition.XCapteur" class="form-control" />
@@ -71,13 +70,25 @@ else
             <label>Z :</label>
             <input type="number" @bind="CapteurViewModel.CapteurInEdition.ZCapteur" class="form-control" />
 
-            <label>Mur :</label>
-            <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
-                @foreach (var mur in CapteurViewModel.Murs)
+            <label>Trier par salle :</label>
+            <select @bind="SelectedNomSalle" class="form-control">
+                <option value="">-- Sélectionnez une salle --</option>
+                @foreach (string nomSalle in CapteurViewModel.NomSalles)
                 {
-                    <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                    <option value="@nomSalle">@nomSalle</option>
                 }
             </select>
+
+            @if (!string.IsNullOrEmpty(SelectedNomSalle))
+            {
+                    <label>Mur :</label>
+                    <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
+                        @foreach (var mur in FilteredMurs)
+                        {
+                            <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                        }
+                    </select>
+            }
 
             <label>Unités :</label>
             <div id="divUnitesCapteur">
@@ -101,6 +112,13 @@ else
         else
         {
             <button class="btn btn-primary" @onclick="SaveCapteur">Modifier</button>
+        }
+
+        @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
+        {
+        <div class="alert alert-danger">
+            @CapteurViewModel.ErrorMessage
+        </div>
         }
     </FooterTemplate>
 </Modal>
@@ -155,14 +173,15 @@ else
     }
 } *@
 
-@if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
-{
-    <div class="alert alert-danger">
-        @CapteurViewModel.ErrorMessage
-    </div>
-}
-
 @code {
+    // Propriété pour la salle sélectionnée, initialisée avec le premier nom de salle si disponible
+    private string SelectedNomSalle { get; set; } = string.Empty;
+
+    // Liste filtrée des murs
+    private IEnumerable<MurDTO> FilteredMurs => string.IsNullOrEmpty(SelectedNomSalle)
+        ? CapteurViewModel.Murs
+        : CapteurViewModel.Murs.Where(m => m.NomSalle == SelectedNomSalle);
+
     private Modal formModal;
 
     private ConfirmDialog confirmSupprDialog = default!;
@@ -183,10 +202,17 @@ else
     {
         await CapteurViewModel.LoadCapteursAsync();
         await CapteurViewModel.LoadMursAsync();
+
+        // Initialiser SelectedNomSalle avec la première salle disponible, s'il y en a
+        if (CapteurViewModel.NomSalles?.Any() == true)
+        {
+            SelectedNomSalle = CapteurViewModel.NomSalles.First();
+        }
     }
 
     private async void ClosePopup()
     {
+        CapteurViewModel.ResetError();
         await formModal.HideAsync();
     }
 
@@ -224,8 +250,12 @@ else
         {
             await CapteurViewModel.UpdateCapteurAsync();
         }
-        ClosePopup();
-        StateHasChanged();
+
+        if (string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
+        {
+            ClosePopup();
+            StateHasChanged();
+        }
     }
 
     private async Task OpenDeleteConfirmation()

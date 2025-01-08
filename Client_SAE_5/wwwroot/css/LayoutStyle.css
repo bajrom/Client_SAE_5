@@ -9,8 +9,9 @@
 }
 
 .logo {
-    width: 50px; /* Ajustez la largeur du logo selon vos besoins */
+    width: 45px; /* Ajustez la largeur du logo selon vos besoins */
     height: auto; /* Maintient le ratio de l'image */
+    margin-left: 10px;
 }
 
 .top-row {
