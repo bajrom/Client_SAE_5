@@ -1,0 +1,67 @@
+﻿@page "/alarme"
+<link rel="stylesheet" href="css/alarme.css" />
+@using Microsoft.AspNetCore.Components.Web
+
+<div class="alarm-container">
+    <Toasts class="p-3" Messages="messages" AutoHide="false" Placement="ToastsPlacement.TopRight" />
+    <div class="alarm-button-container">
+        @if (!AlarmTriggered)
+        {
+            <button class="alarm-button off" @onclick="ShowConfirmDialog">OFF</button>
+        }
+        else
+        {
+            <button class="alarm-button on" @onclick="ResetAlarm">ON</button>
+            <div class="alarm-message">
+                🚨 L'alarme est active ! 🚨
+            </div>
+        }
+    </div>
+</div>
+<!-- Pop-up de confirmation -->
+<ConfirmDialog @ref="confirmSupprDialog" />
+
+@code {
+    private bool AlarmTriggered { get; set; } = false;
+
+    // Référence pour la boîte de dialogue
+    private ConfirmDialog confirmSupprDialog = default!;
+
+    List<ToastMessage> messages = new List<ToastMessage>();
+    [Inject] ToastService ToastService { get; set; } = default!;
+
+    ConfirmDialogOptions options = new ConfirmDialogOptions
+        {
+            YesButtonText = "Déclencher",
+            YesButtonColor = ButtonColor.Danger,
+            NoButtonText = "Annuler",
+            NoButtonColor = ButtonColor.Primary
+        };
+
+    private async void ShowConfirmDialog()
+    {
+        var confirmation = await confirmSupprDialog.ShowAsync(
+            title: "Avertissement",
+            message1: "Êtes vous sûr de déclencher l'alarme ?",
+            confirmDialogOptions: options
+        );
+
+        if (confirmation)
+        {
+            TriggerAlarm();
+            ToastService.Notify(new ToastMessage(ToastType.Success, $"L'alarme a été déclenchée"));
+        }
+    }
+
+    private void TriggerAlarm()
+    {
+        AlarmTriggered = true;
+        StateHasChanged();
+    }
+
+    private void ResetAlarm()
+    {
+        ToastService.Notify(new ToastMessage(ToastType.Success, $"L'alarme a été éteinte"));
+        AlarmTriggered = false;
+    }
+}
