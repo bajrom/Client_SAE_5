@@ -6,7 +6,7 @@ namespace PlaywrightE2ETests.Pages
     [TestClass]
     public class AccueilTests : PageTest
     {
-        private const string Url = $"http://localhost:5258";
+        private const string Url = $"https://data-care.azurewebsites.net";
 
         [TestMethod]
         public async Task HomePageHaveTitleDatacare()

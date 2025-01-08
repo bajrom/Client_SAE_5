@@ -9,7 +9,7 @@ namespace PlaywrightE2ETests.Pages.CRUD
     [TestClass]
     public class GestionEquipementsTests : PageTest
     {
-        private const string Url = $"http://localhost:5258/crud/equipements";
+        private const string Url = $"https://data-care.azurewebsites.net/crud/equipements";
 
         [TestMethod]
         public async Task GestionEquipementTitreCorrect()

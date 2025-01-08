@@ -5,7 +5,7 @@ namespace PlaywrightE2ETests.Pages.CRUD
     [TestClass]
     public class GestionBatimentsTests : PageTest
     {
-        private const string Url = $"http://localhost:5258/crud/batiments";
+        private const string Url = $"https://data-care.azurewebsites.net/crud/batiments";
 
         [TestMethod]
         public async Task GestionBatimentTitreCorrect()

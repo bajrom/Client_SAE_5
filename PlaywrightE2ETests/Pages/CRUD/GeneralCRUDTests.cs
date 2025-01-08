@@ -11,7 +11,7 @@ namespace PlaywrightE2ETests.Pages.CRUD
     [TestClass]
     public class GeneralCRUDTests : PageTest
     {
-        private const string Url = $"http://localhost:5258/";
+        private const string Url = $"https://data-care.azurewebsites.net/";
 
         private static readonly List<string> PagesStr = new List<string>
         {

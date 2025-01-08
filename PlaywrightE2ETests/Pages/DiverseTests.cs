@@ -9,7 +9,7 @@ namespace PlaywrightE2ETests.Pages
     [TestClass]
     public class DiverseTests : PageTest
     {
-        private const string BaseUrl = $"http://localhost:5258/";
+        private const string BaseUrl = $"https://data-care.azurewebsites.net/";
 
         [TestMethod]
         public async Task NotFoundWhenRandomURL()
