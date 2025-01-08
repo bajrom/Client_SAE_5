@@ -4,4 +4,4 @@ Le client permet de réaliser un ensemble d'opérations sur les différents comp
 
 Une page Grafana affiche les données des capteurs avec des graphiques
 
-Une visualisation 3D est disponible pour plus de clarté.
+Une visualisation 3D est disponible pour plus de clarté..
