@@ -254,5 +254,10 @@ namespace Client_SAE_5.ViewModel
         {
             return uniteCapteur.IdUnite > 0 && uniteCapteur.IdCapteur > 0;
         }
+
+        public void ResetError()
+        {
+            ErrorMessage = "";
+        }
     }
 }

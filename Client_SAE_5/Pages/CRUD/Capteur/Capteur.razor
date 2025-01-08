@@ -50,7 +50,6 @@ else
             <input type="text" @bind="CapteurViewModel.CapteurInEdition.NomCapteur" class="form-control" />
 
             <label>Est actif ? :</label>
-            <div>
                 <label>OUI</label>
                 <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "OUI")"
                        @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "OUI")" />
@@ -60,7 +59,7 @@ else
                 <label>NSP</label>
                 <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "NSP")"
                        @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "NSP")" />
-            </div>
+            <br/>
 
             <label>X :</label>
             <input type="number" @bind="CapteurViewModel.CapteurInEdition.XCapteur" class="form-control" />
@@ -101,6 +100,13 @@ else
         else
         {
             <button class="btn btn-primary" @onclick="SaveCapteur">Modifier</button>
+        }
+
+        @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
+        {
+        <div class="alert alert-danger">
+            @CapteurViewModel.ErrorMessage
+        </div>
         }
     </FooterTemplate>
 </Modal>
@@ -155,13 +161,6 @@ else
     }
 } *@
 
-@if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
-{
-    <div class="alert alert-danger">
-        @CapteurViewModel.ErrorMessage
-    </div>
-}
-
 @code {
     private Modal formModal;
 
@@ -187,6 +186,7 @@ else
 
     private async void ClosePopup()
     {
+        CapteurViewModel.ResetError();
         await formModal.HideAsync();
     }
 
@@ -224,8 +224,12 @@ else
         {
             await CapteurViewModel.UpdateCapteurAsync();
         }
-        ClosePopup();
-        StateHasChanged();
+
+        if (string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
+        {
+            ClosePopup();
+            StateHasChanged();
+        }
     }
 
     private async Task OpenDeleteConfirmation()
