@@ -9,13 +9,11 @@ namespace PlaywrightE2ETests.Pages
     [TestClass]
     public class DiverseTests : PageTest
     {
-        private const string BaseUrl = $"http://localhost:5258/";
-
         [TestMethod]
         public async Task NotFoundWhenRandomURL()
         {
             // Create a random URL by appending digits to the base URL
-            string randomUrl = BaseUrl + "1";  // Start with some static string part
+            string randomUrl = TestsConfig.BaseURL + "/1";  // Start with some static string part
             for (int i = 0; i < 10; i++)
             {
                 randomUrl += new Random().Next(10).ToString();  // Append random digits
@@ -33,9 +31,9 @@ namespace PlaywrightE2ETests.Pages
         }
 
         [TestMethod]
-        public async Task ClickDatacareGoHome()
+        public async Task ClickDatacare_GoHome()
         {
-            await Page.GotoAsync(BaseUrl+"/crud/batiments");
+            await Page.GotoAsync(TestsConfig.BaseURL + "/crud/batiments");
 
             var dataCare = Page.Locator("a.navbar-brand");
             await dataCare.IsVisibleAsync();

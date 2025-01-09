@@ -6,12 +6,10 @@ namespace PlaywrightE2ETests.Pages
     [TestClass]
     public class AccueilTests : PageTest
     {
-        private const string Url = $"http://localhost:5258";
-
         [TestMethod]
         public async Task HomePageHaveTitleDatacare()
         {
-            await Page.GotoAsync(Url);
+            await Page.GotoAsync(TestsConfig.BaseURL);
 
             // Expect a title "to contain" a substring.
             await Expect(Page).ToHaveTitleAsync(new Regex("Datacare"));
@@ -20,7 +18,7 @@ namespace PlaywrightE2ETests.Pages
         [TestMethod]
         public async Task HomePageHaveImgLaptop()
         {
-            await Page.GotoAsync(Url);
+            await Page.GotoAsync(TestsConfig.BaseURL);
 
             var img = Page.GetByTestId("laptop");
 
@@ -30,7 +28,7 @@ namespace PlaywrightE2ETests.Pages
         [TestMethod]
         public async Task HomePageHaveMainText()
         {
-            await Page.GotoAsync(Url);
+            await Page.GotoAsync(TestsConfig.BaseURL);
 
             var txt = Page.GetByTestId("text-container");
 
@@ -41,7 +39,7 @@ namespace PlaywrightE2ETests.Pages
         [TestMethod]
         public async Task HomePageLinkCRUDPages()
         {
-            await Page.GotoAsync(Url);
+            await Page.GotoAsync(TestsConfig.BaseURL);
 
             await Page.GetByRole(AriaRole.Link, new() { Name = "Gestion CRUD" }).ClickAsync();
 
@@ -51,7 +49,7 @@ namespace PlaywrightE2ETests.Pages
         [TestMethod]
         public async Task HomePageLinkGrafanaPage()
         {
-            await Page.GotoAsync(Url);
+            await Page.GotoAsync(TestsConfig.BaseURL);
 
             await Page.GetByRole(AriaRole.Link, new() { Name = "Grafana" }).ClickAsync();
 
@@ -61,7 +59,7 @@ namespace PlaywrightE2ETests.Pages
         [TestMethod]
         public async Task HomePageLinkVisualisation3DPage()
         {
-            await Page.GotoAsync(Url);
+            await Page.GotoAsync(TestsConfig.BaseURL);
 
             await Page.GetByRole(AriaRole.Link, new() { Name = "Visualisation 3D" }).ClickAsync();
 
@@ -71,7 +69,7 @@ namespace PlaywrightE2ETests.Pages
         [TestMethod]
         public async Task HomePageClickButtonDemarrer()
         {
-            await Page.GotoAsync(Url);
+            await Page.GotoAsync(TestsConfig.BaseURL);
 
             var btn = Page.GetByRole(AriaRole.Button, new() { Name = "Démarrer" });
 

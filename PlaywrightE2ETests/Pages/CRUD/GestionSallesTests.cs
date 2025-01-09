@@ -9,7 +9,7 @@ namespace PlaywrightE2ETests.Pages.CRUD
     [TestClass]
     public class GestionSallesTests : PageTest
     {
-        private const string Url = $"http://localhost:5258/crud/salles";
+        private string Url = String.Concat(TestsConfig.BaseURL, "/crud/salles");
 
         [TestMethod]
         public async Task GestionSalleTitreCorrect()

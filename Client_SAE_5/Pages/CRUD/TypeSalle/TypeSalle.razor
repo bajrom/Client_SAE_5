@@ -25,8 +25,8 @@ else
                 <tr class="selection" @onclick="() => ViewDetails(typesalle.IdTypeSalle)">
                     <td>@typesalle.NomTypeSalle</td>
                     <td>
-                        <button class="btn btn-primary" @onclick="() => EditTypeSalle(typesalle)"><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => DeleteTypeSalle(typesalle.IdTypeSalle)"><Icon Name="IconName.Trash3Fill"></Icon></button>
+                        <button class="btn btn-primary" @onclick="() => EditTypeSalle(typesalle)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => DeleteTypeSalle(typesalle.IdTypeSalle)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }

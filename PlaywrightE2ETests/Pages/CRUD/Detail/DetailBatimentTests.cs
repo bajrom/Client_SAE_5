@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace PlaywrightE2ETests.Pages.CRUD.Detail
 {
     public class DetailBatimentTests:PageTest
     {
-        private const string Url = $"http://localhost:5258/crud/batiments/1";
+        private string Url = String.Concat(TestsConfig.BaseURL,"/crud/batiments/1");
 
         [TestMethod]
         public async Task DetailBatiment_TitreCorrect()

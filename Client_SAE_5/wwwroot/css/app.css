@@ -117,3 +117,7 @@ div a.mainMenuOption:hover{
     filter:drop-shadow(0 5px 5px lightblue);
 }
 
+.whiteOutline {
+    color: black;
+    text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+}
