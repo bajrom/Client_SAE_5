@@ -7,13 +7,16 @@
 <PageTitle>Gestion des batiments</PageTitle>
 
 <h1>Gestion des batiments</h1>
-
+<br /><br />
 @if (BatimentViewModel.Batiments == null || BatimentViewModel.Batiments.Count == 0)
 {
-    <Spinner></Spinner>
+    <div class="d-flex justify-content-center">
+        <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge"/>
+    </div>
 }
 else
 {
+
     <table class="table">
         <thead>
             <tr>
