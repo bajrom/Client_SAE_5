@@ -1,6 +1,7 @@
 ﻿using Client_SAE_5.DTO;
 using Client_SAE_5.Models;
 using Client_SAE_5.Models.Services;
+using Client_SAE_5.Pages.CRUD.Mur;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Client_SAE_5.Utils.Singleton;
@@ -27,6 +28,8 @@ namespace Client_SAE_5.ViewModel
         public EquipementSansNavigationDTO EditableEquipement { get; set; } = new EquipementSansNavigationDTO();
 
         public List<MurDTO> Murs { get; private set; } = new List<MurDTO>();
+
+        public List<string> NomSalles { get; private set; } = new List<string>();
 
         public List<TypeEquipementDTO> TypesEquipement { get; private set; } = new List<TypeEquipementDTO>();
 
@@ -64,6 +67,14 @@ namespace Client_SAE_5.ViewModel
             {
                 var murService = new WSService<MurDTO>();
                 Murs = await murService.GetAllTAsync("Murs");
+
+                // Récupère les noms de salles non null et uniques
+                NomSalles = Murs
+                    .Where(mur => !string.IsNullOrEmpty(mur.NomSalle)) // Filtre les noms non nulls
+                    .Select(mur => mur.NomSalle)
+                    .Distinct() // Supprime les doublons
+                    .ToList();
+
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)

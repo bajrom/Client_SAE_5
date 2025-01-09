@@ -1,0 +1,119 @@
+﻿
+body {
+    background-color: #ff914d;
+}
+
+.toast {
+    font-size: 1.5rem; /* Taille du texte */
+    padding: 20px; /* Plus de marge intérieure */
+    min-width: 300px; /* Taille minimale */
+    max-width: 600px; /* Taille maximale */
+    border-radius: 10px; /* Coins arrondis */
+}
+
+.toast-header {
+    font-size: 1.2rem; /* Taille du texte de l'en-tête */
+}
+
+.toast-body {
+    font-size: 1.4rem; /* Taille du texte principal */
+    line-height: 1.5; /* Espacement entre les lignes */
+}
+
+.toast-close {
+    font-size: 1.5rem; /* Taille du bouton de fermeture */
+}
+
+.alarm-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 200px);
+    color: white;
+}
+
+.alarm-button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.alarm-button {
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2), 0 0 40px 4px rgba(255, 0, 0, 0.8);
+}
+
+    /* Style du bouton OFF */
+    .alarm-button.off {
+        background: linear-gradient(145deg, #444, #222);
+        color: #ff0000;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.5), 0 8px 20px rgba(255, 0, 0, 0.6);
+    }
+
+        .alarm-button.off:hover {
+            transform: scale(1.1);
+            box-shadow: inset 0 6px 15px rgba(0, 0, 0, 0.7), 0 12px 30px rgba(255, 0, 0, 0.9);
+        }
+
+    /* Style du bouton ON */
+    .alarm-button.on {
+        background: linear-gradient(145deg, #ff0000, #990000);
+        color: #ffffff;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.7), 0 8px 30px rgba(255, 0, 0, 0.9);
+        animation: pulse 1.5s infinite;
+    }
+
+        .alarm-button.on:hover {
+            transform: scale(1.1);
+            box-shadow: inset 0 6px 15px rgba(0, 0, 0, 0.8), 0 12px 40px rgba(255, 0, 0, 1);
+        }
+
+/* Animation pour le bouton ON */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 40px 10px rgba(255, 0, 0, 0.8);
+    }
+
+    50% {
+        box-shadow: 0 0 60px 20px rgba(255, 0, 0, 1);
+    }
+
+    100% {
+        box-shadow: 0 0 40px 10px rgba(255, 0, 0, 0.8);
+    }
+}
+
+/* Message d'alarme */
+.alarm-message {
+    margin-top: 20px;
+    font-size: 2rem;
+    color: #ff0000;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    animation: blink 1s infinite;
+}
+
+/* Animation du message */
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}

@@ -84,6 +84,7 @@ else
     <input type="radio" checked="@(EquipementViewModel.EditableEquipement.EstActif == "NON")" name="NON" @onchange="@(() => EquipementViewModel.EditableEquipement.EstActif = "NON")" />
     <label>NSP</label>
     <input type="radio" checked="@(EquipementViewModel.EditableEquipement.EstActif == "NSP")" name="NSP" @onchange="@(() => EquipementViewModel.EditableEquipement.EstActif = "NSP")" />
+    <br />
 
     <label>Longueur :</label>
     <input type="number" @bind="EquipementViewModel.EditableEquipement.Longueur" class="form-control" />
@@ -103,14 +104,26 @@ else
     <label>Z :</label>
     <input type="number" @bind="EquipementViewModel.EditableEquipement.ZEquipement" class="form-control" />
 
-    <label>Mur :</label>
-    <select @bind="EquipementViewModel.EditableEquipement.IdMur" class="form-control">
-        <option value="">-- Sélectionnez un mur --</option>
-        @foreach (var mur in EquipementViewModel.Murs)
+    <label>Trier par salle :</label>
+    <select @bind="SelectedNomSalle" class="form-control">
+        <option value="">-- Sélectionnez une salle --</option>
+        @foreach (string nomSalle in EquipementViewModel.NomSalles)
         {
-            <option value="@mur.IdMur">@mur.Direction @mur.Orientation @mur.NomSalle</option>
+            <option value="@nomSalle">@nomSalle</option>
         }
     </select>
+
+    @if (!string.IsNullOrEmpty(SelectedNomSalle))
+    {
+        <label>Mur :</label>
+        <select @bind="EquipementViewModel.EditableEquipement.IdMur" class="form-control">
+            <option value="">-- Sélectionnez un mur --</option>
+            @foreach (var mur in FilteredMurs)
+            {
+                <option value="@mur.IdMur">@mur.Direction @mur.Orientation @mur.NomSalle</option>
+            }
+        </select>
+    }
 
     <label>Type d'équipement :</label>
     <select @bind="EquipementViewModel.EditableEquipement.IdTypeEquipement" class="form-control">
@@ -133,11 +146,25 @@ else
 }
 
 @code {
+    // Propriété pour la salle sélectionnée, initialisée avec le premier nom de salle si disponible
+    private string SelectedNomSalle { get; set; } = string.Empty;
+
+    // Liste filtrée des murs
+    private IEnumerable<MurDTO> FilteredMurs => string.IsNullOrEmpty(SelectedNomSalle)
+        ? EquipementViewModel.Murs
+        : EquipementViewModel.Murs.Where(m => m.NomSalle == SelectedNomSalle);
+
     protected override async Task OnInitializedAsync()
     {
         await EquipementViewModel.LoadEquipementsAsync();
         await EquipementViewModel.LoadMursAsync();
         await EquipementViewModel.LoadTypesEquipementAsync();
+
+        // Initialiser SelectedNomSalle avec la première salle disponible, s'il y en a
+        if (EquipementViewModel.NomSalles?.Any() == true)
+        {
+            SelectedNomSalle = EquipementViewModel.NomSalles.First();
+        }
     }
 
     private void ViewDetails(int idEquipement)

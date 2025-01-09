@@ -50,7 +50,6 @@ else
             <input type="text" @bind="CapteurViewModel.CapteurInEdition.NomCapteur" class="form-control" />
 
             <label>Est actif ? :</label>
-            <div>
                 <label>OUI</label>
                 <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "OUI")"
                        @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "OUI")" />
@@ -60,7 +59,7 @@ else
                 <label>NSP</label>
                 <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "NSP")"
                        @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "NSP")" />
-            </div>
+            <br/>
 
             <label>X :</label>
             <input type="number" @bind="CapteurViewModel.CapteurInEdition.XCapteur" class="form-control" />
@@ -71,17 +70,40 @@ else
             <label>Z :</label>
             <input type="number" @bind="CapteurViewModel.CapteurInEdition.ZCapteur" class="form-control" />
 
-            <label>Mur :</label>
-            <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
-                @if(CapteurViewModel.CapteurInEdition.Mur.IdMur == 0)
+            <label>Salle :</label>
+            <select @bind="CapteurViewModel.CapteurInEditionNomSalleSelected" class="form-control">
+                @if (string.IsNullOrEmpty(CapteurViewModel.CapteurInEditionNomSalleSelected))
                 {
-                    <option selected value="0">--- Sélectionner un mur ---</option>
+                    <option value="">-- Sélectionnez une salle --</option>
                 }
-                @foreach (var mur in CapteurViewModel.DBData.Murs)
+                @foreach (string nomSalle in CapteurViewModel.NomSalles)
                 {
-                    <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                    <option value="@nomSalle">@nomSalle</option>
                 }
             </select>
+
+
+            @if (!string.IsNullOrEmpty(CapteurViewModel.CapteurInEditionNomSalleSelected))
+            {
+                <label>Mur :</label>
+                <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
+                    @if (CapteurViewModel.CapteurInEditionNomSalleSelected != CapteurViewModel.CapteurInEdition.Salle.NomSalle || CapteurViewModel.CapteurInEdition.Mur.IdMur == 0)
+                    {
+                        <option selected value="0">--- Sélectionnez un mur ---</option>
+                    }
+                    @foreach (var mur in CapteurViewModel.DBData.Murs.Where(m => m.NomSalle == CapteurViewModel.CapteurInEditionNomSalleSelected))
+                    {
+                        @if (mur.IdMur == CapteurViewModel.CapteurInEditionOldMurId)
+                        {
+                            <option selected value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                        }
+                        else
+                        {
+                            <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                        }
+                    }
+                </select>
+            }
 
             <label>Unités :</label>
             <div id="divUnitesCapteur">
@@ -105,6 +127,13 @@ else
         else
         {
             <button class="btn btn-primary" @onclick="SaveCapteur">Modifier</button>
+        }
+
+        @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
+        {
+        <div class="alert alert-danger">
+            @CapteurViewModel.ErrorMessage
+        </div>
         }
     </FooterTemplate>
 </Modal>
@@ -159,13 +188,6 @@ else
     }
 } *@
 
-@if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
-{
-    <div class="alert alert-danger">
-        @CapteurViewModel.ErrorMessage
-    </div>
-}
-
 @code {
     private Modal formModal;
 
@@ -174,6 +196,7 @@ else
     [Inject] ToastService ToastService { get; set; } = default!;
 
     private CapteurDTO? capteurDeleteInConfirmation;
+
 
     private void Test(ChangeEventArgs e)
     {
@@ -189,14 +212,11 @@ else
         {
             await CapteurViewModel.LoadCapteursAsync();
         }
-        if (CapteurViewModel.DBData.Murs == null || CapteurViewModel.DBData.Murs.Count == 0)
-        {
-            await CapteurViewModel.LoadMursAsync();
-        }
     }
 
     private async void ClosePopup()
     {
+        CapteurViewModel.ResetError();
         await formModal.HideAsync();
     }
 
@@ -214,7 +234,7 @@ else
 
     private async Task EditCapteur(Client_SAE_5.DTO.CapteurDTO capteur)
     {
-        await CapteurViewModel.LoadCapteurDetailsWithoutDefAsync(capteur.IdCapteur);
+        await CapteurViewModel.SetupCapteurEdition(capteur.IdCapteur);
         OpenPopup();
     }
 
@@ -234,8 +254,12 @@ else
         {
             await CapteurViewModel.UpdateCapteurAsync();
         }
-        ClosePopup();
-        StateHasChanged();
+
+        if (string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
+        {
+            ClosePopup();
+            StateHasChanged();
+        }
     }
 
     private async Task OpenDeleteConfirmation()
