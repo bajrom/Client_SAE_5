@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Client_SAE_5.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Client_SAE_5.Utils.Singleton;
 
 namespace Client_SAE_5
 {
@@ -29,6 +30,10 @@ namespace Client_SAE_5
             builder.Services.AddScoped<EquipementViewModel>();
             builder.Services.AddScoped<TypeEquipementViewModel>();
             builder.Services.AddScoped<UniteViewModel>();
+
+            // Ajout singleton du DataStorage (permet de garder les listes des éléments entre les pages et les avoir à jour quand ajout/modif/suppression)
+            builder.Services.AddSingleton<DataStorage>();
+
             builder.Services.AddBlazorBootstrap();
 
 

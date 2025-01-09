@@ -4,6 +4,7 @@ using Client_SAE_5.Models.Services;
 using Client_SAE_5.Pages.CRUD.Mur;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Client_SAE_5.Utils.Singleton;
 
 namespace Client_SAE_5.ViewModel
 {

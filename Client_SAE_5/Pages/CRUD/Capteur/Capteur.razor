@@ -11,7 +11,7 @@
 <button class="btn btn-success" @onclick="() => AddNewCapteur()">Ajouter un capteur</button>
 <br />
 <br />
-@if (CapteurViewModel.Capteurs == null || CapteurViewModel.Capteurs.Count == 0)
+@if (CapteurViewModel.DBData.Capteurs == null || CapteurViewModel.DBData.Capteurs.Count == 0)
 {
     <Spinner></Spinner>
 }
@@ -26,7 +26,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var capteur in CapteurViewModel.Capteurs)
+            @foreach (var capteur in CapteurViewModel.DBData.Capteurs)
             {
                 <tr class="selection" @onclick="() => ViewDetails(capteur.IdCapteur)">
                     <td>@capteur.NomCapteur</td>
@@ -70,29 +70,44 @@ else
             <label>Z :</label>
             <input type="number" @bind="CapteurViewModel.CapteurInEdition.ZCapteur" class="form-control" />
 
-            <label>Trier par salle :</label>
-            <select @bind="SelectedNomSalle" class="form-control">
-                <option value="">-- Sélectionnez une salle --</option>
+            <label>Salle :</label>
+            <select @bind="CapteurViewModel.CapteurInEditionNomSalleSelected" class="form-control">
+                @if (string.IsNullOrEmpty(CapteurViewModel.CapteurInEditionNomSalleSelected))
+                {
+                    <option value="">-- Sélectionnez une salle --</option>
+                }
                 @foreach (string nomSalle in CapteurViewModel.NomSalles)
                 {
                     <option value="@nomSalle">@nomSalle</option>
                 }
             </select>
 
-            @if (!string.IsNullOrEmpty(SelectedNomSalle))
+
+            @if (!string.IsNullOrEmpty(CapteurViewModel.CapteurInEditionNomSalleSelected))
             {
-                    <label>Mur :</label>
-                    <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
-                        @foreach (var mur in FilteredMurs)
+                <label>Mur :</label>
+                <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
+                    @if (CapteurViewModel.CapteurInEditionNomSalleSelected != CapteurViewModel.CapteurInEdition.Salle.NomSalle || CapteurViewModel.CapteurInEdition.Mur.IdMur == 0)
+                    {
+                        <option selected value="0">--- Sélectionnez un mur ---</option>
+                    }
+                    @foreach (var mur in CapteurViewModel.DBData.Murs.Where(m => m.NomSalle == CapteurViewModel.CapteurInEditionNomSalleSelected))
+                    {
+                        @if (mur.IdMur == CapteurViewModel.CapteurInEditionOldMurId)
+                        {
+                            <option selected value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                        }
+                        else
                         {
                             <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
                         }
-                    </select>
+                    }
+                </select>
             }
 
             <label>Unités :</label>
             <div id="divUnitesCapteur">
-                @foreach (var unite in CapteurViewModel.Unites)
+                @foreach (var unite in CapteurViewModel.DBData.Unites)
                 {
                     <div class="form-check">
                         <label class="form-check-label">@unite.NomUnite (@unite.SigleUnite)</label>
@@ -174,14 +189,6 @@ else
 } *@
 
 @code {
-    // Propriété pour la salle sélectionnée, initialisée avec le premier nom de salle si disponible
-    private string SelectedNomSalle { get; set; } = string.Empty;
-
-    // Liste filtrée des murs
-    private IEnumerable<MurDTO> FilteredMurs => string.IsNullOrEmpty(SelectedNomSalle)
-        ? CapteurViewModel.Murs
-        : CapteurViewModel.Murs.Where(m => m.NomSalle == SelectedNomSalle);
-
     private Modal formModal;
 
     private ConfirmDialog confirmSupprDialog = default!;
@@ -189,6 +196,7 @@ else
     [Inject] ToastService ToastService { get; set; } = default!;
 
     private CapteurDTO? capteurDeleteInConfirmation;
+
 
     private void Test(ChangeEventArgs e)
     {
@@ -200,13 +208,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await CapteurViewModel.LoadCapteursAsync();
-        await CapteurViewModel.LoadMursAsync();
-
-        // Initialiser SelectedNomSalle avec la première salle disponible, s'il y en a
-        if (CapteurViewModel.NomSalles?.Any() == true)
+        if (CapteurViewModel.DBData.Capteurs == null || CapteurViewModel.DBData.Capteurs.Count == 0)
         {
-            SelectedNomSalle = CapteurViewModel.NomSalles.First();
+            await CapteurViewModel.LoadCapteursAsync();
         }
     }
 
@@ -230,7 +234,7 @@ else
 
     private async Task EditCapteur(Client_SAE_5.DTO.CapteurDTO capteur)
     {
-        await CapteurViewModel.LoadCapteurDetailsWithoutDefAsync(capteur.IdCapteur);
+        await CapteurViewModel.SetupCapteurEdition(capteur.IdCapteur);
         OpenPopup();
     }
 
