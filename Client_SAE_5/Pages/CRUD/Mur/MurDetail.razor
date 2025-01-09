@@ -62,10 +62,12 @@ else
                     {
                         @foreach (var capteur in MurViewModel.SelectedMurDetails.Capteurs)
                         {
-                            <div class="capteurMurSchema" style="width: @(CapteurLargeurPx)px; height: @(CapteurHauteurPx)px; @GetCapteurPositionStyle(capteur)"
-                                 title="Capteur: @capteur.NomCapteur (@capteur.XCapteur cm, @capteur.YCapteur cm)"
-                                 @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "capteurs", capteur.IdCapteur))">
-                            </div>
+                            @if (capteur.ZCapteur == 0){
+                                <div class="capteurMurSchema" style="width: @(CapteurLargeurPx)px; height: @(CapteurHauteurPx)px; @GetCapteurPositionStyle(capteur)"
+                                     title="Capteur: @capteur.NomCapteur (@capteur.XCapteur cm, @capteur.YCapteur cm)"
+                                     @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "capteurs", capteur.IdCapteur))">
+                                </div>
+                            }
                         }
                     }
 
@@ -73,14 +75,16 @@ else
                     {
                         @foreach (var equipement in MurViewModel.SelectedMurDetails.Equipements)
                         {
-                            <div class="equipementMurSchema" style="
-                                        width: @((equipement.Longueur * ScaleX).ToString(System.Globalization.CultureInfo.InvariantCulture))px; 
-                                        height: @((equipement.Hauteur * ScaleY).ToString(System.Globalization.CultureInfo.InvariantCulture))px;
-                                        background-color: @(GetEquipementColor(equipement.IdTypeEquipement));
-                                        @GetEquipementPositionStyle(equipement)"
-                                        @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "equipements", equipement.IdEquipement))"
-                                 title="Équipement: @equipement.NomEquipement (@equipement.XEquipement cm, @equipement.YEquipement cm)">
-                            </div>
+                            @if (equipement.ZEquipement == 0){
+                                <div class="equipementMurSchema" style="
+                                            width: @((equipement.Longueur * ScaleX).ToString(System.Globalization.CultureInfo.InvariantCulture))px; 
+                                            height: @((equipement.Hauteur * ScaleY).ToString(System.Globalization.CultureInfo.InvariantCulture))px;
+                                            background-color: @(GetEquipementColor(equipement.IdTypeEquipement));
+                                            @GetEquipementPositionStyle(equipement)"
+                                            @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "equipements", equipement.IdEquipement))"
+                                     title="Équipement: @equipement.NomEquipement (@equipement.XEquipement cm, @equipement.YEquipement cm)">
+                                </div>
+                            }
                         }
                     }
                 }
