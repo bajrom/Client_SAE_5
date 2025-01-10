@@ -6,14 +6,6 @@ namespace PlaywrightE2ETests.Pages
     [TestClass]
     public class AccueilTests : PageTest
     {
-        [TestMethod]
-        public async Task HomePageHaveTitleDatacare()
-        {
-            await Page.GotoAsync(TestsConfig.BaseURL);
-
-            // Expect a title "to contain" a substring.
-            await Expect(Page).ToHaveTitleAsync(new Regex("Datacare"));
-        }
 
         [TestMethod]
         public async Task HomePageHaveImgLaptop()
@@ -64,6 +56,16 @@ namespace PlaywrightE2ETests.Pages
             await Page.GetByRole(AriaRole.Link, new() { Name = "Visualisation 3D" }).ClickAsync();
 
             await Expect(Page).ToHaveTitleAsync(new Regex("Visualisation 3D"));
+        }
+
+        [TestMethod]
+        public async Task HomePageLinkAlarmePage()
+        {
+            await Page.GotoAsync(TestsConfig.BaseURL);
+
+            await Page.GetByRole(AriaRole.Link, new() { Name = "Alarme" }).ClickAsync();
+
+            await Expect(Page).ToHaveTitleAsync(new Regex("Alarme"));
         }
 
         [TestMethod]

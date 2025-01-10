@@ -13,7 +13,9 @@
 
 @if (MurViewModel.DBData.Murs == null || MurViewModel.DBData.Murs.Count == 0)
 {
-    <Spinner></Spinner>
+    <div class="d-flex justify-content-center">
+        <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
+    </div>
 }
 else
 {

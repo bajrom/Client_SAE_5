@@ -122,10 +122,7 @@ namespace Client_SAE_5.ViewModel
                 await LoadMursAsync();
             }
 
-            if (NomSalles == null || NomSalles.Count == 0)
-            {
-                LoadNomSallesAsync();
-            }
+            LoadNomSallesAsync();
 
             AvailableUnites = DBData.Unites.Where(unite => temp.Unites.All(u => u.IdUnite != unite.IdUnite)).ToList();
             CapteurInEdition = temp;
@@ -164,6 +161,12 @@ namespace Client_SAE_5.ViewModel
                 LoadNomSallesAsync();
             }
 
+            if (DBData.Murs == null || DBData.Murs.Count == 0)
+            {
+                await LoadMursAsync();
+            }
+
+            LoadNomSallesAsync();
             CapteurInEdition = new CapteurDetailDTO();
         }
 

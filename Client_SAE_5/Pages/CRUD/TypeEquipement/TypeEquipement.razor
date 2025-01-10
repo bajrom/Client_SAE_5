@@ -5,10 +5,15 @@
 <PageTitle>Gestion des types d'équipement</PageTitle>
 
 <h1>Gestion des types types d'équipement</h1>
+<button class="btn btn-success" @onclick="() => AddNewTypeEquipement()">Ajouter un type d'équipement</button>
+<br />
+<br />
 
-@if (TypeEquipementViewModel.TypesEquipement == null || TypeEquipementViewModel.TypesEquipement.Count == 0)
+@if (TypeEquipementViewModel.DBData.TypesEquipement == null || TypeEquipementViewModel.DBData.TypesEquipement.Count == 0)
 {
-    <Spinner></Spinner>
+    <div class="d-flex justify-content-center">
+        <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
+    </div>
 }
 else
 {
@@ -20,13 +25,13 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var typeequipement in TypeEquipementViewModel.TypesEquipement)
+            @foreach (var typeequipement in TypeEquipementViewModel.DBData.TypesEquipement)
             {
                 <tr class="selection" @onclick="() => ViewDetails(typeequipement.IdTypeEquipement)">
                     <td>@typeequipement.NomTypeEquipement</td>
                     <td>
                         <button class="btn btn-primary" @onclick="() => EditTypeEquipement(typeequipement)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => DeleteTypeEquipement(typeequipement.IdTypeEquipement)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(typeequipement)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
@@ -53,43 +58,73 @@ else
     }
 }
  *@
-<h2>Ajouter ou Modifier un type d'équipement</h2>
-<div>
-    <label>Nom :</label>
-    <input type="text" @bind="TypeEquipementViewModel.EditableTypeEquipement.NomTypeEquipement" class="form-control" />
 
-    <button class="btn btn-success" @onclick="SaveTypeEquipement">Enregistrer</button>
-    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
-</div>
+<!-- Modale pour l'édition -->
+<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du type d'équipement">
+    <BodyTemplate>
+        <div>
+            <label>Nom :</label>
+            <input type="text" @bind="TypeEquipementViewModel.TypeEquipementInEdition.NomTypeEquipement" class="form-control" />
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+        @if (TypeEquipementViewModel.TypeEquipementInEdition.IdTypeEquipement == 0)
+        {
+            <button class="btn btn-success" @onclick="SaveTypeEquipement">Ajouter</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" @onclick="SaveTypeEquipement">Modifier</button>
+        }
 
-@if (!string.IsNullOrEmpty(TypeEquipementViewModel.ErrorMessage))
-{
-    <div class="alert alert-danger">
-        @TypeEquipementViewModel.ErrorMessage
-    </div>
-}
+        @if (!string.IsNullOrEmpty(TypeEquipementViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @TypeEquipementViewModel.ErrorMessage
+            </div>
+        }
+    </FooterTemplate>
+</Modal>
+
+<ConfirmDialog @ref="confirmSupprDialog" />
 
 @code {
+    private Modal formModal;
+    private ConfirmDialog confirmSupprDialog = default!;
+    private TypeEquipementDTO? typeequipementDeleteInConfirmation;
+    [Inject] ToastService ToastService { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     {
-        await TypeEquipementViewModel.LoadTypesEquipementAsync();
+        if (TypeEquipementViewModel.DBData.TypesEquipement == null || TypeEquipementViewModel.DBData.TypesEquipement.Count == 0)
+        {
+            await TypeEquipementViewModel.LoadTypesEquipementAsync();
+        }
     }
 
     private void ViewDetails(int idTypeEquipement)
     {
         Utils.Utils.GoDetail(NavigationManager, "typesequipement", idTypeEquipement);
+        StateHasChanged();
         //await TypeEquipementViewModel.LoadTypeEquipementDetailsAsync(idTypeEquipement);
     }
 
     private async Task EditTypeEquipement(Client_SAE_5.DTO.TypeEquipementDTO typeEquipement)
     {
-        var temp = await TypeEquipementViewModel.LoadTypeEquipementsDetailsWithoutDefAsync(typeEquipement.IdTypeEquipement);
-        TypeEquipementViewModel.EditTypeEquipement(temp);
+        await TypeEquipementViewModel.SetupTypeEquipementEdition(typeEquipement.IdTypeEquipement);
+        OpenPopup();
+    }
+
+    private async Task AddNewTypeEquipement()
+    {
+        await TypeEquipementViewModel.SetupNewTypeEquipement();
+        OpenPopup();
     }
 
     private async Task SaveTypeEquipement()
     {
-        if (TypeEquipementViewModel.EditableTypeEquipement.IdTypeEquipement == 0)
+        if (TypeEquipementViewModel.TypeEquipementInEdition.IdTypeEquipement == 0)
         {
             await TypeEquipementViewModel.AddTypeEquipementAsync();
         }
@@ -99,13 +134,58 @@ else
         }
     }
 
+    private async Task OpenDeleteConfirmation()
+    {
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "Supprimer",
+                YesButtonColor = ButtonColor.Danger,
+                NoButtonText = "Annuler",
+                NoButtonColor = ButtonColor.Primary
+            };
+
+        if (typeequipementDeleteInConfirmation == null)
+        {
+            throw new ArgumentNullException("Le type d'équipement dont on veut récupérer la confirmation de suppression est NULL.");
+        }
+
+        var confirmation = await confirmSupprDialog.ShowAsync(
+            title: "Confirmer la suppression du type d'équipement",
+            message1: "Êtes vous sûr de vouloir supprimer le type d'équipement \"" + typeequipementDeleteInConfirmation.NomTypeEquipement + "\" ?",
+            confirmDialogOptions: options);
+
+        if (confirmation)
+        {
+            await DeleteTypeEquipement(typeequipementDeleteInConfirmation.IdTypeEquipement);
+            ToastService.Notify(new ToastMessage(ToastType.Success, $"Le type d'équipement a été supprimé avec succès"));
+        }
+    }
+
+    private async Task BeginDeleteConfirmation(TypeEquipementDTO typeequipementToConfirmDeletion)
+    {
+        typeequipementDeleteInConfirmation = typeequipementToConfirmDeletion;
+        await OpenDeleteConfirmation();
+    }
+
     private async Task DeleteTypeEquipement(int idTypeEquipement)
     {
         await TypeEquipementViewModel.DeleteTypeEquipementAsync(idTypeEquipement);
+        StateHasChanged();
+    }
+
+    private async void ClosePopup()
+    {
+        TypeEquipementViewModel.ResetError();
+        await formModal.HideAsync();
+    }
+
+    private async void OpenPopup()
+    {
+        await formModal.ShowAsync();
     }
 
     private void CancelEdit()
     {
-        TypeEquipementViewModel.EditableTypeEquipement = new Client_SAE_5.DTO.TypeEquipementDTO();
+        ClosePopup();
     }
 }

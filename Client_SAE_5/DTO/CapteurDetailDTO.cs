@@ -42,6 +42,7 @@ namespace Client_SAE_5.DTO
             ZCapteur = 0;
             Unites = new List<UniteDTO>();
             Mur = new MurSansNavigationDTO();
+            Salle = new SalleSansNavigationDTO();
         }
     }
 }

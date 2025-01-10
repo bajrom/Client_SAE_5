@@ -113,6 +113,7 @@ table tr.selection {
     transition: 0.2s ease all;
 }
 
+
 div a.mainMenuOption:hover{
     filter:drop-shadow(0 5px 5px lightblue);
 }
@@ -120,4 +121,31 @@ div a.mainMenuOption:hover{
 .whiteOutline {
     color: black;
     text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+}
+
+.listeCliquable{
+    transition: 0.5s ease all;
+}
+
+.listeCliquable:hover {
+    color: #945805;
+    text-decoration: underline;
+    transition: 0.5s ease all;
+}
+
+div.top-row{
+    background-color:black;
+}
+
+#menuHome{
+    display:flex;
+    justify-content:left;
+    flex-direction:row;
+    font-weight:600;
+}
+
+i.bi-house-fill{
+    display:flex;
+    justify-content:start;
+    margin-right:15px;
 }
