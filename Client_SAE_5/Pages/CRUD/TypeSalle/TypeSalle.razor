@@ -2,18 +2,16 @@
 @inject Client_SAE_5.ViewModel.TypeSalleViewModel TypeSalleViewModel
 @inject NavigationManager NavigationManager
 
-<PageTitle>Gestion des types de salles</PageTitle>
+<PageTitle>Gestion des types de salle</PageTitle>
 
-<h1>Gestion des types de salles</h1>
+<h1>Gestion des types de salle</h1>
 
 @if (TypeSalleViewModel.TypeSalles == null || TypeSalleViewModel.TypeSalles.Count == 0)
 {
     <div class="d-flex justify-content-center">
         <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
     </div>
-}
-else
-{
+} else {
     <table class="table">
         <thead>
             <tr>
