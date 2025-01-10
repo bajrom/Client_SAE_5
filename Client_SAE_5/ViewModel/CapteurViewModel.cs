@@ -100,7 +100,6 @@ namespace Client_SAE_5.ViewModel
             try
             {
                 DBData.Murs = await _murService.GetAllTAsync("Murs");
-                var murService = new WSService<MurDTO>();
 
                 ErrorMessage = string.Empty;
             }

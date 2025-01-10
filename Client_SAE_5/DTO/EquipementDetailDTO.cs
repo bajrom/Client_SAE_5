@@ -41,5 +41,21 @@ namespace Client_SAE_5.DTO
         public SalleSansNavigationDTO Salle { get => salle; set => salle = value; }
 
         public TypeEquipementDTO TypeEquipement { get => typeEquipement; set => typeEquipement = value; }
+
+        public EquipementDetailDTO()
+        {
+            IdEquipement = 0;
+            NomEquipement = "";
+            EstActif = "NSP";
+            PositionX = 0;
+            PositionY = 0;
+            PositionZ = 0;
+            Longueur = 0;
+            Largeur = 0;
+            Hauteur = 0;
+            Mur = new MurSansNavigationDTO();
+            Salle = new SalleSansNavigationDTO();
+            TypeEquipement = new TypeEquipementDTO();
+        }
     }
 }

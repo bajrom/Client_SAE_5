@@ -5,8 +5,10 @@
 <PageTitle>Gestion des équipements</PageTitle>
 
 <h1>Gestion des équipements</h1>
-
-@if (EquipementViewModel.Equipements == null || EquipementViewModel.Equipements.Count == 0)
+<button class="btn btn-success" @onclick="() => AddNewEquipement()">Ajouter un équipement</button>
+<br />
+<br />
+@if (EquipementViewModel.DBData.Equipements == null || EquipementViewModel.DBData.Equipements.Count == 0)
 {
     <div class="d-flex justify-content-center">
         <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
@@ -25,7 +27,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var equipement in EquipementViewModel.Equipements)
+            @foreach (var equipement in EquipementViewModel.DBData.Equipements)
             {
                 <tr class="selection" @onclick="() => ViewDetails(equipement.IdEquipement)">
                     <td>@equipement.NomEquipement</td>
@@ -34,7 +36,7 @@ else
                     <td>@equipement.Dimensions</td>
                     <td>
                         <button class="btn btn-primary" @onclick="() => EditEquipement(equipement)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => DeleteEquipement(equipement.IdEquipement)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(equipement)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
@@ -73,117 +75,163 @@ else
     }
 } *@
 
-<h2>Ajouter ou Modifier un équipement</h2>
-<div>
-    <label>Nom :</label>
-    <input type="text" @bind="EquipementViewModel.EditableEquipement.NomEquipement" class="form-control" />
+<!-- Modale pour l'édition -->
+<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations de l'équipement">
+    <BodyTemplate>
+        <div>
+            <label>Nom :</label>
+            <input type="text" @bind="EquipementViewModel.EquipementInEdition.NomEquipement" class="form-control" />
 
-    <label>Est actif ? :</label>
+            <label>Est actif ? :</label>
+            <label>OUI</label>
+            <input type="radio" checked="@(EquipementViewModel.EquipementInEdition.EstActif == "OUI")"
+                   @onchange="@(() => EquipementViewModel.EquipementInEdition.EstActif = "OUI")" />
+            <label>NON</label>
+            <input type="radio" checked="@(EquipementViewModel.EquipementInEdition.EstActif == "NON")"
+                   @onchange="@(() => EquipementViewModel.EquipementInEdition.EstActif = "NON")" />
+            <label>NSP</label>
+            <input type="radio" checked="@(EquipementViewModel.EquipementInEdition.EstActif == "NSP")"
+                   @onchange="@(() => EquipementViewModel.EquipementInEdition.EstActif = "NSP")" />
+            <br />
 
-    <label>OUI</label>
-    <input type="radio" checked="@(EquipementViewModel.EditableEquipement.EstActif == "OUI")" name="OUI" @onchange="@(() => EquipementViewModel.EditableEquipement.EstActif = "OUI")" />
-    <label>NON</label>
-    <input type="radio" checked="@(EquipementViewModel.EditableEquipement.EstActif == "NON")" name="NON" @onchange="@(() => EquipementViewModel.EditableEquipement.EstActif = "NON")" />
-    <label>NSP</label>
-    <input type="radio" checked="@(EquipementViewModel.EditableEquipement.EstActif == "NSP")" name="NSP" @onchange="@(() => EquipementViewModel.EditableEquipement.EstActif = "NSP")" />
-    <br />
+            <label>Longueur :</label>
+            <input type="number" @bind="EquipementViewModel.EquipementInEdition.Longueur" class="form-control" />
 
-    <label>Longueur :</label>
-    <input type="number" @bind="EquipementViewModel.EditableEquipement.Longueur" class="form-control" />
+            <label>Largeur :</label>
+            <input type="number" @bind="EquipementViewModel.EquipementInEdition.Largeur" class="form-control" />
 
-    <label>Largeur :</label>
-    <input type="number" @bind="EquipementViewModel.EditableEquipement.Largeur" class="form-control" />
+            <label>Hauteur :</label>
+            <input type="number" @bind="EquipementViewModel.EquipementInEdition.Hauteur" class="form-control" />
 
-    <label>Hauteur :</label>
-    <input type="number" @bind="EquipementViewModel.EditableEquipement.Hauteur" class="form-control" />
+            <label>X :</label>
+            <input type="number" @bind="EquipementViewModel.EquipementInEdition.PositionX" class="form-control" />
 
-    <label>X :</label>
-    <input type="number" @bind="EquipementViewModel.EditableEquipement.XEquipement" class="form-control" />
+            <label>Y :</label>
+            <input type="number" @bind="EquipementViewModel.EquipementInEdition.PositionY" class="form-control" />
 
-    <label>Y :</label>
-    <input type="number" @bind="EquipementViewModel.EditableEquipement.YEquipement" class="form-control" />
+            <label>Z :</label>
+            <input type="number" @bind="EquipementViewModel.EquipementInEdition.PositionZ" class="form-control" />
 
-    <label>Z :</label>
-    <input type="number" @bind="EquipementViewModel.EditableEquipement.ZEquipement" class="form-control" />
+            <label>Salle :</label>
+            <select @bind="EquipementViewModel.EquipementInEditionNomSalleSelected" class="form-control">
+                @if (string.IsNullOrEmpty(EquipementViewModel.EquipementInEditionNomSalleSelected))
+                {
+                    <option value="">-- Sélectionnez une salle --</option>
+                }
+                @foreach (string nomSalle in EquipementViewModel.NomSalles)
+                {
+                    <option value="@nomSalle">@nomSalle</option>
+                }
+            </select>
 
-    <label>Trier par salle :</label>
-    <select @bind="SelectedNomSalle" class="form-control">
-        <option value="">-- Sélectionnez une salle --</option>
-        @foreach (string nomSalle in EquipementViewModel.NomSalles)
-        {
-            <option value="@nomSalle">@nomSalle</option>
-        }
-    </select>
 
-    @if (!string.IsNullOrEmpty(SelectedNomSalle))
-    {
-        <label>Mur :</label>
-        <select @bind="EquipementViewModel.EditableEquipement.IdMur" class="form-control">
-            <option value="">-- Sélectionnez un mur --</option>
-            @foreach (var mur in FilteredMurs)
+            @if (!string.IsNullOrEmpty(EquipementViewModel.EquipementInEditionNomSalleSelected))
             {
-                <option value="@mur.IdMur">@mur.Direction @mur.Orientation @mur.NomSalle</option>
+                <label>Mur :</label>
+                <select @bind="EquipementViewModel.EquipementInEdition.Mur.IdMur" class="form-control">
+                    @if (EquipementViewModel.EquipementInEditionNomSalleSelected != EquipementViewModel.EquipementInEdition.Salle.NomSalle || EquipementViewModel.EquipementInEdition.Mur.IdMur == 0)
+                    {
+                        <option selected value="0">--- Sélectionnez un mur ---</option>
+                    }
+                    @foreach (var mur in EquipementViewModel.DBData.Murs.Where(m => m.NomSalle == EquipementViewModel.EquipementInEditionNomSalleSelected))
+                    {
+                        @if (mur.IdMur == EquipementViewModel.EquipementInEditionOldMurId)
+                        {
+                            <option selected value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                        }
+                        else
+                        {
+                            <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                        }
+                    }
+                </select>
             }
-        </select>
-    }
 
-    <label>Type d'équipement :</label>
-    <select @bind="EquipementViewModel.EditableEquipement.IdTypeEquipement" class="form-control">
-        <option value="">-- Sélectionnez un type d'équipement --</option>
-        @foreach (var typeequipement in EquipementViewModel.TypesEquipement)
+            <label>Type équipement :</label>
+            <select @bind="EquipementViewModel.EquipementInEdition.TypeEquipement.IdTypeEquipement" class="form-control">
+                @if (EquipementViewModel.EquipementInEdition.TypeEquipement.IdTypeEquipement == 0)
+                {
+                    <option selected value="0">--- Sélectionnez un type d'équipement ---</option>
+                }
+                @foreach (var typeequipement in EquipementViewModel.DBData.TypesEquipement)
+                {
+                    <option value="@typeequipement.IdTypeEquipement">@typeequipement.NomTypeEquipement</option>
+                }
+            </select>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+        @if (EquipementViewModel.EquipementInEdition.IdEquipement == 0)
         {
-            <option value="@typeequipement.IdTypeEquipement">@typeequipement.NomTypeEquipement</option>
+            <button class="btn btn-success" @onclick="SaveEquipement">Ajouter</button>
         }
-    </select>
+        else
+        {
+            <button class="btn btn-primary" @onclick="SaveEquipement">Modifier</button>
+        }
 
-    <button class="btn btn-success" @onclick="SaveEquipement">Enregistrer</button>
-    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
-</div>
+        @if (!string.IsNullOrEmpty(EquipementViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @EquipementViewModel.ErrorMessage
+            </div>
+        }
+    </FooterTemplate>
+</Modal>
 
-@if (!string.IsNullOrEmpty(EquipementViewModel.ErrorMessage))
-{
-    <div class="alert alert-danger">
-        @EquipementViewModel.ErrorMessage
-    </div>
-}
+<ConfirmDialog @ref="confirmSupprDialog" />
 
 @code {
-    // Propriété pour la salle sélectionnée, initialisée avec le premier nom de salle si disponible
-    private string SelectedNomSalle { get; set; } = string.Empty;
+    private Modal formModal;
 
-    // Liste filtrée des murs
-    private IEnumerable<MurDTO> FilteredMurs => string.IsNullOrEmpty(SelectedNomSalle)
-        ? EquipementViewModel.Murs
-        : EquipementViewModel.Murs.Where(m => m.NomSalle == SelectedNomSalle);
+    private ConfirmDialog confirmSupprDialog = default!;
+    List<ToastMessage> messages = new List<ToastMessage>();
+    [Inject] ToastService ToastService { get; set; } = default!;
+
+    private EquipementDTO? equipementDeleteInConfirmation;
 
     protected override async Task OnInitializedAsync()
     {
-        await EquipementViewModel.LoadEquipementsAsync();
-        await EquipementViewModel.LoadMursAsync();
-        await EquipementViewModel.LoadTypesEquipementAsync();
-
-        // Initialiser SelectedNomSalle avec la première salle disponible, s'il y en a
-        if (EquipementViewModel.NomSalles?.Any() == true)
+        if (EquipementViewModel.DBData.Equipements == null || EquipementViewModel.DBData.Equipements.Count == 0)
         {
-            SelectedNomSalle = EquipementViewModel.NomSalles.First();
+            await EquipementViewModel.LoadEquipementsAsync();
         }
+    }
+
+    private async void ClosePopup()
+    {
+        EquipementViewModel.ResetError();
+        await formModal.HideAsync();
+    }
+
+    private async void OpenPopup()
+    {
+        await formModal.ShowAsync();
     }
 
     private void ViewDetails(int idEquipement)
     {
         Utils.Utils.GoDetail(NavigationManager, "equipements", idEquipement);
         //await EquipementViewModel.LoadEquipementDetailsAsync(idEquipement);
+        StateHasChanged();
     }
 
     private async Task EditEquipement(Client_SAE_5.DTO.EquipementDTO equipement)
     {
-        var temp = await EquipementViewModel.LoadEquipementsDetailsWithoutDefAsync(equipement.IdEquipement);
-        EquipementViewModel.EditEquipement(temp);
+        await EquipementViewModel.SetupEquipementEdition(equipement.IdEquipement);
+        OpenPopup();
+    }
+
+    private async Task AddNewEquipement()
+    {
+        await EquipementViewModel.SetupNewEquipement();
+        OpenPopup();
     }
 
     private async Task SaveEquipement()
     {
-        if (EquipementViewModel.EditableEquipement.IdEquipement == 0)
+        if (EquipementViewModel.EquipementInEdition.IdEquipement == 0)
         {
             await EquipementViewModel.AddEquipementAsync();
         }
@@ -191,15 +239,55 @@ else
         {
             await EquipementViewModel.UpdateEquipementAsync();
         }
+
+        if (string.IsNullOrEmpty(EquipementViewModel.ErrorMessage))
+        {
+            ClosePopup();
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenDeleteConfirmation()
+    {
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "Supprimer",
+                YesButtonColor = ButtonColor.Danger,
+                NoButtonText = "Annuler",
+                NoButtonColor = ButtonColor.Primary
+            };
+
+        if (equipementDeleteInConfirmation == null)
+        {
+            throw new ArgumentNullException("L'équipement dont on veut récupérer la confirmation de suppression est NULL.");
+        }
+
+        var confirmation = await confirmSupprDialog.ShowAsync(
+            title: "Confirmer la suppression de l'équipement",
+            message1: "Êtes vous sûr de vouloir supprimer l'équipement \"" + equipementDeleteInConfirmation.NomEquipement + "\" de type \"" + equipementDeleteInConfirmation.NomTypeEquipement+ " de la salle \"" + equipementDeleteInConfirmation.NomSalleEquipement + "\" ?",
+            confirmDialogOptions: options);
+
+        if (confirmation)
+        {
+            await DeleteEquipement(equipementDeleteInConfirmation.IdEquipement);
+            ToastService.Notify(new ToastMessage(ToastType.Success, $"L'équipement a été supprimé avec succès"));
+        }
+    }
+
+    private async Task BeginDeleteConfirmation(EquipementDTO equipementToConfirmDeletion)
+    {
+        equipementDeleteInConfirmation = equipementToConfirmDeletion;
+        await OpenDeleteConfirmation();
     }
 
     private async Task DeleteEquipement(int idEquipement)
     {
         await EquipementViewModel.DeleteEquipementAsync(idEquipement);
+        StateHasChanged();
     }
 
     private void CancelEdit()
     {
-        EquipementViewModel.EditableEquipement = new Client_SAE_5.DTO.EquipementSansNavigationDTO();
+        ClosePopup();
     }
 }

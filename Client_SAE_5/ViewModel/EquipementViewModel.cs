@@ -5,6 +5,8 @@ using Client_SAE_5.Pages.CRUD.Mur;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Client_SAE_5.Utils.Singleton;
+using Client_SAE_5.Pages.CRUD.Capteur;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Client_SAE_5.ViewModel
 {
@@ -13,23 +15,33 @@ namespace Client_SAE_5.ViewModel
         private readonly WSService<EquipementDTO> _equipementService;
         private readonly WSService<EquipementDetailDTO> _equipementDetailService;
         private readonly WSService<EquipementSansNavigationDTO> _equipementSansNavigationService;
+        private readonly WSService<SalleDTO> _salleService;
+        private readonly WSService<MurDTO> _murService;
+        private readonly WSService<TypeEquipementDTO> _typeequipementService;
+        public DataStorage DBData;
 
-        public EquipementViewModel()
+        public EquipementViewModel(DataStorage data)
         {
             _equipementService = new WSService<EquipementDTO>();
             _equipementDetailService = new WSService<EquipementDetailDTO>();
             _equipementSansNavigationService = new WSService<EquipementSansNavigationDTO>();
+            _salleService = new WSService<SalleDTO>();
+            _murService = new WSService<MurDTO>();
+            _typeequipementService = new WSService<TypeEquipementDTO>();
+            this.DBData = data;
         }
-
-        public List<EquipementDTO> Equipements { get; private set; } = new List<EquipementDTO>();
 
         public EquipementDetailDTO SelectedEquipementDetails { get; private set; }
 
-        public EquipementSansNavigationDTO EditableEquipement { get; set; } = new EquipementSansNavigationDTO();
+        public EquipementDetailDTO EquipementInEdition { get; private set; }
+
+        public int EquipementInEditionOldTypeEquipementId;
+        public int EquipementInEditionOldMurId;
 
         public List<MurDTO> Murs { get; private set; } = new List<MurDTO>();
 
         public List<string> NomSalles { get; private set; } = new List<string>();
+        public string EquipementInEditionNomSalleSelected { get; set; } = "";
 
         public List<TypeEquipementDTO> TypesEquipement { get; private set; } = new List<TypeEquipementDTO>();
 
@@ -39,7 +51,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                Equipements = await _equipementService.GetAllTAsync("Equipement");
+                DBData.Equipements = await _equipementService.GetAllTAsync("Equipement");
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -61,19 +73,20 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        public void LoadNomSallesAsync()
+        {
+            NomSalles = DBData.Murs
+            .Where(mur => !string.IsNullOrEmpty(mur.NomSalle)) // Filtre les noms non nulls
+            .Select(mur => mur.NomSalle)
+            .Distinct() // Supprime les doublons
+            .ToList();
+        }
+
         public async Task LoadMursAsync()
         {
             try
             {
-                var murService = new WSService<MurDTO>();
-                Murs = await murService.GetAllTAsync("Murs");
-
-                // Récupère les noms de salles non null et uniques
-                NomSalles = Murs
-                    .Where(mur => !string.IsNullOrEmpty(mur.NomSalle)) // Filtre les noms non nulls
-                    .Select(mur => mur.NomSalle)
-                    .Distinct() // Supprime les doublons
-                    .ToList();
+                DBData.Murs = await _murService.GetAllTAsync("Murs");
 
                 ErrorMessage = string.Empty;
             }
@@ -83,12 +96,12 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public async Task LoadTypesEquipementAsync()
+        public async Task LoadTypeEquipementAsync()
         {
             try
             {
-                var typeequipementService = new WSService<TypeEquipementDTO>();
-                TypesEquipement = await typeequipementService.GetAllTAsync("TypeEquipements");
+                DBData.TypesEquipement = await _typeequipementService.GetAllTAsync("TypeEquipements");
+
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -97,20 +110,66 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public async Task<EquipementDetailDTO> LoadEquipementsDetailsWithoutDefAsync(int idEquipement)
+        public async Task SetupEquipementEdition(int idEquipement)
         {
-            return await _equipementDetailService.GetTAsync("Equipement", idEquipement);
+            EquipementDetailDTO temp = await _equipementDetailService.GetTAsync("Equipement", idEquipement);
+
+            if (DBData.Murs == null || DBData.Murs.Count == 0)
+            {
+                await LoadMursAsync();
+            }
+
+            if (DBData.TypesEquipement == null || DBData.TypesEquipement.Count == 0)
+            {
+                await LoadTypeEquipementAsync();
+            }
+
+            LoadNomSallesAsync();
+
+            EquipementInEdition = temp;
+            EquipementInEditionNomSalleSelected = EquipementInEdition.Salle.NomSalle;
+            EquipementInEditionOldMurId = EquipementInEdition.Mur.IdMur;
+            EquipementInEditionOldTypeEquipementId = EquipementInEdition.TypeEquipement.IdTypeEquipement;
+        }
+
+        public async Task SetupNewEquipement()
+        {
+            if (DBData.Murs == null || DBData.Murs.Count == 0)
+            {
+                await LoadMursAsync();
+            }
+
+            if (DBData.TypesEquipement == null || DBData.TypesEquipement.Count == 0)
+            {
+                await LoadTypeEquipementAsync();
+            }
+
+            LoadNomSallesAsync();
+            EquipementInEdition = new EquipementDetailDTO();
         }
 
         public async Task AddEquipementAsync()
         {
-            if (IsValidEquipement(EditableEquipement))
+            EquipementSansNavigationDTO newEquipement = new EquipementSansNavigationDTO
+            {
+                IdEquipement = EquipementInEdition.IdEquipement,
+                NomEquipement = EquipementInEdition.NomEquipement,
+                EstActif = EquipementInEdition.EstActif,
+                Longueur = EquipementInEdition.Longueur,
+                Largeur = EquipementInEdition.Largeur,
+                Hauteur = EquipementInEdition.Hauteur,
+                XEquipement = EquipementInEdition.PositionX,
+                YEquipement = EquipementInEdition.PositionY,
+                ZEquipement = EquipementInEdition.PositionZ,
+                IdMur = EquipementInEdition.Mur.IdMur,
+                IdTypeEquipement = EquipementInEdition.TypeEquipement.IdTypeEquipement,
+            };
+            if (IsValidEquipement(newEquipement))
             {
                 try
                 {
-                    await _equipementSansNavigationService.PostTAsync("Equipement", EditableEquipement);
+                    newEquipement = await _equipementSansNavigationService.PostTAsync("Equipement", newEquipement);
                     await LoadEquipementsAsync();
-                    EditableEquipement = new EquipementSansNavigationDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -125,13 +184,26 @@ namespace Client_SAE_5.ViewModel
 
         public async Task UpdateEquipementAsync()
         {
-            if (IsValidEquipement(EditableEquipement))
+            EquipementSansNavigationDTO newEquipement = new EquipementSansNavigationDTO
+            {
+                IdEquipement = EquipementInEdition.IdEquipement,
+                NomEquipement = EquipementInEdition.NomEquipement,
+                EstActif = EquipementInEdition.EstActif,
+                Longueur = EquipementInEdition.Longueur,
+                Largeur = EquipementInEdition.Largeur,
+                Hauteur = EquipementInEdition.Hauteur,
+                XEquipement = EquipementInEdition.PositionX,
+                YEquipement = EquipementInEdition.PositionY,
+                ZEquipement = EquipementInEdition.PositionZ,
+                IdMur = EquipementInEdition.Mur.IdMur,
+                IdTypeEquipement = EquipementInEdition.TypeEquipement.IdTypeEquipement,
+            };
+            if (IsValidEquipement(newEquipement))
             {
                 try
                 {
-                    await _equipementSansNavigationService.PutTAsync($"Equipement/{EditableEquipement.IdEquipement}", EditableEquipement);
+                    newEquipement = await _equipementSansNavigationService.PutTAsync($"Equipement/{newEquipement.IdEquipement}", newEquipement);
                     await LoadEquipementsAsync();
-                    EditableEquipement = new EquipementSansNavigationDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -149,6 +221,7 @@ namespace Client_SAE_5.ViewModel
             try
             {
                 await _equipementService.DeleteTAsync("Equipement", idEquipement);
+                DBData.Equipements.Remove(DBData.Equipements.Single(c => c.IdEquipement == idEquipement));
                 await LoadEquipementsAsync();
             }
             catch (Exception ex)
@@ -157,29 +230,14 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-
-        public void EditEquipement(EquipementDetailDTO equipement)
-        {
-            EditableEquipement = new EquipementSansNavigationDTO
-            {
-                IdEquipement = equipement.IdEquipement,
-                NomEquipement = equipement.NomEquipement,
-                XEquipement = equipement.PositionX,
-                YEquipement = equipement.PositionY,
-                ZEquipement = equipement.PositionZ,
-                EstActif = equipement.EstActif,
-                Longueur = equipement.Longueur,
-                Largeur = equipement.Largeur,
-                Hauteur = equipement.Hauteur,
-                //IdMur = equipement.Murs.IdMur,
-                IdTypeEquipement = equipement.TypeEquipement.IdTypeEquipement,
-            };
-        }
-
         private bool IsValidEquipement(EquipementSansNavigationDTO equipement)
         {
             return !string.IsNullOrWhiteSpace(equipement.NomEquipement) &&
                    equipement.IdMur > 0 && equipement.IdTypeEquipement > 0;
+        }
+        public void ResetError()
+        {
+            ErrorMessage = "";
         }
     }
 }
