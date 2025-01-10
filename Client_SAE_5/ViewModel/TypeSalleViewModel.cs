@@ -2,6 +2,8 @@
 using Client_SAE_5.Models;
 using Client_SAE_5.Models.Services;
 using Client_SAE_5.Pages;
+using Client_SAE_5.Pages.CRUD.Batiment;
+using Client_SAE_5.Pages.CRUD.TypeSalle;
 using Client_SAE_5.Utils.Singleton;
 
 namespace Client_SAE_5.ViewModel
@@ -11,17 +13,19 @@ namespace Client_SAE_5.ViewModel
         private readonly WSService<TypeSalleDTO> _typesalleService;
         private readonly WSService<TypeSalleDetailDTO> _typesalleDetailService;
 
-        public TypeSalleViewModel()
+        public TypeSalleDetailDTO TypesalleInEdition { get; private set; }
+        public DataStorage DBData;
+
+        public TypeSalleViewModel(DataStorage dBData)
         {
             _typesalleService = new WSService<TypeSalleDTO>();
             _typesalleDetailService = new WSService<TypeSalleDetailDTO>();
+            DBData = dBData;
         }
 
         public List<TypeSalleDTO> TypeSalles { get; private set; } = new List<TypeSalleDTO>();
 
         public TypeSalleDetailDTO SelectedTypeSalleDetails { get; private set; }
-
-        public TypeSalleDTO EditableTypeSalle { get; set; } = new TypeSalleDTO();
 
         public string ErrorMessage { get; private set; }
 
@@ -29,7 +33,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                TypeSalles = await _typesalleService.GetAllTAsync("TypeSalles");
+                DBData.TypesSalle = await _typesalleService.GetAllTAsync("TypeSalles");
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -51,20 +55,31 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public async Task<TypeSalleDetailDTO> LoadTypeSalleDetailsWithoutDefAsync(int idTypeSalle)
+        public async Task SetupTypeSalleEdition(int idTypeSalle)
         {
-            return await _typesalleDetailService.GetTAsync("TypeSalles", idTypeSalle);
+            TypeSalleDetailDTO temp = await _typesalleDetailService.GetTAsync("TypeSalles", idTypeSalle);
+
+            TypesalleInEdition = temp;
+        }
+        public async Task SetupNewTypeSalle()
+        {
+            TypesalleInEdition = new TypeSalleDetailDTO();
         }
 
         public async Task AddTypeSallesAsync()
         {
-            if (IsValidTypeSalle(EditableTypeSalle))
+            TypeSalleDTO newTypesalle = new TypeSalleDTO
+            {
+                IdTypeSalle = TypesalleInEdition.IdTypeSalle,
+                NomTypeSalle = TypesalleInEdition.NomTypeSalle,
+            };
+
+            if (IsValidTypeSalle(newTypesalle))
             {
                 try
                 {
-                    await _typesalleService.PostTAsync("TypeSalles", EditableTypeSalle);
+                    newTypesalle = await _typesalleService.PostTAsync("TypeSalles", newTypesalle);
                     await LoadTypesSallesAsync();
-                    EditableTypeSalle = new TypeSalleDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -79,13 +94,18 @@ namespace Client_SAE_5.ViewModel
 
         public async Task UpdateTypeSallesAsync()
         {
-            if (IsValidTypeSalle(EditableTypeSalle))
+            TypeSalleDTO newTypesalle = new TypeSalleDTO
+            {
+                IdTypeSalle = TypesalleInEdition.IdTypeSalle,
+                NomTypeSalle = TypesalleInEdition.NomTypeSalle,
+            };
+
+            if (IsValidTypeSalle(newTypesalle))
             {
                 try
                 {
-                    await _typesalleService.PutTAsync($"TypeSalles/{EditableTypeSalle.IdTypeSalle}", EditableTypeSalle);
+                    await _typesalleService.PutTAsync($"TypeSalles/{newTypesalle.IdTypeSalle}", newTypesalle);
                     await LoadTypesSallesAsync();
-                    EditableTypeSalle = new TypeSalleDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -103,6 +123,7 @@ namespace Client_SAE_5.ViewModel
             try
             {
                 await _typesalleService.DeleteTAsync("TypeSalles", idTypeSalle);
+                DBData.TypesSalle.Remove(DBData.TypesSalle.Single(c => c.IdTypeSalle == idTypeSalle));
                 await LoadTypesSallesAsync();
             }
             catch (Exception ex)
@@ -111,14 +132,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-
-        public void EditTypeSalle(TypeSalleDetailDTO typeSalle)
+        public void ResetError()
         {
-            EditableTypeSalle = new TypeSalleDTO
-            {
-                IdTypeSalle = typeSalle.IdTypeSalle,
-                NomTypeSalle = typeSalle.NomTypeSalle,
-            };
+            ErrorMessage = "";
         }
 
         private bool IsValidTypeSalle(TypeSalleDTO typeSalle)

@@ -5,8 +5,11 @@
 <PageTitle>Gestion des types de salles</PageTitle>
 
 <h1>Gestion des types de salles</h1>
+<button class="btn btn-success" @onclick="() => AddNewTypeSalle()">Ajouter un type de salle</button>
+<br />
+<br />
 
-@if (TypeSalleViewModel.TypeSalles == null || TypeSalleViewModel.TypeSalles.Count == 0)
+@if (TypeSalleViewModel.DBData.TypesSalle == null || TypeSalleViewModel.DBData.TypesSalle.Count == 0)
 {
     <div class="d-flex justify-content-center">
         <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
@@ -22,13 +25,13 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var typesalle in TypeSalleViewModel.TypeSalles)
+            @foreach (var typesalle in TypeSalleViewModel.DBData.TypesSalle)
             {
                 <tr class="selection" @onclick="() => ViewDetails(typesalle.IdTypeSalle)">
                     <td>@typesalle.NomTypeSalle</td>
                     <td>
                         <button class="btn btn-primary" @onclick="() => EditTypeSalle(typesalle)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => DeleteTypeSalle(typesalle.IdTypeSalle)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(typesalle)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
@@ -56,43 +59,72 @@ else
     }
 } *@
 
-<h2>Ajouter ou Modifier un type de salle</h2>
-<div>
-    <label>Nom :</label>
-    <input type="text" @bind="TypeSalleViewModel.EditableTypeSalle.NomTypeSalle" class="form-control" />
+<!-- Modale pour l'édition -->
+<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du type de salle">
+    <BodyTemplate>
+        <div>
+            <label>Nom :</label>
+            <input type="text" @bind="TypeSalleViewModel.TypesalleInEdition.NomTypeSalle" class="form-control" />
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+        @if (TypeSalleViewModel.TypesalleInEdition.IdTypeSalle == 0)
+        {
+            <button class="btn btn-success" @onclick="SaveTypeSalle">Ajouter</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" @onclick="SaveTypeSalle">Modifier</button>
+        }
 
-    <button class="btn btn-success" @onclick="SaveTypeSalle">Enregistrer</button>
-    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
-</div>
+        @if (!string.IsNullOrEmpty(TypeSalleViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @TypeSalleViewModel.ErrorMessage
+            </div>
+        }
+    </FooterTemplate>
+</Modal>
 
-@if (!string.IsNullOrEmpty(TypeSalleViewModel.ErrorMessage))
-{
-    <div class="alert alert-danger">
-        @TypeSalleViewModel.ErrorMessage
-    </div>
-}
+<ConfirmDialog @ref="confirmSupprDialog" />
 
 @code {
+    private Modal formModal;
+    private ConfirmDialog confirmSupprDialog = default!;
+    private TypeSalleDTO? typesalleDeleteInConfirmation;
+    [Inject] ToastService ToastService { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     {
-        await TypeSalleViewModel.LoadTypesSallesAsync();
+        if (TypeSalleViewModel.DBData.TypesSalle == null || TypeSalleViewModel.DBData.TypesSalle.Count == 0)
+        {
+            await TypeSalleViewModel.LoadTypesSallesAsync();
+        }
     }
 
     private void ViewDetails(int idTypeSalle)
     {
         Utils.Utils.GoDetail(NavigationManager, "typessalle", idTypeSalle);
+        StateHasChanged();
         //await TypeSalleViewModel.LoadTypeSalleDetailsAsync(idTypeSalle);
     }
 
     private async Task EditTypeSalle(Client_SAE_5.DTO.TypeSalleDTO typeSalle)
     {
-        var temp = await TypeSalleViewModel.LoadTypeSalleDetailsWithoutDefAsync(typeSalle.IdTypeSalle);
-        TypeSalleViewModel.EditTypeSalle(temp);
+        await TypeSalleViewModel.SetupTypeSalleEdition(typeSalle.IdTypeSalle);
+        OpenPopup();
+    }
+
+    private async Task AddNewTypeSalle()
+    {
+        await TypeSalleViewModel.SetupNewTypeSalle();
+        OpenPopup();
     }
 
     private async Task SaveTypeSalle()
     {
-        if (TypeSalleViewModel.EditableTypeSalle.IdTypeSalle == 0)
+        if (TypeSalleViewModel.TypesalleInEdition.IdTypeSalle == 0)
         {
             await TypeSalleViewModel.AddTypeSallesAsync();
         }
@@ -102,13 +134,58 @@ else
         }
     }
 
+    private async Task OpenDeleteConfirmation()
+    {
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "Supprimer",
+                YesButtonColor = ButtonColor.Danger,
+                NoButtonText = "Annuler",
+                NoButtonColor = ButtonColor.Primary
+            };
+
+        if (typesalleDeleteInConfirmation == null)
+        {
+            throw new ArgumentNullException("Le type de salle dont on veut récupérer la confirmation de suppression est NULL.");
+        }
+
+        var confirmation = await confirmSupprDialog.ShowAsync(
+            title: "Confirmer la suppression du type de salle",
+            message1: "Êtes vous sûr de vouloir supprimer le type de salle \"" + typesalleDeleteInConfirmation.NomTypeSalle + "\" ?",
+            confirmDialogOptions: options);
+
+        if (confirmation)
+        {
+            await DeleteTypeSalle(typesalleDeleteInConfirmation.IdTypeSalle);
+            ToastService.Notify(new ToastMessage(ToastType.Success, $"Le type de salle a été supprimé avec succès"));
+        }
+    }
+
+    private async Task BeginDeleteConfirmation(TypeSalleDTO typesalleToConfirmDeletion)
+    {
+        typesalleDeleteInConfirmation = typesalleToConfirmDeletion;
+        await OpenDeleteConfirmation();
+    }
+
     private async Task DeleteTypeSalle(int idTypeSalle)
     {
         await TypeSalleViewModel.DeleteTypeSalleAsync(idTypeSalle);
+        StateHasChanged();
+    }
+
+    private async void ClosePopup()
+    {
+        TypeSalleViewModel.ResetError();
+        await formModal.HideAsync();
+    }
+
+    private async void OpenPopup()
+    {
+        await formModal.ShowAsync();
     }
 
     private void CancelEdit()
     {
-        TypeSalleViewModel.EditableTypeSalle = new Client_SAE_5.DTO.TypeSalleDTO();
+        ClosePopup();
     }
 }

@@ -2,6 +2,7 @@
 using Client_SAE_5.Models;
 using Client_SAE_5.Models.Services;
 using Client_SAE_5.Pages;
+using Client_SAE_5.Pages.CRUD.Batiment;
 using Client_SAE_5.Utils.Singleton;
 
 namespace Client_SAE_5.ViewModel
@@ -11,17 +12,19 @@ namespace Client_SAE_5.ViewModel
         private readonly WSService<TypeEquipementDTO> _typeequipementService;
         private readonly WSService<TypeEquipementDetailDTO> _typeequipementDetailService;
 
-        public TypeEquipementViewModel()
+        public TypeEquipementDetailDTO TypeEquipementInEdition { get; private set; }
+        public DataStorage DBData;
+
+        public TypeEquipementViewModel(DataStorage dBData)
         {
             _typeequipementService = new WSService<TypeEquipementDTO>();
             _typeequipementDetailService = new WSService<TypeEquipementDetailDTO>();
+            DBData = dBData;
         }
 
         public List<TypeEquipementDTO> TypesEquipement { get; private set; } = new List<TypeEquipementDTO>();
 
         public TypeEquipementDetailDTO SelectedTypeEquipementDetails { get; private set; }
-
-        public TypeEquipementDTO EditableTypeEquipement { get; set; } = new TypeEquipementDTO();
 
         public string ErrorMessage { get; private set; }
 
@@ -29,7 +32,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                TypesEquipement = await _typeequipementService.GetAllTAsync("TypeEquipements");
+                DBData.TypesEquipement = await _typeequipementService.GetAllTAsync("TypeEquipements");
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -50,20 +53,31 @@ namespace Client_SAE_5.ViewModel
                 ErrorMessage = $"Erreur lors du chargement des détails du type : {ex.Message}";
             }
         }
-        public async Task<TypeEquipementDetailDTO> LoadTypeEquipementsDetailsWithoutDefAsync(int idTypeEquipement)
+        public async Task SetupTypeEquipementEdition(int idTypeEquipement)
         {
-            return await _typeequipementDetailService.GetTAsync("TypeEquipements", idTypeEquipement);
+            TypeEquipementDetailDTO temp = await _typeequipementDetailService.GetTAsync("TypeEquipements", idTypeEquipement);
+
+            TypeEquipementInEdition = temp;
+        }
+
+        public async Task SetupNewTypeEquipement()
+        {
+            TypeEquipementInEdition = new TypeEquipementDetailDTO();
         }
 
         public async Task AddTypeEquipementAsync()
         {
-            if (IsValidTypeEquipement(EditableTypeEquipement))
+            TypeEquipementDTO newCapteur = new TypeEquipementDTO
+            {
+                IdTypeEquipement = TypeEquipementInEdition.IdTypeEquipement,
+                NomTypeEquipement = TypeEquipementInEdition.NomTypeEquipement,
+            };
+            if (IsValidTypeEquipement(newCapteur))
             {
                 try
                 {
-                    await _typeequipementService.PostTAsync("TypeEquipements", EditableTypeEquipement);
+                    newCapteur = await _typeequipementService.PostTAsync("TypeEquipements", newCapteur);
                     await LoadTypesEquipementAsync();
-                    EditableTypeEquipement = new TypeEquipementDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -78,13 +92,17 @@ namespace Client_SAE_5.ViewModel
 
         public async Task UpdateTypeEquipementAsync()
         {
-            if (IsValidTypeEquipement(EditableTypeEquipement))
+            TypeEquipementDTO newCapteur = new TypeEquipementDTO
+            {
+                IdTypeEquipement = TypeEquipementInEdition.IdTypeEquipement,
+                NomTypeEquipement = TypeEquipementInEdition.NomTypeEquipement,
+            };
+            if (IsValidTypeEquipement(newCapteur))
             {
                 try
                 {
-                    await _typeequipementService.PutTAsync($"TypeEquipements/{EditableTypeEquipement.IdTypeEquipement}", EditableTypeEquipement);
+                    await _typeequipementService.PutTAsync($"TypeEquipements/{newCapteur.IdTypeEquipement}", newCapteur);
                     await LoadTypesEquipementAsync();
-                    EditableTypeEquipement = new TypeEquipementDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -102,6 +120,7 @@ namespace Client_SAE_5.ViewModel
             try
             {
                 await _typeequipementService.DeleteTAsync("TypeEquipements", idTypeEquipement);
+                DBData.TypesEquipement.Remove(DBData.TypesEquipement.Single(c => c.IdTypeEquipement == idTypeEquipement));
                 await LoadTypesEquipementAsync();
             }
             catch (Exception ex)
@@ -110,19 +129,13 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-
-        public void EditTypeEquipement(TypeEquipementDetailDTO typeEquipement)
-        {
-            EditableTypeEquipement = new TypeEquipementDTO
-            {
-                IdTypeEquipement = typeEquipement.IdTypeEquipement,
-                NomTypeEquipement = typeEquipement.NomTypeEquipement,
-            };
-        }
-
         private bool IsValidTypeEquipement(TypeEquipementDTO typeEquipement)
         {
             return !string.IsNullOrWhiteSpace(typeEquipement.NomTypeEquipement);
+        }
+        public void ResetError()
+        {
+            ErrorMessage = "";
         }
     }
 }
