@@ -47,6 +47,13 @@ else
 <!-- Modale pour l'édition -->
 <Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du capteur">
     <BodyTemplate>
+        @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @CapteurViewModel.ErrorMessage
+            </div>
+        }
+
         <div>
             <label>Nom :</label>
             <input type="text" @bind="CapteurViewModel.CapteurInEdition.NomCapteur" class="form-control" />
@@ -130,65 +137,10 @@ else
         {
             <button class="btn btn-primary" @onclick="SaveCapteur">Modifier</button>
         }
-
-        @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
-        {
-        <div class="alert alert-danger">
-            @CapteurViewModel.ErrorMessage
-        </div>
-        }
     </FooterTemplate>
 </Modal>
 
 <ConfirmDialog @ref="confirmSupprDialog" />
-
-@* @if (CapteurViewModel.SelectedCapteurDetail != null)
-{
-    <h2>Détails du capteur</h2>
-    <p><strong>Nom :</strong> @CapteurViewModel.SelectedCapteurDetail.NomCapteur</p>
-    <p><strong>Est actif :</strong> @CapteurViewModel.SelectedCapteurDetail.EstActif</p>
-    <p><strong>X :</strong> @CapteurViewModel.SelectedCapteurDetail.XCapteur</p>
-    <p><strong>Y :</strong> @CapteurViewModel.SelectedCapteurDetail.YCapteur</p>
-    <p><strong>Z :</strong> @CapteurViewModel.SelectedCapteurDetail.ZCapteur</p>
-
-    <h3>Unitée</h3>
-    @if (CapteurViewModel.SelectedCapteurDetail.Unites?.Count > 0)
-    {
-        <ul>
-            @foreach (var unite in CapteurViewModel.SelectedCapteurDetail.Unites)
-            {
-                <li>@unite.NomUnite</li>
-                <button class="btn btn-danger" @onclick="() => DeleteUniteCapteur(unite.IdUnite, CapteurViewModel.SelectedCapteurDetail.IdCapteur)">Supprimer</button>
-            }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucune unitée</em></p>
-    }
-
-    <h3>Mur</h3>
-    @if (CapteurViewModel.SelectedCapteurDetail.Mur != null)
-    {
-        <p><strong>Hauteur : </strong><li>@CapteurViewModel.SelectedCapteurDetail.Mur.Hauteur</li></p>
-        <p><strong>Longueur : </strong><li>@CapteurViewModel.SelectedCapteurDetail.Mur.Longueur</li></p>
-        <p><strong>Orientation : </strong><li>@CapteurViewModel.SelectedCapteurDetail.Mur.Orientation</li></p>
-    }
-    else
-    {
-        <p><em>Le capteur n'est pas sur un mur</em></p>
-    }
-
-    <h3>Salle</h3>
-    @if (CapteurViewModel.SelectedCapteurDetail.Salle != null)
-    {
-        <p><strong>Nom salle : </strong><li>@CapteurViewModel.SelectedCapteurDetail.Salle.NomSalle</li></p>
-    }
-    else
-    {
-        <p><em>Le capteur n'a pas de salle</em></p>
-    }
-} *@
 
 @code {
     private Modal formModal;
@@ -198,15 +150,6 @@ else
     [Inject] ToastService ToastService { get; set; } = default!;
 
     private CapteurDTO? capteurDeleteInConfirmation;
-
-
-    private void Test(ChangeEventArgs e)
-    {
-        if (e.Value != null)
-        {
-            Console.WriteLine(e.Value.ToString());
-        }
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -229,12 +172,11 @@ else
 
     private void ViewDetails(int idCapteur)
     {
-        //await CapteurViewModel.LoadCapteurDetailsAsync(idCapteur);
         Utils.Utils.GoDetail(NavigationManager, "capteurs", idCapteur);
         StateHasChanged();
     }
 
-    private async Task EditCapteur(Client_SAE_5.DTO.CapteurDTO capteur)
+    private async Task EditCapteur(CapteurDTO capteur)
     {
         await CapteurViewModel.SetupCapteurEdition(capteur.IdCapteur);
         OpenPopup();
@@ -307,21 +249,5 @@ else
     {
         ClosePopup();
         CapteurViewModel.AvailableUnites.Clear();
-    }
-
-    private async Task AddUniteCapteur(int idCapteur, object idUnite)
-    {
-        if (idUnite is int idUniteInt || (idUnite is string strValue && int.TryParse(strValue, out idUniteInt)))
-        {
-            if (idUniteInt > 0)
-            {
-                await CapteurViewModel.AddUniteCapteurAsync(idCapteur, idUniteInt);
-            }
-        }
-    }
-
-    private async Task DeleteUniteCapteur(int idUnite, int idCapteur)
-    {
-        await CapteurViewModel.DeleteUniteCapteurAsync(idUnite, idCapteur);
     }
 }

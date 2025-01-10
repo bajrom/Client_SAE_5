@@ -3,6 +3,7 @@ using Client_SAE_5.Models;
 using Client_SAE_5.Models.Services;
 using Client_SAE_5.Pages;
 using Client_SAE_5.Utils.Singleton;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Client_SAE_5.ViewModel
 {
@@ -11,23 +12,23 @@ namespace Client_SAE_5.ViewModel
         private readonly WSService<MurDTO> _murService;
         private readonly WSService<MurDetailDTO> _murDetailService;
         private readonly WSService<MurSansNavigationDTO> _murSansNavigationService;
+        private readonly WSService<DirectionSansNavigationDTO> _directionService;
+        private readonly WSService<SalleDTO> _salleService;
+        public DataStorage DBData;
 
-        public MurViewModel()
+        public MurViewModel(DataStorage data)
         {
             _murService = new WSService<MurDTO>();
             _murDetailService = new WSService<MurDetailDTO>();
             _murSansNavigationService = new WSService<MurSansNavigationDTO>();
+            _directionService = new WSService<DirectionSansNavigationDTO>();
+            _salleService = new WSService<SalleDTO>();
+            this.DBData = data;
         }
-
-        public List<MurDTO> Murs { get; private set; } = new List<MurDTO>();
 
         public MurDetailDTO SelectedMurDetails { get; private set; }
 
-        public MurSansNavigationDTO EditableMur { get; set; } = new MurSansNavigationDTO();
-
-        public List<Direction> Directions { get; private set; } = new List<Direction>();
-
-        public List<SalleDTO> Salles { get; private set; } = new List<SalleDTO>();
+        public MurDetailDTO MurInEdition { get; set; }
 
         public string ErrorMessage { get; private set; }
 
@@ -35,7 +36,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                Murs = await _murService.GetAllTAsync("Murs");
+                DBData.Murs = await _murService.GetAllTAsync("Murs");
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -61,8 +62,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                var directionService = new WSService<Direction>();
-                Directions = await directionService.GetAllTAsync("Direction");
+                DBData.Directions = await _directionService.GetAllTAsync("Direction");
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -75,8 +75,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                var salleService = new WSService<SalleDTO>();
-                Salles = await salleService.GetAllTAsync("Salles");
+                DBData.Salles = await _salleService.GetAllTAsync("Salles");
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -85,20 +84,56 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public async Task<MurDetailDTO> LoadMurDetailsWithoutDefAsync(int idMur)
+        public async Task SetupMurEdition(int idMur)
         {
-            return await _murDetailService.GetTAsync("Murs", idMur);
+            MurDetailDTO temp = await _murDetailService.GetTAsync("Murs", idMur);
+
+            if (DBData.Salles == null || DBData.Salles.Count == 0)
+            {
+                await LoadSallesAsync();
+            }
+
+            if (DBData.Directions == null || DBData.Directions.Count == 0)
+            {
+                await LoadDirectionsAsync();
+            }
+
+            MurInEdition = temp;
+        }
+
+        public async Task SetupNewMur()
+        {
+            if (DBData.Salles == null || DBData.Salles.Count == 0)
+            {
+                await LoadSallesAsync();
+            }
+
+            if (DBData.Directions == null || DBData.Directions.Count == 0)
+            {
+                await LoadDirectionsAsync();
+            }
+
+            MurInEdition = new MurDetailDTO();
         }
 
         public async Task AddMurAsync()
         {
-            if (IsValidMur(EditableMur))
+            MurSansNavigationDTO newMur = new MurSansNavigationDTO
+            {
+                IdMur = MurInEdition.IdMur,
+                IdDirection = MurInEdition.IdDirection,
+                IdSalle = MurInEdition.IdSalle,
+                Longueur = MurInEdition.Longueur,
+                Hauteur = MurInEdition.Hauteur,
+                Orientation = MurInEdition.Orientation
+            };
+
+            if (IsValidMur(newMur))
             {
                 try
                 {
-                    await _murSansNavigationService.PostTAsync("Murs", EditableMur);
+                    await _murSansNavigationService.PostTAsync("Murs", newMur);
                     await LoadMursAsync();
-                    EditableMur = new MurSansNavigationDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -113,13 +148,22 @@ namespace Client_SAE_5.ViewModel
 
         public async Task UpdateMurAsync()
         {
-            if (IsValidMur(EditableMur))
+            MurSansNavigationDTO newMur = new MurSansNavigationDTO
+            {
+                IdMur = MurInEdition.IdMur,
+                IdDirection = MurInEdition.IdDirection,
+                IdSalle = MurInEdition.IdSalle,
+                Longueur = MurInEdition.Longueur,
+                Hauteur = MurInEdition.Hauteur,
+                Orientation = MurInEdition.Orientation
+            };
+
+            if (IsValidMur(newMur))
             {
                 try
                 {
-                    await _murSansNavigationService.PutTAsync($"Murs/{EditableMur.IdMur}", EditableMur);
+                    await _murSansNavigationService.PutTAsync($"Murs/{newMur.IdMur}", newMur);
                     await LoadMursAsync();
-                    EditableMur = new MurSansNavigationDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -145,20 +189,6 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-
-        public void EditMur(MurDetailDTO mur)
-        {
-            EditableMur = new MurSansNavigationDTO
-            {
-                IdMur = mur.IdMur,
-                IdDirection = mur.IdDirection,
-                IdSalle = mur.IdSalle,
-                Longueur = mur.Longueur,
-                Hauteur = mur.Hauteur,
-                Orientation = mur.Orientation,
-            };
-        }
-
         private bool IsValidMur(MurSansNavigationDTO mur)
         {
             return mur.IdDirection > 0 &&
@@ -166,6 +196,11 @@ namespace Client_SAE_5.ViewModel
                    mur.Hauteur > 0 &&
                    mur.Longueur > 0 &&
                    mur.Orientation >= 0 && mur.Orientation < 360;
+        }
+
+        public void ResetError()
+        {
+            ErrorMessage = "";
         }
     }
 }
