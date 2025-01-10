@@ -1,6 +1,7 @@
 ﻿using Client_SAE_5.DTO;
 using Client_SAE_5.Models.Services;
 using Client_SAE_5.Utils.Singleton;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Client_SAE_5.ViewModel
 {
@@ -8,18 +9,18 @@ namespace Client_SAE_5.ViewModel
     {
         private readonly WSService<UniteDTO> _uniteService;
         private readonly WSService<UniteDetailDTO> _uniteDetailService;
+        public DataStorage DBData;
 
-        public UniteViewModel()
+        public UniteViewModel(DataStorage data)
         {
             _uniteService = new WSService<UniteDTO>();
             _uniteDetailService = new WSService<UniteDetailDTO>();
+            this.DBData = data;
         }
-
-        public List<UniteDTO> Unites { get; private set; } = new List<UniteDTO>();
 
         public UniteDetailDTO SelectedUniteDetails { get; private set; }
 
-        public UniteDTO EditableUnite { get; set; } = new UniteDTO();
+        public UniteDetailDTO UniteInEdition { get; set; } = new UniteDetailDTO();
 
         public string ErrorMessage { get; private set; }
 
@@ -27,7 +28,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                Unites = await _uniteService.GetAllTAsync("Unites");
+                DBData.Unites = await _uniteService.GetAllTAsync("Unites");
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -49,20 +50,38 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public async Task<UniteDetailDTO> LoadUniteDetailsWithoutDefAsync(int idUnite)
+        public async Task SetupUniteEdition(int idUnite)
         {
-            return await _uniteDetailService.GetTAsync("Unites", idUnite);
+            UniteDetailDTO temp = await _uniteDetailService.GetTAsync("Unites", idUnite);
+
+            if (DBData.Unites.Count == 0)
+            {
+                await LoadUnitesAsync();
+            }
+
+            UniteInEdition = temp;
+        }
+
+        public async Task SetupNewUnite()
+        {
+            UniteInEdition = new UniteDetailDTO();
         }
 
         public async Task AddUniteAsync()
         {
-            if (IsValidUnite(EditableUnite))
+            UniteDTO newUnite = new UniteDTO
+            {
+                IdUnite = UniteInEdition.IdUnite,
+                NomUnite = UniteInEdition.NomUnite,
+                SigleUnite = UniteInEdition.SigleUnite,
+            };
+
+            if (IsValidUnite(newUnite))
             {
                 try
                 {
-                    await _uniteService.PostTAsync("Unites", EditableUnite);
+                    await _uniteService.PostTAsync("Unites", newUnite);
                     await LoadUnitesAsync();
-                    EditableUnite = new UniteDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -77,13 +96,19 @@ namespace Client_SAE_5.ViewModel
 
         public async Task UpdateUniteAsync()
         {
-            if (IsValidUnite(EditableUnite))
+            UniteDTO newUnite = new UniteDTO
+            {
+                IdUnite = UniteInEdition.IdUnite,
+                NomUnite = UniteInEdition.NomUnite,
+                SigleUnite = UniteInEdition.SigleUnite,
+            };
+
+            if (IsValidUnite(newUnite))
             {
                 try
                 {
-                    await _uniteService.PutTAsync($"Unites/{EditableUnite.IdUnite}", EditableUnite);
+                    await _uniteService.PutTAsync($"Unites/{newUnite.IdUnite}", newUnite);
                     await LoadUnitesAsync();
-                    EditableUnite = new UniteDTO(); // Réinitialiser le formulaire
                 }
                 catch (Exception ex)
                 {
@@ -109,21 +134,16 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public void EditUnite(UniteDetailDTO unite)
-        {
-            EditableUnite = new UniteDTO
-            {
-                IdUnite = unite.IdUnite,
-                NomUnite = unite.NomUnite,
-                SigleUnite = unite.SigleUnite,
-                // Vous pouvez inclure d'autres champs si nécessaire
-            };
-        }
-
         // Vérifier si les données de la salle sont valides
         private bool IsValidUnite(UniteDTO unite)
         {
-            return !string.IsNullOrWhiteSpace(unite.NomUnite) && !string.IsNullOrWhiteSpace(unite.SigleUnite);
+            return !string.IsNullOrWhiteSpace(unite.NomUnite) && 
+                   !string.IsNullOrWhiteSpace(unite.SigleUnite);
+        }
+
+        public void ResetError()
+        {
+            ErrorMessage = "";
         }
     }
 }

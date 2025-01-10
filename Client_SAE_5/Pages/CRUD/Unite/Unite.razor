@@ -6,7 +6,10 @@
 
 <h1>Gestion des unités</h1>
 
-@if (UniteViewModel.Unites == null || UniteViewModel.Unites.Count == 0)
+<button class="btn btn-success" @onclick="() => AddNewUnite()">Ajouter une unite</button>
+<br />
+<br />
+@if (UniteViewModel.DBData.Unites == null || UniteViewModel.DBData.Unites.Count == 0)
 {
     <div class="d-flex justify-content-center">
         <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
@@ -23,14 +26,14 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var unite in UniteViewModel.Unites)
+            @foreach (var unite in UniteViewModel.DBData.Unites)
             {
                 <tr class="selection" @onclick="() => ViewDetails(unite.IdUnite)">
                     <td>@unite.NomUnite</td>
                     <td>@unite.SigleUnite</td>
                     <td>
                         <button class="btn btn-primary" @onclick="() => EditUnite(unite)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => DeleteUnite(unite.IdUnite)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
+                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(unite)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
                     </td>
                 </tr>
             }
@@ -38,68 +41,90 @@ else
     </table>
 }
 
-@* @if (UniteViewModel.SelectedUniteDetails != null)
-{
-    <h2>Détails de la Salle</h2>
-    <p><strong>Nom :</strong> @UniteViewModel.SelectedUniteDetails.NomUnite</p>
-    <p><strong>Sigle :</strong> @UniteViewModel.SelectedUniteDetails.SigleUnite</p>
 
-    <h3>Capteurs</h3>
-    @if (UniteViewModel.SelectedUniteDetails.Capteurs?.Count > 0)
-    {
-        <ul>
-            @foreach (var capteur in UniteViewModel.SelectedUniteDetails.Capteurs)
-            {
-                <li>@capteur.NomCapteur</li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucun capteur attribuer</em></p>
-    }
-} *@
 
-<h2>Ajouter ou Modifier une unitée</h2>
-<div>
-    <label>Nom :</label>
-    <input type="text" @bind="UniteViewModel.EditableUnite.NomUnite" class="form-control" />
+<!-- Modale pour l'édition -->
+<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations de l'unite'">
+    <BodyTemplate>
+        @if (!string.IsNullOrEmpty(UniteViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @UniteViewModel.ErrorMessage
+            </div>
+        }
+        <div>
+            <label>Nom :</label>
+            <input type="text" @bind="UniteViewModel.UniteInEdition.NomUnite" class="form-control" />
 
-    <label>Sigle :</label>
-    <input type="text" @bind="UniteViewModel.EditableUnite.SigleUnite" class="form-control" />
+            <label>Sigle :</label>
+            <input type="text" @bind="UniteViewModel.UniteInEdition.SigleUnite" class="form-control" />
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <button class="btn btn-secondary" @onclick="ClosePopup">Annuler</button>
+        @if (UniteViewModel.UniteInEdition.IdUnite == 0)
+        {
+            <button class="btn btn-success" @onclick="SaveUnite">Ajouter</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" @onclick="SaveUnite">Modifier</button>
+        }
+    </FooterTemplate>
+</Modal>
 
-    <button class="btn btn-success" @onclick="SaveUnite">Enregistrer</button>
-    <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
-</div>
-
-@if (!string.IsNullOrEmpty(UniteViewModel.ErrorMessage))
-{
-    <div class="alert alert-danger">
-        @UniteViewModel.ErrorMessage
-    </div>
-}
+<ConfirmDialog @ref="confirmSupprDialog" />
 
 @code {
+    private Modal formModal;
+
+    private ConfirmDialog confirmSupprDialog = default!;
+    List<ToastMessage> messages = new List<ToastMessage>();
+    [Inject] ToastService ToastService { get; set; } = default!;
+
+    private UniteDTO? uniteDeleteInConfirmation;
+
+
     protected override async Task OnInitializedAsync()
     {
-        await UniteViewModel.LoadUnitesAsync();
+        if (UniteViewModel.DBData.Unites == null || UniteViewModel.DBData.Unites.Count == 0)
+        {
+            await UniteViewModel.LoadUnitesAsync();
+        }
+    }
+
+    private async void ClosePopup()
+    {
+        UniteViewModel.ResetError();
+        await formModal.HideAsync();
+    }
+
+    private async void OpenPopup()
+    {
+        await formModal.ShowAsync();
     }
 
     private void ViewDetails(int idUnite)
     {
         Utils.Utils.GoDetail(NavigationManager, "unites", idUnite);
-        //await UniteViewModel.LoadUniteDetailsAsync(idUnite);
+        StateHasChanged();
+    }
+
+    private async Task AddNewUnite()
+    {
+        await UniteViewModel.SetupNewUnite();
+        OpenPopup();
     }
 
     private async Task EditUnite(Client_SAE_5.DTO.UniteDTO unite)
     {
-        var temp = await UniteViewModel.LoadUniteDetailsWithoutDefAsync(unite.IdUnite);
-        UniteViewModel.EditUnite(temp);
+        await UniteViewModel.SetupUniteEdition(unite.IdUnite);
+        OpenPopup();
     }
 
     private async Task SaveUnite()
     {
-        if (UniteViewModel.EditableUnite.IdUnite == 0)
+        if (UniteViewModel.UniteInEdition.IdUnite == 0)
         {
             await UniteViewModel.AddUniteAsync();
         }
@@ -107,15 +132,50 @@ else
         {
             await UniteViewModel.UpdateUniteAsync();
         }
+
+        if (string.IsNullOrEmpty(UniteViewModel.ErrorMessage))
+        {
+            ClosePopup();
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenDeleteConfirmation()
+    {
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "Supprimer",
+                YesButtonColor = ButtonColor.Danger,
+                NoButtonText = "Annuler",
+                NoButtonColor = ButtonColor.Primary
+            };
+
+        if (uniteDeleteInConfirmation == null)
+        {
+            throw new ArgumentNullException("L'unite dont on veut récupérer la confirmation de suppression est NULL.");
+        }
+
+        var confirmation = await confirmSupprDialog.ShowAsync(
+            title: "Confirmer la suppression de l'unite",
+            message1: "Êtes vous sûr de vouloir supprimer l'unite \"" + uniteDeleteInConfirmation.NomUnite + " (" + uniteDeleteInConfirmation.SigleUnite + ") ?",
+            confirmDialogOptions: options);
+
+        if (confirmation)
+        {
+            await DeleteUnite(uniteDeleteInConfirmation.IdUnite);
+            ToastService.Notify(new ToastMessage(ToastType.Success, $"L'unite a été supprimée avec succès"));
+        }
+    }
+
+    private async Task BeginDeleteConfirmation(UniteDTO UniteToConfirmDeletion)
+    {
+        uniteDeleteInConfirmation = UniteToConfirmDeletion;
+        await OpenDeleteConfirmation();
     }
 
     private async Task DeleteUnite(int idUnite)
     {
         await UniteViewModel.DeleteUniteAsync(idUnite);
-    }
-
-    private void CancelEdit()
-    {
-        UniteViewModel.EditableUnite = new Client_SAE_5.DTO.UniteDTO();
+        StateHasChanged();
     }
 }

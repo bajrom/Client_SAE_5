@@ -18,5 +18,12 @@ namespace Client_SAE_5.DTO
         public string NomUnite { get => nomUnite; set => nomUnite = value; }
 
         public List<CapteurSansNavigationDTO> Capteurs { get => capteurs; set => capteurs = value; }
+
+        public UniteDetailDTO()
+        {
+            IdUnite = 0;
+            NomUnite = "";
+            sigleUnite = "";
+        }
     }
 }

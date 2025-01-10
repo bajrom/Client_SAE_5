@@ -38,7 +38,7 @@ else
                 @foreach (var unite in CapteurViewModel.SelectedCapteurDetail.Unites)
                 {
                     <li class="d-flex flex-row listeUnites">
-                        <button class="btn btn-danger btn-sm" @onclick="() => SupprimerUniteCapteur(unite.IdUnite, CapteurViewModel.SelectedCapteurDetail.IdCapteur)">
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUniteLinkWithCapteur(unite.IdUnite, CapteurViewModel.SelectedCapteurDetail.IdCapteur)">
                             <Icon Name="IconName.Trash3Fill"></Icon>
                         </button>
                         <p class="listeCliquable" @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "unites", unite.IdUnite))'>
@@ -125,10 +125,9 @@ else
         await CapteurViewModel.LoadCapteurDetailsAsync(IdCapteur);
     }
 
-    private async Task SupprimerUniteCapteur(int idUnite, int idCapteur)
+    private async Task DeleteUniteLinkWithCapteur(int idUnite, int idCapteur)
     {
         await CapteurViewModel.DeleteUniteCapteurAsync(idUnite, idCapteur);
-        await CapteurViewModel.LoadCapteurDetailsAsync(idCapteur);
         StateHasChanged();
     }
 

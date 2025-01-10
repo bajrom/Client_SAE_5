@@ -100,8 +100,6 @@ namespace Client_SAE_5.ViewModel
             try
             {
                 DBData.Murs = await _murService.GetAllTAsync("Murs");
-                var murService = new WSService<MurDTO>();
-
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -114,7 +112,7 @@ namespace Client_SAE_5.ViewModel
         {
             CapteurDetailDTO temp = await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
             
-            if (DBData.Unites.Count == 0)
+            if (DBData.Unites == null || DBData.Unites.Count == 0)
             {
                 await LoadUnitesAsync();
             }
@@ -124,10 +122,7 @@ namespace Client_SAE_5.ViewModel
                 await LoadMursAsync();
             }
 
-            if (NomSalles == null || NomSalles.Count == 0)
-            {
-                LoadNomSallesAsync();
-            }
+            LoadNomSallesAsync();
 
             AvailableUnites = DBData.Unites.Where(unite => temp.Unites.All(u => u.IdUnite != unite.IdUnite)).ToList();
             CapteurInEdition = temp;
@@ -151,19 +146,27 @@ namespace Client_SAE_5.ViewModel
 
         public async Task SetupNewCapteur()
         {
-            if (DBData.Unites.Count == 0)
+            if (DBData.Unites == null || DBData.Unites.Count == 0)
             {
-                try
-                {
-                    DBData.Unites = await _uniteService.GetAllTAsync("Unites");
-                    ErrorMessage = string.Empty;
-                }
-                catch (Exception ex)
-                {
-                    ErrorMessage = $"Erreur lors du chargement des unitées : {ex.Message}";
-                }
+                await LoadUnitesAsync();
             }
 
+            if (DBData.Murs == null || DBData.Murs.Count == 0)
+            {
+                await LoadMursAsync();
+            }
+
+            if (NomSalles == null || NomSalles.Count == 0)
+            {
+                LoadNomSallesAsync();
+            }
+
+            if (DBData.Murs == null || DBData.Murs.Count == 0)
+            {
+                await LoadMursAsync();
+            }
+
+            LoadNomSallesAsync();
             CapteurInEdition = new CapteurDetailDTO();
         }
 
@@ -284,7 +287,7 @@ namespace Client_SAE_5.ViewModel
             try
             {
                 await _capteurService.DeleteTAsync("Capteurs", idCapteur);
-                DBData.Capteurs.Remove(DBData.Capteurs.Single(c => c.IdCapteur == idCapteur));
+                //DBData.Capteurs.Remove(DBData.Capteurs.Single(c => c.IdCapteur == idCapteur));
                 await LoadCapteursAsync();
             }
             catch (Exception ex)
@@ -302,6 +305,11 @@ namespace Client_SAE_5.ViewModel
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors de la suppression de l'unitée capteur : {ex.Message}";
+            }
+
+            if(idCapteur == SelectedCapteurDetail.IdCapteur) // pour mettre à jour si jamais la suppression se fait depuis la page de détail
+            {
+                SelectedCapteurDetail.Unites.RemoveAll(unite => unite.IdUnite == idUnite);
             }
         }
 

@@ -27,5 +27,16 @@ namespace Client_SAE_5.DTO
         public List<EquipementSansNavigationDTO> Equipements { get => equipements; set => equipements = value; }
         
         public List<MurSansNavigationDTO> Murs { get => murs; set => murs = value; }
+
+        public SalleDetailDTO()
+        {
+            IdSalle = 0;
+            NomSalle = "";
+            TypeSalle = new TypeSalleDTO();
+            Batiment = new BatimentSansNavigationDTO();
+            Capteurs = new List<CapteurSansNavigationDTO>();
+            Equipements = new List<EquipementSansNavigationDTO>();
+            Murs = new List<MurSansNavigationDTO>();
+        }
     }
 }
