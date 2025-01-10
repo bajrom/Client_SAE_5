@@ -75,6 +75,8 @@ else
 }
 
 @code {
+    private Grid<Client_SAE_5.DTO.SalleDTO> grid;
+
     protected override async Task OnInitializedAsync()
     {
         await SalleViewModel.LoadSallesAsync();
@@ -114,5 +116,15 @@ else
     private void CancelEdit()
     {
         SalleViewModel.EditableSalle = new Client_SAE_5.DTO.SalleSansNavigationDTO();
+    }
+
+    private async Task<GridDataProviderResult<Client_SAE_5.DTO.SalleDTO>> SallesDataProvider(GridDataProviderRequest<Client_SAE_5.DTO.SalleDTO> request)
+    {
+        var result = request.ApplyTo(SalleViewModel.Salles);
+        return await Task.FromResult(new GridDataProviderResult<Client_SAE_5.DTO.SalleDTO>
+            {
+                Data = result.Data,
+                TotalCount = result.TotalCount
+            });
     }
 }
