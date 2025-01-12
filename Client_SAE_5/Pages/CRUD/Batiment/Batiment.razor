@@ -2,49 +2,61 @@
 @inject Client_SAE_5.ViewModel.BatimentViewModel BatimentViewModel
 @inject NavigationManager NavigationManager
 
-<link rel="stylesheet" href="/css/DetailPages.css"/>
+<link rel="stylesheet" href="/css/DetailPages.css" />
 
 <PageTitle>Gestion des bâtiments</PageTitle>
 
 <h1>Gestion des bâtiments</h1>
-<button class="btn btn-success" @onclick="() => AddNewBatiment()">Ajouter un batiment</button>
+<button id="btnAddBatimentPage" class="btn btn-success" @onclick="() => AddNewBatiment()">Ajouter un bâtiment</button>
 <br />
 <br />
+
 @if (BatimentViewModel.DBData.Batiments == null || BatimentViewModel.DBData.Batiments.Count == 0)
 {
     <div class="d-flex justify-content-center">
-        <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge"/>
+        <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
     </div>
 }
 else
 {
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Nombre de salle</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var batiment in BatimentViewModel.DBData.Batiments)
-            {
-                <tr class="selection" @onclick="() => ViewDetails(batiment.IdBatiment)">
-                    <td>@batiment.NomBatiment</td>
-                    <td>@batiment.NbSalle</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => EditBatiment(batiment)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(batiment)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <Grid @ref="batimentGrid"
+          TItem="BatimentDTO"
+          DataProvider="BatimentsDataProvider"
+          AllowFiltering="true"
+          AllowPaging="true"
+          PageSize="10"
+          AllowSorting="true"
+          FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
+          Class="table table-hover table-bordered"
+          Responsive="true"
+          AllowSelection="false"
+          OnRowClick="ViewDetails"
+          AllowRowClick="true"
+          PaginationItemsTextFormat="{0} - {1} sur {2} bâtiments"
+          ItemsPerPageText="Bâtiments par page"
+          EmptyText="Aucun bâtiment trouvé"
+          EnumFilterSelectText="Selection">
+        <GridColumns>
+            <GridColumn TItem="BatimentDTO" HeaderText="Nom" PropertyName="NomBatiment" SortKeySelector="item => item.NomBatiment">
+                @context.NomBatiment
+            </GridColumn>
+            <GridColumn TItem="BatimentDTO" HeaderText="Nombre de salles" PropertyName="NbSalle" SortKeySelector="item => item.NbSalle">
+                @context.NbSalle
+            </GridColumn>
+            <GridColumn TItem="BatimentDTO" HeaderText="Actions" Filterable="false">
+                <button class="btn btn-primary" title="Modifier @context.NomBatiment" @onclick="() => EditBatiment(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.PencilFill" />
+                </button>
+                <button class="btn btn-danger" title="Supprimer @context.NomBatiment" @onclick="() => BeginDeleteConfirmation(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.Trash3Fill" />
+                </button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 }
 
 <!-- Modale pour l'édition -->
-<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du batiment">
+<Modal @ref="formModal" class="editModal" Size="ModalSize.Large" Title="Renseignement des informations du bâtiment">
     <BodyTemplate>
         <div>
             <label>Nom :</label>
@@ -52,14 +64,14 @@ else
         </div>
     </BodyTemplate>
     <FooterTemplate>
-        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+        <button class="btn btn-secondary" id="annulerEditBatimentBtnDialog" @onclick="CancelEdit">Annuler</button>
         @if (BatimentViewModel.BatimentInEdition.IdBatiment == 0)
         {
-            <button class="btn btn-success" @onclick="SaveBatiment">Ajouter</button>
+            <button class="btn btn-success" id="ajouterBatimentBtnDialog"  @onclick="SaveBatiment">Ajouter</button>
         }
         else
         {
-            <button class="btn btn-primary" @onclick="SaveBatiment">Modifier</button>
+            <button class="btn btn-primary" id="modifierBatimentBtnDialog" @onclick="SaveBatiment">Modifier</button>
         }
 
         @if (!string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
@@ -75,6 +87,8 @@ else
 
 @code {
     private Modal formModal;
+    private Grid<BatimentDTO> batimentGrid;
+
     private ConfirmDialog confirmSupprDialog = default!;
     private BatimentDTO? batimentDeleteInConfirmation;
     [Inject] ToastService ToastService { get; set; } = default!;
@@ -87,15 +101,13 @@ else
         }
     }
 
-    private void ViewDetails(int idBatiment)
+    private void ViewDetails(GridRowEventArgs<BatimentDTO> args)
     {
-        Utils.Utils.GoDetail(NavigationManager, "batiments", idBatiment);
+        Utils.Utils.GoDetail(NavigationManager, "batiments", args.Item.IdBatiment);
         StateHasChanged();
-
-        //await BatimentViewModel.LoadBatimentDetailsAsync(idBatiment);
     }
 
-    private async Task EditBatiment(Client_SAE_5.DTO.BatimentDTO batiment)
+    private async Task EditBatiment(BatimentDTO batiment)
     {
         await BatimentViewModel.SetupBatimentEdition(batiment.IdBatiment);
         OpenPopup();
@@ -117,6 +129,24 @@ else
         {
             await BatimentViewModel.UpdatebatimentAsync();
         }
+
+        if (string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
+        {
+            ClosePopup();
+            await RefreshGridAsync(); // Rafraîchir la GRID après une modification
+        }
+    }
+
+    private async Task BeginDeleteConfirmation(BatimentDTO batiment)
+    {
+        batimentDeleteInConfirmation = batiment;
+        await OpenDeleteConfirmation();
+    }
+
+    private async Task DeleteBatiment(int idBatiment)
+    {
+        await BatimentViewModel.DeletebatimentAsync(idBatiment);
+        await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
     private async Task OpenDeleteConfirmation()
@@ -131,31 +161,34 @@ else
 
         if (batimentDeleteInConfirmation == null)
         {
-            throw new ArgumentNullException("Le batiment dont on veut récupérer la confirmation de suppression est NULL.");
+            throw new ArgumentNullException("Le bâtiment dont on veut récupérer la confirmation de suppression est NULL.");
         }
 
         var confirmation = await confirmSupprDialog.ShowAsync(
-            title: "Confirmer la suppression du batiment",
-            message1: "Êtes vous sûr de vouloir supprimer le batiment \"" + batimentDeleteInConfirmation.NomBatiment + "\" ?",
+            title: "Confirmer la suppression du bâtiment",
+            message1: "Êtes vous sûr de vouloir supprimer le bâtiment \"" + batimentDeleteInConfirmation.NomBatiment + "\" ?",
             confirmDialogOptions: options);
 
         if (confirmation)
         {
             await DeleteBatiment(batimentDeleteInConfirmation.IdBatiment);
-            ToastService.Notify(new ToastMessage(ToastType.Success, $"Le batiment a été supprimé avec succès"));
+            ToastService.Notify(new ToastMessage(ToastType.Success, $"Le bâtiment a été supprimé avec succès"));
         }
     }
 
-    private async Task BeginDeleteConfirmation(BatimentDTO batimentToConfirmDeletion)
+    private async Task RefreshGridAsync()
     {
-        batimentDeleteInConfirmation = batimentToConfirmDeletion;
-        await OpenDeleteConfirmation();
+        if (batimentGrid != null)
+        {
+            await batimentGrid.RefreshDataAsync(); // Rafraîchir la GRID
+        }
     }
 
-    private async Task DeleteBatiment(int idBatiment)
+    private async Task<GridDataProviderResult<BatimentDTO>> BatimentsDataProvider(GridDataProviderRequest<BatimentDTO> request)
     {
-        await BatimentViewModel.DeletebatimentAsync(idBatiment);
-        StateHasChanged();
+        // Application des filtres, tri et pagination
+        var data = request.ApplyTo(BatimentViewModel.DBData.Batiments);
+        return await Task.FromResult(data);
     }
 
     private async void ClosePopup()

@@ -1,0 +1,44 @@
+﻿#formEquipement input, #formEquipement select, #formEquipement option, #formEquipement label, #radioButtonFlex {
+    width: 100%;
+}
+
+#formEquipement{
+    display:flex;
+    flex-direction:row;
+    gap:10%;
+    width:100%;
+    justify-content:space-between;
+}
+
+#formEquipement #rightPartFormEquipement, #formEquipement #leftPartFormEquipement{
+    width:45%;
+}
+
+#formEquipement section{
+    margin-top:3px;
+    margin-bottom:10px;
+}
+
+#formEquipement .formGroup{
+    margin-top:5px;
+    margin-bottom:10px;
+}
+
+#radioButtonFlex {
+    display:flex;
+    flex-direction:column;
+    justify-content:left;
+    margin:5px 0 0 0;
+}
+
+#radioButtonFlex div{
+    display:flex;
+    flex-direction:row;
+    justify-content:left;
+    gap:10px;
+}
+
+#radioButtonFlex input {
+    width:15px;
+    color:red;
+}

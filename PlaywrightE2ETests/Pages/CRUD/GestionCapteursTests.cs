@@ -26,12 +26,12 @@ namespace PlaywrightE2ETests.Pages.CRUD
             await Page.GotoAsync(Url);
 
             // Vérifier que la table des capteurs est visible
-            var table = Page.Locator("table.table");
+            var table = Page.Locator("table.bb-table");
             await Expect(table).ToBeVisibleAsync();
 
             // Vérifier que la table contient des lignes (des capteurs)
             var columns = table.Locator("thead tr th");
-            await Expect(columns).ToHaveCountAsync(3);
+            await Expect(columns).ToHaveCountAsync(6);
         }
 
         [TestMethod]

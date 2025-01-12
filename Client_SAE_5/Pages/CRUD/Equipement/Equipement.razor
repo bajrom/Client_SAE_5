@@ -2,12 +2,15 @@
 @inject Client_SAE_5.ViewModel.EquipementViewModel EquipementViewModel
 @inject NavigationManager NavigationManager
 
+<link rel="stylesheet" href="css/EquipementStyle.css" type="text/css" />
+
 <PageTitle>Gestion des équipements</PageTitle>
 
 <h1>Gestion des équipements</h1>
 <button class="btn btn-success" @onclick="() => AddNewEquipement()">Ajouter un équipement</button>
 <br />
 <br />
+
 @if (EquipementViewModel.DBData.Equipements == null || EquipementViewModel.DBData.Equipements.Count == 0)
 {
     <div class="d-flex justify-content-center">
@@ -16,33 +19,60 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Salle</th>
-                <th>Type d'équipement</th>
-                <th>Dimensions (Longueur*largeur*Hauteur)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var equipement in EquipementViewModel.DBData.Equipements)
-            {
-                <tr class="selection" @onclick="() => ViewDetails(equipement.IdEquipement)">
-                    <td>@equipement.NomEquipement</td>
-                    <td>@equipement.NomSalleEquipement</td>
-                    <td>@equipement.NomTypeEquipement</td>
-                    <td>@equipement.Dimensions</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => EditEquipement(equipement)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(equipement)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <Grid @ref="equipementGrid"
+        TItem="EquipementDTO"
+          DataProvider="EquipementDataProvider"
+          AllowFiltering="true"
+          AllowPaging="true"
+          PageSize="10"
+          AllowSorting="true"
+          FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
+
+          Class="table table-hover table-bordered"
+
+          Responsive="true"
+          AllowSelection="false"
+          OnRowClick="ViewDetails"
+          AllowRowClick="true"
+
+          PaginationItemsTextFormat="{0} - {1} sur {2} équipements"
+          ItemsPerPageText="Equipement par page"
+          EmptyText="Aucun équipement trouvé"
+          EnumFilterSelectText="Selection"
+        >
+        <GridColumns>
+            <GridColumn  TItem="EquipementDTO" HeaderText="Nom" PropertyName="NomEquipement" SortKeySelector="item => item.NomEquipement" >
+                @context.NomEquipement
+            </GridColumn>
+            <GridColumn TItem="EquipementDTO" HeaderText="Salle" PropertyName="NomSalleEquipement" SortKeySelector="item => item.NomSalleEquipement">
+                @context.NomSalleEquipement
+            </GridColumn>
+            <GridColumn TItem="EquipementDTO" HeaderText="Type d'équipement" PropertyName="NomTypeEquipement" SortKeySelector="item => item.NomTypeEquipement" >
+                @context.NomTypeEquipement
+            </GridColumn>
+            <GridColumn TItem="EquipementDTO" PropertyName="Dimensions" SortKeySelector="item => item.Dimensions" Filterable="false">
+                <HeaderContent>
+                    Dimensions (cm)
+                    <Tooltip Class="me-4" Title="Longueur * Largeur * Hauteur" Placement="TooltipPlacement.Top">
+                        <Icon Name="IconName.InfoCircleFill"></Icon>
+                    </Tooltip>
+                </HeaderContent>
+                <ChildContent>
+                    @context.Dimensions
+                </ChildContent>
+            </GridColumn>
+            <GridColumn TItem="EquipementDTO" HeaderText="Actions" Filterable="false">
+                <button class="btn btn-primary" title="Modifier @context.NomEquipement" @onclick="() => EditEquipement(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.PencilFill" />
+                </button>
+                <button class="btn btn-danger" title="Supprimer @context.NomEquipement" @onclick="() => BeginDeleteConfirmation(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.Trash3Fill" />
+                </button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 }
+
 
 @* @if (EquipementViewModel.SelectedEquipementDetails != null)
 {
@@ -78,86 +108,144 @@ else
 <!-- Modale pour l'édition -->
 <Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations de l'équipement">
     <BodyTemplate>
-        <div>
-            <label>Nom :</label>
-            <input type="text" @bind="EquipementViewModel.EquipementInEdition.NomEquipement" class="form-control" />
+        <div id="formEquipement">
+            <div id="leftPartFormEquipement">
+                <div class="formGroup">
+                    <section>
+                        <label>Nom de l'équipement:</label>
+                        <input type="text" @bind="EquipementViewModel.EquipementInEdition.NomEquipement" class="form-control" />
+                    </section>
 
-            <label>Est actif ? :</label>
-            <label>OUI</label>
-            <input type="radio" checked="@(EquipementViewModel.EquipementInEdition.EstActif == "OUI")"
-                   @onchange="@(() => EquipementViewModel.EquipementInEdition.EstActif = "OUI")" />
-            <label>NON</label>
-            <input type="radio" checked="@(EquipementViewModel.EquipementInEdition.EstActif == "NON")"
-                   @onchange="@(() => EquipementViewModel.EquipementInEdition.EstActif = "NON")" />
-            <label>NSP</label>
-            <input type="radio" checked="@(EquipementViewModel.EquipementInEdition.EstActif == "NSP")"
-                   @onchange="@(() => EquipementViewModel.EquipementInEdition.EstActif = "NSP")" />
-            <br />
+                    <section>
+                        <label>Type équipement :</label>
+                        <select @bind="EquipementViewModel.EquipementInEdition.TypeEquipement.IdTypeEquipement" class="form-control">
+                            @if (EquipementViewModel.EquipementInEdition.TypeEquipement.IdTypeEquipement == 0)
+                            {
+                                <option selected value="0">--- Sélectionnez un type d'équipement ---</option>
+                            }
+                            @foreach (var typeequipement in EquipementViewModel.DBData.TypesEquipement)
+                            {
+                                <option value="@typeequipement.IdTypeEquipement">@typeequipement.NomTypeEquipement</option>
+                            }
+                        </select>
+                    </section>
 
-            <label>Longueur :</label>
-            <input type="number" @bind="EquipementViewModel.EquipementInEdition.Longueur" class="form-control" />
+                    <section>
+                        <label>Etat:</label>
+                        <div id="radioButtonFlex">
+                            <div>
+                                <input type="radio" checked="@(EquipementViewModel.EquipementInEdition.EstActif == "OUI")"
+                                       @onchange="@(() => EquipementViewModel.EquipementInEdition.EstActif = "OUI")" />
+                                <label>Actif</label>
+                            </div>
 
-            <label>Largeur :</label>
-            <input type="number" @bind="EquipementViewModel.EquipementInEdition.Largeur" class="form-control" />
+                            <div>
+                                <input type="radio" checked="@(EquipementViewModel.EquipementInEdition.EstActif == "NON")"
+                                       @onchange="@(() => EquipementViewModel.EquipementInEdition.EstActif = "NON")" />
+                                <label>Inactif</label>
+                            </div>
 
-            <label>Hauteur :</label>
-            <input type="number" @bind="EquipementViewModel.EquipementInEdition.Hauteur" class="form-control" />
+                            <div>
+                                <input type="radio" checked="@(EquipementViewModel.EquipementInEdition.EstActif == "NSP")"
+                                       @onchange="@(() => EquipementViewModel.EquipementInEdition.EstActif = "NSP")" />
+                                <label>Inconnu</label>
+                            </div>
+                        </div>
+                    </section>
+                </div>
 
-            <label>X :</label>
-            <input type="number" @bind="EquipementViewModel.EquipementInEdition.PositionX" class="form-control" />
+                <div class="formShort formGroup" id="formEquipementSize" >
+                    <section>
+                        <label>Longueur (cm):</label>
+                        <input type="number" @bind="EquipementViewModel.EquipementInEdition.Longueur" class="form-control" />
+                    </section>
 
-            <label>Y :</label>
-            <input type="number" @bind="EquipementViewModel.EquipementInEdition.PositionY" class="form-control" />
+                    <section>
+                        <label>Largeur (cm):</label>
+                        <input type="number" @bind="EquipementViewModel.EquipementInEdition.Largeur" class="form-control" />
+                    </section>
 
-            <label>Z :</label>
-            <input type="number" @bind="EquipementViewModel.EquipementInEdition.PositionZ" class="form-control" />
+                    <section>
+                        <label>Hauteur (cm):</label>
+                        <input type="number" @bind="EquipementViewModel.EquipementInEdition.Hauteur" class="form-control" />
+                    </section>
+                </div>
+            </div>
+            <div id="rightPartFormEquipement">
+                <div class="formLong" id="formEquipementLocation">
+                    <div id="formEquipementPositionWhereabout" class="formGroup">
+                        <section>
+                            <label>Salle :</label>
+                            <select @bind="EquipementViewModel.EquipementInEditionNomSalleSelected" class="form-control">
+                                @if (string.IsNullOrEmpty(EquipementViewModel.EquipementInEditionNomSalleSelected))
+                                {
+                                    <option value="">-- Sélectionnez une salle --</option>
+                                }
+                                @foreach (string nomSalle in EquipementViewModel.NomSalles)
+                                {
+                                    <option value="@nomSalle">@nomSalle</option>
+                                }
+                            </select>
+                        </section>
 
-            <label>Salle :</label>
-            <select @bind="EquipementViewModel.EquipementInEditionNomSalleSelected" class="form-control">
-                @if (string.IsNullOrEmpty(EquipementViewModel.EquipementInEditionNomSalleSelected))
-                {
-                    <option value="">-- Sélectionnez une salle --</option>
-                }
-                @foreach (string nomSalle in EquipementViewModel.NomSalles)
-                {
-                    <option value="@nomSalle">@nomSalle</option>
-                }
-            </select>
-
-
-            @if (!string.IsNullOrEmpty(EquipementViewModel.EquipementInEditionNomSalleSelected))
-            {
-                <label>Mur :</label>
-                <select @bind="EquipementViewModel.EquipementInEdition.Mur.IdMur" class="form-control">
-                    @if (EquipementViewModel.EquipementInEditionNomSalleSelected != EquipementViewModel.EquipementInEdition.Salle.NomSalle || EquipementViewModel.EquipementInEdition.Mur.IdMur == 0)
-                    {
-                        <option selected value="0">--- Sélectionnez un mur ---</option>
-                    }
-                    @foreach (var mur in EquipementViewModel.DBData.Murs.Where(m => m.NomSalle == EquipementViewModel.EquipementInEditionNomSalleSelected))
-                    {
-                        @if (mur.IdMur == EquipementViewModel.EquipementInEditionOldMurId)
+                        @if (!string.IsNullOrEmpty(EquipementViewModel.EquipementInEditionNomSalleSelected))
                         {
-                            <option selected value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                            <section>
+                                <label>Mur :</label>
+                                <select @bind="EquipementViewModel.EquipementInEdition.Mur.IdMur" class="form-control">
+                                    @if (EquipementViewModel.EquipementInEditionNomSalleSelected != EquipementViewModel.EquipementInEdition.Salle.NomSalle || EquipementViewModel.EquipementInEdition.Mur.IdMur == 0)
+                                    {
+                                        <option selected value="0">--- Sélectionnez un mur ---</option>
+                                    }
+                                    @foreach (var mur in EquipementViewModel.DBData.Murs.Where(m => m.NomSalle == EquipementViewModel.EquipementInEditionNomSalleSelected))
+                                    {
+                                        @if (mur.IdMur == EquipementViewModel.EquipementInEditionOldMurId)
+                                        {
+                                            <option selected value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                                        }
+                                    }
+                                </select>
+                            </section>
                         }
-                        else
-                        {
-                            <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
-                        }
-                    }
-                </select>
-            }
+                    </div>
 
-            <label>Type équipement :</label>
-            <select @bind="EquipementViewModel.EquipementInEdition.TypeEquipement.IdTypeEquipement" class="form-control">
-                @if (EquipementViewModel.EquipementInEdition.TypeEquipement.IdTypeEquipement == 0)
-                {
-                    <option selected value="0">--- Sélectionnez un type d'équipement ---</option>
-                }
-                @foreach (var typeequipement in EquipementViewModel.DBData.TypesEquipement)
-                {
-                    <option value="@typeequipement.IdTypeEquipement">@typeequipement.NomTypeEquipement</option>
-                }
-            </select>
+                    <div id="formEquipementPositionCoordinates" class="formGroup">
+                        <section>
+                            <label>
+                                Position X (cm)
+                                <Tooltip Class="me-4" Title="Par rapport à la longueur du mur (partant de la gauche)" Placement="TooltipPlacement.Right">
+                                    <Icon Name="IconName.InfoCircleFill"></Icon>
+                                </Tooltip>
+                            </label>
+                            <input type="number" @bind="EquipementViewModel.EquipementInEdition.PositionX" class="form-control" min="0" />
+                        </section>
+
+                        <section>
+                            <label>
+                                Position Y (cm)
+                                <Tooltip Class="me-4" Title="Par rapport à la hauteur du mur (partant du haut)" Placement="TooltipPlacement.Right">
+                                    <Icon Name="IconName.InfoCircleFill"></Icon>
+                                </Tooltip>
+                            </label>
+                            <input type="number" @bind="EquipementViewModel.EquipementInEdition.PositionY" class="form-control" min="0" />
+                        </section>
+
+                        <section>
+                            <label>
+                                Position Z (cm)
+                                <Tooltip Class="me-4" Title="Distance du mur le plus proche / de référence" Placement="TooltipPlacement.Right">
+                                    <Icon Name="IconName.InfoCircleFill"></Icon>
+                                </Tooltip>
+                            </label>
+                            <input type="number" @bind="EquipementViewModel.EquipementInEdition.PositionZ" class="form-control" min="0" />
+                        </section>
+                    </div>
+                </div>
+            </div>
         </div>
     </BodyTemplate>
     <FooterTemplate>
@@ -183,6 +271,8 @@ else
 <ConfirmDialog @ref="confirmSupprDialog" />
 
 @code {
+    private List<String> TypesEquipementNom = [];
+    private Grid<EquipementDTO> equipementGrid;
     private Modal formModal;
 
     private ConfirmDialog confirmSupprDialog = default!;
@@ -210,14 +300,14 @@ else
         await formModal.ShowAsync();
     }
 
-    private void ViewDetails(int idEquipement)
+    private void ViewDetails(GridRowEventArgs<EquipementDTO> args)
     {
-        Utils.Utils.GoDetail(NavigationManager, "equipements", idEquipement);
+        Utils.Utils.GoDetail(NavigationManager, "equipements", args.Item.IdEquipement);
         //await EquipementViewModel.LoadEquipementDetailsAsync(idEquipement);
         StateHasChanged();
     }
 
-    private async Task EditEquipement(Client_SAE_5.DTO.EquipementDTO equipement)
+    private async Task EditEquipement(EquipementDTO equipement)
     {
         await EquipementViewModel.SetupEquipementEdition(equipement.IdEquipement);
         OpenPopup();
@@ -244,7 +334,20 @@ else
         {
             ClosePopup();
             StateHasChanged();
+            await RefreshGridAsync();
         }
+    }
+
+    private async Task BeginDeleteConfirmation(EquipementDTO equipement)
+    {
+        equipementDeleteInConfirmation = equipement;
+        await OpenDeleteConfirmation();
+    }
+
+    private async Task DeleteEquipement(int idEquipement)
+    {
+        await EquipementViewModel.DeleteEquipementAsync(idEquipement);
+        StateHasChanged();
     }
 
     private async Task OpenDeleteConfirmation()
@@ -270,20 +373,27 @@ else
         if (confirmation)
         {
             await DeleteEquipement(equipementDeleteInConfirmation.IdEquipement);
+            await RefreshGridAsync();
             ToastService.Notify(new ToastMessage(ToastType.Success, $"L'équipement a été supprimé avec succès"));
         }
     }
 
-    private async Task BeginDeleteConfirmation(EquipementDTO equipementToConfirmDeletion)
+    private async Task RefreshGridAsync()
     {
-        equipementDeleteInConfirmation = equipementToConfirmDeletion;
-        await OpenDeleteConfirmation();
+        if (equipementGrid != null)
+        {
+            await equipementGrid.RefreshDataAsync();
+        }
     }
 
-    private async Task DeleteEquipement(int idEquipement)
+
+    private HashSet<EquipementDTO> selectedEquipements = new();
+
+    private async Task<GridDataProviderResult<EquipementDTO>> EquipementDataProvider(GridDataProviderRequest<EquipementDTO> request)
     {
-        await EquipementViewModel.DeleteEquipementAsync(idEquipement);
-        StateHasChanged();
+        // Application des filtres, tri et pagination
+        var data = request.ApplyTo(EquipementViewModel.DBData.Equipements);
+        return await Task.FromResult(data);
     }
 
     private void CancelEdit()

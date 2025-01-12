@@ -6,9 +6,10 @@
 
 <h1>Gestion des unités</h1>
 
-<button class="btn btn-success" @onclick="() => AddNewUnite()">Ajouter une unite</button>
+<button class="btn btn-success" @onclick="() => AddNewUnite()">Ajouter une unité</button>
 <br />
 <br />
+
 @if (UniteViewModel.DBData.Unites == null || UniteViewModel.DBData.Unites.Count == 0)
 {
     <div class="d-flex justify-content-center">
@@ -17,34 +18,44 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Sigle</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var unite in UniteViewModel.DBData.Unites)
-            {
-                <tr class="selection" @onclick="() => ViewDetails(unite.IdUnite)">
-                    <td>@unite.NomUnite</td>
-                    <td>@unite.SigleUnite</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => EditUnite(unite)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(unite)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <Grid @ref="uniteGrid"
+          TItem="UniteDTO"
+          DataProvider="UnitesDataProvider"
+          AllowFiltering="true"
+          AllowPaging="true"
+          PageSize="10"
+          AllowSorting="true"
+          FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
+          Class="table table-hover table-bordered"
+          Responsive="true"
+          AllowSelection="false"
+          OnRowClick="ViewDetails"
+          AllowRowClick="true"
+          PaginationItemsTextFormat="{0} - {1} sur {2} unités"
+          ItemsPerPageText="Unités par page"
+          EmptyText="Aucune unité trouvée"
+          EnumFilterSelectText="Selection">
+        <GridColumns>
+            <GridColumn TItem="UniteDTO" HeaderText="Nom" PropertyName="NomUnite" SortKeySelector="item => item.NomUnite">
+                @context.NomUnite
+            </GridColumn>
+            <GridColumn TItem="UniteDTO" HeaderText="Sigle" PropertyName="SigleUnite" SortKeySelector="item => item.SigleUnite">
+                @context.SigleUnite
+            </GridColumn>
+            <GridColumn TItem="UniteDTO" HeaderText="Actions" Filterable="false">
+                <button class="btn btn-primary" title="Modifier @context.NomUnite" @onclick="() => EditUnite(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.PencilFill" />
+                </button>
+                <button class="btn btn-danger" title="Supprimer @context.NomUnite" @onclick="() => BeginDeleteConfirmation(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.Trash3Fill" />
+                </button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 }
 
-
-
 <!-- Modale pour l'édition -->
-<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations de l'unite'">
+<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations de l'unité">
     <BodyTemplate>
         @if (!string.IsNullOrEmpty(UniteViewModel.ErrorMessage))
         {
@@ -77,13 +88,13 @@ else
 
 @code {
     private Modal formModal;
+    private Grid<UniteDTO> uniteGrid;
 
     private ConfirmDialog confirmSupprDialog = default!;
     List<ToastMessage> messages = new List<ToastMessage>();
     [Inject] ToastService ToastService { get; set; } = default!;
 
     private UniteDTO? uniteDeleteInConfirmation;
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -104,9 +115,9 @@ else
         await formModal.ShowAsync();
     }
 
-    private void ViewDetails(int idUnite)
+    private void ViewDetails(GridRowEventArgs<UniteDTO> args)
     {
-        Utils.Utils.GoDetail(NavigationManager, "unites", idUnite);
+        Utils.Utils.GoDetail(NavigationManager, "unites", args.Item.IdUnite);
         StateHasChanged();
     }
 
@@ -116,7 +127,7 @@ else
         OpenPopup();
     }
 
-    private async Task EditUnite(Client_SAE_5.DTO.UniteDTO unite)
+    private async Task EditUnite(UniteDTO unite)
     {
         await UniteViewModel.SetupUniteEdition(unite.IdUnite);
         OpenPopup();
@@ -136,8 +147,20 @@ else
         if (string.IsNullOrEmpty(UniteViewModel.ErrorMessage))
         {
             ClosePopup();
-            StateHasChanged();
+            await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
+    }
+
+    private async Task BeginDeleteConfirmation(UniteDTO unite)
+    {
+        uniteDeleteInConfirmation = unite;
+        await OpenDeleteConfirmation();
+    }
+
+    private async Task DeleteUnite(int idUnite)
+    {
+        await UniteViewModel.DeleteUniteAsync(idUnite);
+        await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
     private async Task OpenDeleteConfirmation()
@@ -152,30 +175,33 @@ else
 
         if (uniteDeleteInConfirmation == null)
         {
-            throw new ArgumentNullException("L'unite dont on veut récupérer la confirmation de suppression est NULL.");
+            throw new ArgumentNullException("L'unité dont on veut récupérer la confirmation de suppression est NULL.");
         }
 
         var confirmation = await confirmSupprDialog.ShowAsync(
-            title: "Confirmer la suppression de l'unite",
-            message1: "Êtes vous sûr de vouloir supprimer l'unite \"" + uniteDeleteInConfirmation.NomUnite + " (" + uniteDeleteInConfirmation.SigleUnite + ") ?",
+            title: "Confirmer la suppression de l'unité",
+            message1: "Êtes vous sûr de vouloir supprimer l'unité \"" + uniteDeleteInConfirmation.NomUnite + " (" + uniteDeleteInConfirmation.SigleUnite + ") ?",
             confirmDialogOptions: options);
 
         if (confirmation)
         {
             await DeleteUnite(uniteDeleteInConfirmation.IdUnite);
-            ToastService.Notify(new ToastMessage(ToastType.Success, $"L'unite a été supprimée avec succès"));
+            ToastService.Notify(new ToastMessage(ToastType.Success, $"L'unité a été supprimée avec succès"));
         }
     }
 
-    private async Task BeginDeleteConfirmation(UniteDTO UniteToConfirmDeletion)
+    private async Task RefreshGridAsync()
     {
-        uniteDeleteInConfirmation = UniteToConfirmDeletion;
-        await OpenDeleteConfirmation();
+        if (uniteGrid != null)
+        {
+            await uniteGrid.RefreshDataAsync(); // Rafraîchir la GRID
+        }
     }
 
-    private async Task DeleteUnite(int idUnite)
+    private async Task<GridDataProviderResult<UniteDTO>> UnitesDataProvider(GridDataProviderRequest<UniteDTO> request)
     {
-        await UniteViewModel.DeleteUniteAsync(idUnite);
-        StateHasChanged();
+        // Application des filtres, tri et pagination
+        var data = request.ApplyTo(UniteViewModel.DBData.Unites);
+        return await Task.FromResult(data);
     }
 }

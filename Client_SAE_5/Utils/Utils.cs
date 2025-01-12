@@ -1,4 +1,5 @@
-﻿using Client_SAE_5.DTO;
+﻿using BlazorBootstrap;
+using Client_SAE_5.DTO;
 using Client_SAE_5.Pages.CRUD.Equipement;
 using Client_SAE_5.ViewModel;
 using Microsoft.AspNetCore.Components;
