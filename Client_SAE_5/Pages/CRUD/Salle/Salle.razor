@@ -8,6 +8,7 @@
 <button class="btn btn-success" @onclick="() => AddNewSalle()">Ajouter une salle</button>
 <br />
 <br />
+
 @if (SalleViewModel.DBData.Salles == null || SalleViewModel.DBData.Salles.Count == 0)
 {
     <div class="d-flex justify-content-center">
@@ -16,30 +17,43 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom de la Salle</th>
-                <th>Bâtiment</th>
-                <th>Type</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var salle in SalleViewModel.DBData.Salles)
-            {
-                <tr class="selection" @onclick="() => ViewDetails(salle.IdSalle)">
-                    <td>@salle.NomSalle</td>
-                    <td>@salle.NomBatiment</td>
-                    <td>@salle.NomType</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => EditSalle(salle)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(salle)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <Grid @ref="salleGrid"
+          TItem="SalleDTO"
+          DataProvider="SallesDataProvider"
+          AllowFiltering="true"
+          AllowPaging="true"
+          PageSize="10"
+          AllowSorting="true"
+          FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
+          Class="table table-hover table-bordered"
+          Responsive="true"
+          AllowSelection="false"
+          OnRowClick="ViewDetails"
+          AllowRowClick="true"
+          PaginationItemsTextFormat="{0} - {1} sur {2} salles"
+          ItemsPerPageText="Salles par page"
+          EmptyText="Aucune salle trouvée"
+          EnumFilterSelectText="Selection">
+        <GridColumns>
+            <GridColumn TItem="SalleDTO" HeaderText="Nom de la Salle" PropertyName="NomSalle" SortKeySelector="item => item.NomSalle">
+                @context.NomSalle
+            </GridColumn>
+            <GridColumn TItem="SalleDTO" HeaderText="Bâtiment" PropertyName="NomBatiment" SortKeySelector="item => item.NomBatiment">
+                @context.NomBatiment
+            </GridColumn>
+            <GridColumn TItem="SalleDTO" HeaderText="Type" PropertyName="NomType" SortKeySelector="item => item.NomType">
+                @context.NomType
+            </GridColumn>
+            <GridColumn TItem="SalleDTO" HeaderText="Actions" Filterable="false">
+                <button class="btn btn-primary" title="Modifier @context.NomSalle" @onclick="() => EditSalle(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.PencilFill" />
+                </button>
+                <button class="btn btn-danger" title="Supprimer @context.NomSalle" @onclick="() => BeginDeleteConfirmation(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.Trash3Fill" />
+                </button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 }
 
 <!-- Modale pour l'édition -->
@@ -99,6 +113,7 @@ else
 
 @code {
     private Modal formModal;
+    private Grid<SalleDTO> salleGrid;
 
     private ConfirmDialog confirmSupprDialog = default!;
     List<ToastMessage> messages = new List<ToastMessage>();
@@ -125,14 +140,13 @@ else
         await formModal.ShowAsync();
     }
 
-    private void ViewDetails(int idSalle)
+    private void ViewDetails(GridRowEventArgs<SalleDTO> args)
     {
-        Utils.Utils.GoDetail(NavigationManager, "salles", idSalle);
-        //await SalleViewModel.LoadSalleDetailsAsync(idSalle);
+        Utils.Utils.GoDetail(NavigationManager, "salles", args.Item.IdSalle);
         StateHasChanged();
     }
 
-    private async Task EditSalle(Client_SAE_5.DTO.SalleDTO salle)
+    private async Task EditSalle(SalleDTO salle)
     {
         await SalleViewModel.SetupSalleEdition(salle.IdSalle);
         OpenPopup();
@@ -159,7 +173,20 @@ else
         {
             ClosePopup();
             StateHasChanged();
+            await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
+    }
+
+    private async Task BeginDeleteConfirmation(SalleDTO salle)
+    {
+        salleDeleteInConfirmation = salle;
+        await OpenDeleteConfirmation();
+    }
+
+    private async Task DeleteSalle(int idSalle)
+    {
+        await SalleViewModel.DeleteSalleAsync(idSalle);
+        await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
     private async Task OpenDeleteConfirmation()
@@ -186,19 +213,24 @@ else
         {
             await DeleteSalle(salleDeleteInConfirmation.IdSalle);
             ToastService.Notify(new ToastMessage(ToastType.Success, $"La salle a été supprimé avec succès"));
+            await RefreshGridAsync();
         }
     }
 
-    private async Task BeginDeleteConfirmation(SalleDTO salleToConfirmDeletion)
+    private async Task RefreshGridAsync()
     {
-        salleDeleteInConfirmation = salleToConfirmDeletion;
-        await OpenDeleteConfirmation();
+        Console.WriteLine(salleGrid == null);
+        if (salleGrid != null)
+        {
+            await salleGrid.RefreshDataAsync(); // Rafraîchir la GRID
+        }
     }
 
-    private async Task DeleteSalle(int idSalle)
+    private async Task<GridDataProviderResult<SalleDTO>> SallesDataProvider(GridDataProviderRequest<SalleDTO> request)
     {
-        await SalleViewModel.DeleteSalleAsync(idSalle);
-        StateHasChanged();
+        // Application des filtres, tri et pagination
+        var data = request.ApplyTo(SalleViewModel.DBData.Salles);
+        return await Task.FromResult(data);
     }
 
     private void CancelEdit()

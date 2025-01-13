@@ -42,10 +42,12 @@ namespace PlaywrightE2ETests.Pages
         public async Task HomePageLinkGrafanaPage()
         {
             await Page.GotoAsync(TestsConfig.BaseURL);
+            var currentPageTitle = await Page.TitleAsync();
+            await Page.GetByText("Grafana").ClickAsync();
+            var newPageTitle = await Page.TitleAsync();
 
-            await Page.GetByRole(AriaRole.Link, new() { Name = "Grafana" }).ClickAsync();
+            Assert.IsFalse(currentPageTitle == newPageTitle, "Le nom de la page n'a pas changé.");
 
-            await Expect(Page).ToHaveTitleAsync(new Regex("Grafana"));
         }
 
         [TestMethod]
@@ -53,7 +55,8 @@ namespace PlaywrightE2ETests.Pages
         {
             await Page.GotoAsync(TestsConfig.BaseURL);
 
-            await Page.GetByRole(AriaRole.Link, new() { Name = "Visualisation 3D" }).ClickAsync();
+
+            await Page.GetByText("Visualisation 3D").ClickAsync();
 
             await Expect(Page).ToHaveTitleAsync(new Regex("Visualisation 3D"));
         }

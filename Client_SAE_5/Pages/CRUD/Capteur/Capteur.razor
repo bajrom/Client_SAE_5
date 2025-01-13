@@ -2,6 +2,7 @@
 @inject Client_SAE_5.ViewModel.CapteurViewModel CapteurViewModel
 @inject NavigationManager NavigationManager
 
+<link rel="stylesheet" href="css/CapteurStyle.css" />
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
 
 <PageTitle>Gestion des Capteurs</PageTitle>
@@ -11,6 +12,7 @@
 <button class="btn btn-success" @onclick="() => AddNewCapteur()">Ajouter un capteur</button>
 <br />
 <br />
+
 @if (CapteurViewModel.DBData.Capteurs == null || CapteurViewModel.DBData.Capteurs.Count == 0)
 {
     <div class="d-flex justify-content-center">
@@ -19,30 +21,41 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Salle</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var capteur in CapteurViewModel.DBData.Capteurs)
-            {
-                <tr class="selection" @onclick="() => ViewDetails(capteur.IdCapteur)">
-                    <td>@capteur.NomCapteur</td>
-                    <td>@capteur.NomSalle</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => EditCapteur(capteur)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(capteur)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <Grid @ref="capteurGrid"
+          TItem="CapteurDTO"
+          DataProvider="CapteursDataProvider"
+          AllowFiltering="true"
+          AllowPaging="true"
+          PageSize="10"
+          AllowSorting="true"
+          FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
+          Class="table table-hover table-bordered"
+          Responsive="true"
+          AllowSelection="false"
+          OnRowClick="ViewDetails"
+          AllowRowClick="true"
+          PaginationItemsTextFormat="{0} - {1} sur {2} capteurs"
+          ItemsPerPageText="Capteurs par page"
+          EmptyText="Aucun capteur trouvé"
+          EnumFilterSelectText="Selection">
+        <GridColumns>
+            <GridColumn TItem="CapteurDTO" HeaderText="Nom" PropertyName="NomCapteur" SortKeySelector="item => item.NomCapteur">
+                @context.NomCapteur
+            </GridColumn>
+            <GridColumn TItem="CapteurDTO" HeaderText="Salle" PropertyName="NomSalle" SortKeySelector="item => item.NomSalle">
+                @context.NomSalle
+            </GridColumn>
+            <GridColumn TItem="CapteurDTO" HeaderText="Actions" Filterable="false">
+                <button class="btn btn-primary" title="Modifier @context.NomCapteur" @onclick="() => EditCapteur(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.PencilFill" />
+                </button>
+                <button class="btn btn-danger" title="Supprimer @context.NomCapteur" @onclick="() => BeginDeleteConfirmation(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.Trash3Fill" />
+                </button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 }
-
 
 <!-- Modale pour l'édition -->
 <Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du capteur">
@@ -54,77 +67,127 @@ else
             </div>
         }
 
-        <div>
-            <label>Nom :</label>
-            <input type="text" @bind="CapteurViewModel.CapteurInEdition.NomCapteur" class="form-control" />
+        <div id="formCapteur">
+            <div class="formCapteurGroup" id="formLeftGroup">
+                <section>
+                    <label>Nom :</label>
+                    <input type="text" @bind="CapteurViewModel.CapteurInEdition.NomCapteur" class="form-control" maxlength="25" />
+                </section>
 
-            <label>Est actif ? :</label>
-                <label>OUI</label>
-                <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "OUI")"
-                       @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "OUI")" />
-                <label>NON</label>
-                <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "NON")"
-                       @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "NON")" />
-                <label>NSP</label>
-                <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "NSP")"
-                       @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "NSP")" />
-            <br/>
-
-            <label>X :</label>
-            <input type="number" @bind="CapteurViewModel.CapteurInEdition.XCapteur" class="form-control" />
-
-            <label>Y :</label>
-            <input type="number" @bind="CapteurViewModel.CapteurInEdition.YCapteur" class="form-control" />
-
-            <label>Z :</label>
-            <input type="number" @bind="CapteurViewModel.CapteurInEdition.ZCapteur" class="form-control" />
-
-            <label>Salle :</label>
-            <select @bind="CapteurViewModel.CapteurInEditionNomSalleSelected" class="form-control">
-                @if (string.IsNullOrEmpty(CapteurViewModel.CapteurInEditionNomSalleSelected))
-                {
-                    <option value="">-- Sélectionnez une salle --</option>
-                }
-                @foreach (string nomSalle in CapteurViewModel.NomSalles)
-                {
-                    <option value="@nomSalle">@nomSalle</option>
-                }
-            </select>
-
-
-            @if (!string.IsNullOrEmpty(CapteurViewModel.CapteurInEditionNomSalleSelected))
-            {
-                <label>Mur :</label>
-                <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
-                    @if (CapteurViewModel.CapteurInEditionNomSalleSelected != CapteurViewModel.CapteurInEdition.Salle.NomSalle || CapteurViewModel.CapteurInEdition.Mur.IdMur == 0)
-                    {
-                        <option selected value="0">--- Sélectionnez un mur ---</option>
-                    }
-                    @foreach (var mur in CapteurViewModel.DBData.Murs.Where(m => m.NomSalle == CapteurViewModel.CapteurInEditionNomSalleSelected))
-                    {
-                        @if (mur.IdMur == CapteurViewModel.CapteurInEditionOldMurId)
-                        {
-                            <option selected value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
-                        }
-                        else
-                        {
-                            <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
-                        }
-                    }
-                </select>
-            }
-
-            <label>Unités :</label>
-            <div id="divUnitesCapteur">
-                @foreach (var unite in CapteurViewModel.DBData.Unites)
-                {
-                    <div class="form-check">
-                        <label class="form-check-label">@unite.NomUnite (@unite.SigleUnite)</label>
-                        <input value="@unite.IdUnite" type="checkbox" class="form-check-input" checked="@CapteurViewModel.CapteurInEdition.Unites.Any(u => u.IdUnite == unite.IdUnite)" @onchange="(e) => CapteurViewModel.ChangeSelectedUnites(unite, (bool)e.Value)" />
+                <section>
+                    <label>Etat :</label>
+                    <div id="radioButtonFlex">
+                        <div>
+                            <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "OUI")"
+                                   @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "OUI")" />
+                            <label>Actif</label>
+                        </div>
+                        <div>
+                            <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "NON")"
+                                   @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "NON")" />
+                            <label>Inactif</label>
+                        </div>
+                        <div>
+                            <input type="radio" checked="@(CapteurViewModel.CapteurInEdition.EstActif == "NSP")"
+                                   @onchange="@(() => CapteurViewModel.CapteurInEdition.EstActif = "NSP")" />
+                            <label>Inconnu</label>
+                        </div>
                     </div>
-                }
+                </section>
+
+                <section>
+                    <label>
+                        Position X (en cm)
+                        <Tooltip Class="me-4" Title="Distance par rapport à la longueur du mur en partant de la gauche" Placement="TooltipPlacement.Right">
+                            <Icon Name="IconName.InfoCircleFill"></Icon>
+                        </Tooltip>
+                    </label>
+                    <input type="number" @bind="CapteurViewModel.CapteurInEdition.XCapteur" class="form-control" min="0"/>
+                </section>
+
+                <section>
+                    <label>
+                        Position Y (en cm)
+                        <Tooltip Class="me-4" Title="Distance par rapport à la hauteur du mur en partant du haut" Placement="TooltipPlacement.Right">
+                            <Icon Name="IconName.InfoCircleFill"></Icon>
+                        </Tooltip>
+                    </label>
+                    <input type="number" @bind="CapteurViewModel.CapteurInEdition.YCapteur" class="form-control" min="0"/>
+                </section>
+
+                <section>
+                    <label>
+                        Position Z (en cm)
+                        <Tooltip Class="me-4" Title="Distance du mur le plus proche / de référence" Placement="TooltipPlacement.Right">
+                            <Icon Name="IconName.InfoCircleFill"></Icon>
+                        </Tooltip>
+                    </label>
+                    <input type="number" @bind="CapteurViewModel.CapteurInEdition.ZCapteur" class="form-control" min="0"/>
+                </section>
+
+
+                <section>
+                    <label>Salle :</label>
+                    <select @bind="CapteurViewModel.CapteurInEditionNomSalleSelected" class="form-control">
+                        @if (string.IsNullOrEmpty(CapteurViewModel.CapteurInEditionNomSalleSelected))
+                        {
+                            <option value="">-- Sélectionnez une salle --</option>
+                        }
+                        @foreach (string nomSalle in CapteurViewModel.NomSalles)
+                        {
+                            <option value="@nomSalle">@nomSalle</option>
+                        }
+                    </select>
+                </section>
+
+
+              
             </div>
 
+            <div class="formCapteurGroup" id="formRightGroup">
+                <section>
+                    <label>Unités :</label>
+                    <div id="divUnitesCapteur">
+                        @foreach (var unite in CapteurViewModel.DBData.Unites)
+                        {
+                            <div class="form-check">
+                                <input value="@unite.IdUnite"
+                                       type="checkbox"
+                                       class="form-check-input"
+                                       checked="@CapteurViewModel.CapteurInEdition.Unites.Any(u => u.IdUnite == unite.IdUnite)"
+                                       @onchange="(e) => CapteurViewModel.ChangeSelectedUnites(unite, (bool)e.Value)" />
+                                <label class="form-check-label">
+                                    @unite.NomUnite @("" + (unite.SigleUnite != null ? "(" + unite.SigleUnite + ")" : ""))
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </section>
+
+                @if (!string.IsNullOrEmpty(CapteurViewModel.CapteurInEditionNomSalleSelected))
+                {
+                    <section>
+                        <label>Mur :</label>
+                        <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
+                            @if (CapteurViewModel.CapteurInEditionNomSalleSelected != CapteurViewModel.CapteurInEdition.Salle.NomSalle || CapteurViewModel.CapteurInEdition.Mur.IdMur == 0)
+                            {
+                                <option selected value="0">--- Sélectionnez un mur ---</option>
+                            }
+                            @foreach (var mur in CapteurViewModel.DBData.Murs.Where(m => m.NomSalle == CapteurViewModel.CapteurInEditionNomSalleSelected))
+                            {
+                                @if (mur.IdMur == CapteurViewModel.CapteurInEditionOldMurId)
+                                {
+                                    <option selected value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                                }
+                                else
+                                {
+                                    <option value="@mur.IdMur">Mur @mur.Direction orienté @Math.Round(mur.Orientation)° salle @mur.NomSalle</option>
+                                }
+                            }
+                        </select>
+                    </section>
+                }
+            </div>
         </div>
     </BodyTemplate>
     <FooterTemplate>
@@ -144,6 +207,7 @@ else
 
 @code {
     private Modal formModal;
+    private Grid<CapteurDTO> capteurGrid;
 
     private ConfirmDialog confirmSupprDialog = default!;
     List<ToastMessage> messages = new List<ToastMessage>();
@@ -170,9 +234,9 @@ else
         await formModal.ShowAsync();
     }
 
-    private void ViewDetails(int idCapteur)
+    private void ViewDetails(GridRowEventArgs<CapteurDTO> args)
     {
-        Utils.Utils.GoDetail(NavigationManager, "capteurs", idCapteur);
+        Utils.Utils.GoDetail(NavigationManager, "capteurs", args.Item.IdCapteur);
         StateHasChanged();
     }
 
@@ -202,19 +266,31 @@ else
         if (string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
         {
             ClosePopup();
-            StateHasChanged();
+            await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
+    }
+
+    private async Task BeginDeleteConfirmation(CapteurDTO capteur)
+    {
+        capteurDeleteInConfirmation = capteur;
+        await OpenDeleteConfirmation();
+    }
+
+    private async Task DeleteCapteur(int idCapteur)
+    {
+        await CapteurViewModel.DeleteCapteurAsync(idCapteur);
+        await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
     private async Task OpenDeleteConfirmation()
     {
         var options = new ConfirmDialogOptions
-        {
-            YesButtonText = "Supprimer",
-            YesButtonColor = ButtonColor.Danger,
-            NoButtonText = "Annuler",
-            NoButtonColor = ButtonColor.Primary
-        };
+            {
+                YesButtonText = "Supprimer",
+                YesButtonColor = ButtonColor.Danger,
+                NoButtonText = "Annuler",
+                NoButtonColor = ButtonColor.Primary
+            };
 
         if (capteurDeleteInConfirmation == null)
         {
@@ -233,16 +309,19 @@ else
         }
     }
 
-    private async Task BeginDeleteConfirmation(CapteurDTO capteurToConfirmDeletion)
+    private async Task RefreshGridAsync()
     {
-        capteurDeleteInConfirmation = capteurToConfirmDeletion;
-        await OpenDeleteConfirmation();
+        if (capteurGrid != null)
+        {
+            await capteurGrid.RefreshDataAsync(); // Rafraîchir la GRID
+        }
     }
 
-    private async Task DeleteCapteur(int idCapteur)
+    private async Task<GridDataProviderResult<CapteurDTO>> CapteursDataProvider(GridDataProviderRequest<CapteurDTO> request)
     {
-        await CapteurViewModel.DeleteCapteurAsync(idCapteur);
-        StateHasChanged();
+        // Application des filtres, tri et pagination
+        var data = request.ApplyTo(CapteurViewModel.DBData.Capteurs);
+        return await Task.FromResult(data);
     }
 
     private void CancelEdit()

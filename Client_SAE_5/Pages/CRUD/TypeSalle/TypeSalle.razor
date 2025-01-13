@@ -2,9 +2,9 @@
 @inject Client_SAE_5.ViewModel.TypeSalleViewModel TypeSalleViewModel
 @inject NavigationManager NavigationManager
 
-<PageTitle>Gestion des types de salles</PageTitle>
+<PageTitle>Gestion des types de salle</PageTitle>
 
-<h1>Gestion des types de salles</h1>
+<h1>Gestion des types de salle</h1>
 <button class="btn btn-success" @onclick="() => AddNewTypeSalle()">Ajouter un type de salle</button>
 <br />
 <br />
@@ -17,47 +17,38 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var typesalle in TypeSalleViewModel.DBData.TypesSalle)
-            {
-                <tr class="selection" @onclick="() => ViewDetails(typesalle.IdTypeSalle)">
-                    <td>@typesalle.NomTypeSalle</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => EditTypeSalle(typesalle)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(typesalle)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <Grid @ref="typeSalleGrid"
+          TItem="TypeSalleDTO"
+          DataProvider="TypesSalleDataProvider"
+          AllowFiltering="true"
+          AllowPaging="true"
+          PageSize="10"
+          AllowSorting="true"
+          FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
+          Class="table table-hover table-bordered"
+          Responsive="true"
+          AllowSelection="false"
+          OnRowClick="ViewDetails"
+          AllowRowClick="true"
+          PaginationItemsTextFormat="{0} - {1} sur {2} types de salle"
+          ItemsPerPageText="Types de salle par page"
+          EmptyText="Aucun type de salle trouvé"
+          EnumFilterSelectText="Selection">
+        <GridColumns>
+            <GridColumn TItem="TypeSalleDTO" HeaderText="Nom" PropertyName="NomTypeSalle" SortKeySelector="item => item.NomTypeSalle">
+                @context.NomTypeSalle
+            </GridColumn>
+            <GridColumn TItem="TypeSalleDTO" HeaderText="Actions" Filterable="false">
+                <button class="btn btn-primary" title="Modifier @context.NomTypeSalle" @onclick="() => EditTypeSalle(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.PencilFill" />
+                </button>
+                <button class="btn btn-danger" title="Supprimer @context.NomTypeSalle" @onclick="() => BeginDeleteConfirmation(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.Trash3Fill" />
+                </button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 }
-
-@* @if (TypeSalleViewModel.SelectedTypeSalleDetails != null)
-{
-    <h2>Détails du type de salle:</h2>
-
-    <h3>Salles</h3>
-    @if (TypeSalleViewModel.SelectedTypeSalleDetails.Salles?.Count > 0)
-    {
-        <ul>
-            @foreach (var salle in TypeSalleViewModel.SelectedTypeSalleDetails.Salles)
-            {
-                <li>@salle.NomSalle</li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucune salle</em></p>
-    }
-} *@
 
 <!-- Modale pour l'édition -->
 <Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du type de salle">
@@ -91,6 +82,8 @@ else
 
 @code {
     private Modal formModal;
+    private Grid<TypeSalleDTO> typeSalleGrid;
+
     private ConfirmDialog confirmSupprDialog = default!;
     private TypeSalleDTO? typesalleDeleteInConfirmation;
     [Inject] ToastService ToastService { get; set; } = default!;
@@ -103,14 +96,13 @@ else
         }
     }
 
-    private void ViewDetails(int idTypeSalle)
+    private void ViewDetails(GridRowEventArgs<TypeSalleDTO> args)
     {
-        Utils.Utils.GoDetail(NavigationManager, "typessalle", idTypeSalle);
+        Utils.Utils.GoDetail(NavigationManager, "typessalle", args.Item.IdTypeSalle);
         StateHasChanged();
-        //await TypeSalleViewModel.LoadTypeSalleDetailsAsync(idTypeSalle);
     }
 
-    private async Task EditTypeSalle(Client_SAE_5.DTO.TypeSalleDTO typeSalle)
+    private async Task EditTypeSalle(TypeSalleDTO typeSalle)
     {
         await TypeSalleViewModel.SetupTypeSalleEdition(typeSalle.IdTypeSalle);
         OpenPopup();
@@ -132,6 +124,24 @@ else
         {
             await TypeSalleViewModel.UpdateTypeSallesAsync();
         }
+
+        if (string.IsNullOrEmpty(TypeSalleViewModel.ErrorMessage))
+        {
+            ClosePopup();
+            await RefreshGridAsync(); // Rafraîchir la GRID après une modification
+        }
+    }
+
+    private async Task BeginDeleteConfirmation(TypeSalleDTO typeSalle)
+    {
+        typesalleDeleteInConfirmation = typeSalle;
+        await OpenDeleteConfirmation();
+    }
+
+    private async Task DeleteTypeSalle(int idTypeSalle)
+    {
+        await TypeSalleViewModel.DeleteTypeSalleAsync(idTypeSalle);
+        await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
     private async Task OpenDeleteConfirmation()
@@ -161,16 +171,19 @@ else
         }
     }
 
-    private async Task BeginDeleteConfirmation(TypeSalleDTO typesalleToConfirmDeletion)
+    private async Task RefreshGridAsync()
     {
-        typesalleDeleteInConfirmation = typesalleToConfirmDeletion;
-        await OpenDeleteConfirmation();
+        if (typeSalleGrid != null)
+        {
+            await typeSalleGrid.RefreshDataAsync(); // Rafraîchir la GRID
+        }
     }
 
-    private async Task DeleteTypeSalle(int idTypeSalle)
+    private async Task<GridDataProviderResult<TypeSalleDTO>> TypesSalleDataProvider(GridDataProviderRequest<TypeSalleDTO> request)
     {
-        await TypeSalleViewModel.DeleteTypeSalleAsync(idTypeSalle);
-        StateHasChanged();
+        // Application des filtres, tri et pagination
+        var data = request.ApplyTo(TypeSalleViewModel.DBData.TypesSalle);
+        return await Task.FromResult(data);
     }
 
     private async void ClosePopup()

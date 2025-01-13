@@ -19,33 +19,47 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom salle</th>
-                <th>Orientation</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var mur in MurViewModel.DBData.Murs)
-            {
-                <tr class="selection" @onclick="() => ViewDetails(mur.IdMur)">
-                    <td>@mur.NomSalle</td>
-                    <td>@string.Concat(string.Format("{0:F2}", mur.Orientation),"° ",mur.Direction)</td>
-
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => EditMur(mur)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(mur)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <Grid @ref="murGrid"
+          TItem="MurDTO"
+          DataProvider="MursDataProvider"
+          AllowFiltering="true"
+          AllowPaging="true"
+          PageSize="10"
+          AllowSorting="true"
+          FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
+          Class="table table-hover table-bordered"
+          Responsive="true"
+          AllowSelection="false"
+          OnRowClick="ViewDetails"
+          AllowRowClick="true"
+          PaginationItemsTextFormat="{0} - {1} sur {2} murs"
+          ItemsPerPageText="Murs par page"
+          EmptyText="Aucun mur trouvé"
+          EnumFilterSelectText="Selection">
+        <GridColumns>
+            <GridColumn TItem="MurDTO" HeaderText="Nom salle" PropertyName="NomSalle" SortKeySelector="item => item.NomSalle">
+                @context.NomSalle
+            </GridColumn>
+            <GridColumn TItem="MurDTO" HeaderText="Orientation" PropertyName="Orientation" SortKeySelector="item => item.Orientation">
+                @(string.Format("{0:F2}", context.Orientation))°
+            </GridColumn>
+            <GridColumn TItem="MurDTO" HeaderText="Direction" PropertyName="Direction" SortKeySelector="item => item.Direction">
+                @(context.Direction)
+            </GridColumn>
+            <GridColumn TItem="MurDTO" HeaderText="Actions" Filterable="false">
+                <button class="btn btn-primary" title="Modifier @context.NomSalle" @onclick="() => EditMur(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.PencilFill" />
+                </button>
+                <button class="btn btn-danger" title="Supprimer @context.NomSalle" @onclick="() => BeginDeleteConfirmation(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.Trash3Fill" />
+                </button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 }
 
 <!-- Modale pour l'édition -->
-<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du capteur">
+<Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du mur">
     <BodyTemplate>
         @if (!string.IsNullOrEmpty(MurViewModel.ErrorMessage))
         {
@@ -104,6 +118,7 @@ else
 
 @code {
     private Modal formModal;
+    private Grid<MurDTO> murGrid;
 
     private ConfirmDialog confirmSupprDialog = default!;
     List<ToastMessage> messages = new List<ToastMessage>();
@@ -133,10 +148,10 @@ else
         await formModal.ShowAsync();
     }
 
-    private void ViewDetails(int idMur)
+    private void ViewDetails(GridRowEventArgs<MurDTO> args)
     {
-        Utils.Utils.GoDetail(NavigationManager, "murs", idMur);
-        //await MurViewModel.LoadMurDetailsAsync(idMur);
+        Utils.Utils.GoDetail(NavigationManager, "murs", args.Item.IdMur);
+        StateHasChanged();
     }
 
     private async Task EditMur(MurDTO mur)
@@ -165,8 +180,20 @@ else
         if (string.IsNullOrEmpty(MurViewModel.ErrorMessage))
         {
             ClosePopup();
-            StateHasChanged();
+            await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
+    }
+
+    private async Task BeginDeleteConfirmation(MurDTO mur)
+    {
+        murDeleteInConfirmation = mur;
+        await OpenDeleteConfirmation();
+    }
+
+    private async Task DeleteMur(int idMur)
+    {
+        await MurViewModel.DeleteMurAsync(idMur);
+        await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
     private async Task OpenDeleteConfirmation()
@@ -186,7 +213,7 @@ else
 
         var confirmation = await confirmSupprDialog.ShowAsync(
             title: "Confirmer la suppression du mur",
-            message1: "Êtes vous sûr de vouloir supprimer le mur \"" + murDeleteInConfirmation.Direction + "orienté " + murDeleteInConfirmation.Orientation + "°\" de la salle \"" + murDeleteInConfirmation.NomSalle + "\" ?",
+            message1: "Êtes vous sûr de vouloir supprimer le mur \"" + murDeleteInConfirmation.Direction + " orienté " + murDeleteInConfirmation.Orientation + "°\" de la salle \"" + murDeleteInConfirmation.NomSalle + "\" ?",
             confirmDialogOptions: options);
 
         if (confirmation)
@@ -196,15 +223,18 @@ else
         }
     }
 
-    private async Task BeginDeleteConfirmation(MurDTO murToConfirmDeletion)
+    private async Task RefreshGridAsync()
     {
-        murDeleteInConfirmation = murToConfirmDeletion;
-        await OpenDeleteConfirmation();
+        if (murGrid != null)
+        {
+            await murGrid.RefreshDataAsync(); // Rafraîchir la GRID
+        }
     }
 
-    private async Task DeleteMur(int idMur)
+    private async Task<GridDataProviderResult<MurDTO>> MursDataProvider(GridDataProviderRequest<MurDTO> request)
     {
-        await MurViewModel.DeleteMurAsync(idMur);
-        StateHasChanged();
+        // Application des filtres, tri et pagination
+        var data = request.ApplyTo(MurViewModel.DBData.Murs);
+        return await Task.FromResult(data);
     }
 }

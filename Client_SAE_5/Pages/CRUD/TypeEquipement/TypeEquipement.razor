@@ -4,7 +4,7 @@
 
 <PageTitle>Gestion des types d'équipement</PageTitle>
 
-<h1>Gestion des types types d'équipement</h1>
+<h1>Gestion des types d'équipement</h1>
 <button class="btn btn-success" @onclick="() => AddNewTypeEquipement()">Ajouter un type d'équipement</button>
 <br />
 <br />
@@ -17,47 +17,38 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var typeequipement in TypeEquipementViewModel.DBData.TypesEquipement)
-            {
-                <tr class="selection" @onclick="() => ViewDetails(typeequipement.IdTypeEquipement)">
-                    <td>@typeequipement.NomTypeEquipement</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => EditTypeEquipement(typeequipement)" @onclick:stopPropagation><Icon Name="IconName.PencilFill"></Icon></button>
-                        <button class="btn btn-danger" @onclick="() => BeginDeleteConfirmation(typeequipement)" @onclick:stopPropagation><Icon Name="IconName.Trash3Fill"></Icon></button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <Grid @ref="typeEquipementGrid"
+          TItem="TypeEquipementDTO"
+          DataProvider="TypesEquipementDataProvider"
+          AllowFiltering="true"
+          AllowPaging="true"
+          PageSize="10"
+          AllowSorting="true"
+          FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
+          Class="table table-hover table-bordered"
+          Responsive="true"
+          AllowSelection="false"
+          OnRowClick="ViewDetails"
+          AllowRowClick="true"
+          PaginationItemsTextFormat="{0} - {1} sur {2} types d'équipement"
+          ItemsPerPageText="Types d'équipement par page"
+          EmptyText="Aucun type d'équipement trouvé"
+          EnumFilterSelectText="Selection">
+        <GridColumns>
+            <GridColumn TItem="TypeEquipementDTO" HeaderText="Nom" PropertyName="NomTypeEquipement" SortKeySelector="item => item.NomTypeEquipement">
+                @context.NomTypeEquipement
+            </GridColumn>
+            <GridColumn TItem="TypeEquipementDTO" HeaderText="Actions" Filterable="false">
+                <button class="btn btn-primary" title="Modifier @context.NomTypeEquipement" @onclick="() => EditTypeEquipement(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.PencilFill" />
+                </button>
+                <button class="btn btn-danger" title="Supprimer @context.NomTypeEquipement" @onclick="() => BeginDeleteConfirmation(context)" @onclick:stopPropagation>
+                    <Icon Name="IconName.Trash3Fill" />
+                </button>
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 }
-
-@* @if (TypeEquipementViewModel.SelectedTypeEquipementDetails != null)
-{
-    <h2>Détails du type</h2>
-    <h3>Équipements</h3>
-    @if (TypeEquipementViewModel.SelectedTypeEquipementDetails.Equipements?.Count > 0)
-    {
-        <ul>
-            @foreach (var equipement in TypeEquipementViewModel.SelectedTypeEquipementDetails.Equipements)
-            {
-                <li>@equipement.NomEquipement</li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p><em>Aucun équipement</em></p>
-    }
-}
- *@
 
 <!-- Modale pour l'édition -->
 <Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du type d'équipement">
@@ -91,6 +82,8 @@ else
 
 @code {
     private Modal formModal;
+    private Grid<TypeEquipementDTO> typeEquipementGrid;
+
     private ConfirmDialog confirmSupprDialog = default!;
     private TypeEquipementDTO? typeequipementDeleteInConfirmation;
     [Inject] ToastService ToastService { get; set; } = default!;
@@ -103,14 +96,13 @@ else
         }
     }
 
-    private void ViewDetails(int idTypeEquipement)
+    private void ViewDetails(GridRowEventArgs<TypeEquipementDTO> args)
     {
-        Utils.Utils.GoDetail(NavigationManager, "typesequipement", idTypeEquipement);
+        Utils.Utils.GoDetail(NavigationManager, "typesequipement", args.Item.IdTypeEquipement);
         StateHasChanged();
-        //await TypeEquipementViewModel.LoadTypeEquipementDetailsAsync(idTypeEquipement);
     }
 
-    private async Task EditTypeEquipement(Client_SAE_5.DTO.TypeEquipementDTO typeEquipement)
+    private async Task EditTypeEquipement(TypeEquipementDTO typeEquipement)
     {
         await TypeEquipementViewModel.SetupTypeEquipementEdition(typeEquipement.IdTypeEquipement);
         OpenPopup();
@@ -132,6 +124,24 @@ else
         {
             await TypeEquipementViewModel.UpdateTypeEquipementAsync();
         }
+
+        if (string.IsNullOrEmpty(TypeEquipementViewModel.ErrorMessage))
+        {
+            ClosePopup();
+            await RefreshGridAsync(); // Rafraîchir la GRID après une modification
+        }
+    }
+
+    private async Task BeginDeleteConfirmation(TypeEquipementDTO typeEquipement)
+    {
+        typeequipementDeleteInConfirmation = typeEquipement;
+        await OpenDeleteConfirmation();
+    }
+
+    private async Task DeleteTypeEquipement(int idTypeEquipement)
+    {
+        await TypeEquipementViewModel.DeleteTypeEquipementAsync(idTypeEquipement);
+        await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
     private async Task OpenDeleteConfirmation()
@@ -161,16 +171,19 @@ else
         }
     }
 
-    private async Task BeginDeleteConfirmation(TypeEquipementDTO typeequipementToConfirmDeletion)
+    private async Task RefreshGridAsync()
     {
-        typeequipementDeleteInConfirmation = typeequipementToConfirmDeletion;
-        await OpenDeleteConfirmation();
+        if (typeEquipementGrid != null)
+        {
+            await typeEquipementGrid.RefreshDataAsync(); // Rafraîchir la GRID
+        }
     }
 
-    private async Task DeleteTypeEquipement(int idTypeEquipement)
+    private async Task<GridDataProviderResult<TypeEquipementDTO>> TypesEquipementDataProvider(GridDataProviderRequest<TypeEquipementDTO> request)
     {
-        await TypeEquipementViewModel.DeleteTypeEquipementAsync(idTypeEquipement);
-        StateHasChanged();
+        // Application des filtres, tri et pagination
+        var data = request.ApplyTo(TypeEquipementViewModel.DBData.TypesEquipement);
+        return await Task.FromResult(data);
     }
 
     private async void ClosePopup()

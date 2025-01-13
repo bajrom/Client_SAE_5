@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Visualisation3D\" />
+    <Folder Include="Pages\Divers\Visualisation3D\" />
   </ItemGroup>
 
 </Project>
