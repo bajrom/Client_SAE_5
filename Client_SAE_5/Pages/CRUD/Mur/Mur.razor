@@ -3,6 +3,8 @@
 @inject SalleViewModel SalleViewModel
 @inject Client_SAE_5.ViewModel.MurViewModel MurViewModel
 
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Gestion des Murs</PageTitle>
 
 <h1>Gestion des Murs</h1>
@@ -168,18 +170,23 @@ else
 
     private async Task SaveMur()
     {
+        string confirmMessage = "";
+
         if (MurViewModel.MurInEdition.IdMur == 0)
         {
             await MurViewModel.AddMurAsync();
+            confirmMessage = "Ajout du mur avec succès !";
         }
         else
         {
             await MurViewModel.UpdateMurAsync();
+            confirmMessage = "Modification du mur avec succès !";
         }
 
         if (string.IsNullOrEmpty(MurViewModel.ErrorMessage))
         {
             ClosePopup();
+            ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
     }

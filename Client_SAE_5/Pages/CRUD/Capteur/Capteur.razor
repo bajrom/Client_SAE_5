@@ -254,18 +254,23 @@ else
 
     private async Task SaveCapteur()
     {
+        string confirmMessage = "";
+
         if (CapteurViewModel.CapteurInEdition.IdCapteur == 0)
         {
             await CapteurViewModel.AddCapteurAsync();
+            confirmMessage = "Ajout du capteur avec succès !";
         }
         else
         {
             await CapteurViewModel.UpdateCapteurAsync();
+            confirmMessage = "Modification du capteur avec succès !";
         }
 
         if (string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
         {
             ClosePopup();
+            ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
     }

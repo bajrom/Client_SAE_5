@@ -2,6 +2,8 @@
 @inject Client_SAE_5.ViewModel.TypeSalleViewModel TypeSalleViewModel
 @inject NavigationManager NavigationManager
 
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Gestion des types de salle</PageTitle>
 
 <h1>Gestion des types de salle</h1>
@@ -86,6 +88,7 @@ else
 
     private ConfirmDialog confirmSupprDialog = default!;
     private TypeSalleDTO? typesalleDeleteInConfirmation;
+    List<ToastMessage> messages = new List<ToastMessage>();
     [Inject] ToastService ToastService { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
@@ -116,18 +119,23 @@ else
 
     private async Task SaveTypeSalle()
     {
+        string confirmMessage = "";
+
         if (TypeSalleViewModel.TypesalleInEdition.IdTypeSalle == 0)
         {
             await TypeSalleViewModel.AddTypeSallesAsync();
+            confirmMessage = "Ajout du type de salle avec succès !";
         }
         else
         {
             await TypeSalleViewModel.UpdateTypeSallesAsync();
+            confirmMessage = "Modification du type de salle avec succès !";
         }
 
         if (string.IsNullOrEmpty(TypeSalleViewModel.ErrorMessage))
         {
             ClosePopup();
+            ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
     }

@@ -2,6 +2,8 @@
 @inject Client_SAE_5.ViewModel.TypeEquipementViewModel TypeEquipementViewModel
 @inject NavigationManager NavigationManager
 
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Gestion des types d'équipement</PageTitle>
 
 <h1>Gestion des types d'équipement</h1>
@@ -86,6 +88,7 @@ else
 
     private ConfirmDialog confirmSupprDialog = default!;
     private TypeEquipementDTO? typeequipementDeleteInConfirmation;
+    List<ToastMessage> messages = new List<ToastMessage>();
     [Inject] ToastService ToastService { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
@@ -116,18 +119,23 @@ else
 
     private async Task SaveTypeEquipement()
     {
+        string confirmMessage = "";
+
         if (TypeEquipementViewModel.TypeEquipementInEdition.IdTypeEquipement == 0)
         {
             await TypeEquipementViewModel.AddTypeEquipementAsync();
+            confirmMessage = "Ajout du type d'equipement avec succès !";
         }
         else
         {
             await TypeEquipementViewModel.UpdateTypeEquipementAsync();
+            confirmMessage = "Modification du type d'equipement avec succès !";
         }
 
         if (string.IsNullOrEmpty(TypeEquipementViewModel.ErrorMessage))
         {
             ClosePopup();
+            ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
     }

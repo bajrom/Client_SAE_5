@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 
 <link rel="stylesheet" href="css/EquipementStyle.css" type="text/css" />
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
 
 <PageTitle>Gestion des équipements</PageTitle>
 
@@ -321,19 +322,23 @@ else
 
     private async Task SaveEquipement()
     {
+        string confirmMessage = "";
+
         if (EquipementViewModel.EquipementInEdition.IdEquipement == 0)
         {
             await EquipementViewModel.AddEquipementAsync();
+            confirmMessage = "Ajout de l'equipement avec succès !";
         }
         else
         {
             await EquipementViewModel.UpdateEquipementAsync();
+            confirmMessage = "Modification de l'equipement avec succès !";
         }
 
         if (string.IsNullOrEmpty(EquipementViewModel.ErrorMessage))
         {
             ClosePopup();
-            StateHasChanged();
+            ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync();
         }
     }

@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 
 <link rel="stylesheet" href="/css/DetailPages.css" />
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
 
 <PageTitle>Gestion des bâtiments</PageTitle>
 
@@ -20,22 +21,22 @@
 else
 {
     <Grid @ref="batimentGrid"
-          TItem="BatimentDTO"
-          DataProvider="BatimentsDataProvider"
-          AllowFiltering="true"
-          AllowPaging="true"
-          PageSize="10"
-          AllowSorting="true"
-          FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
-          Class="table table-hover table-bordered"
-          Responsive="true"
-          AllowSelection="false"
-          OnRowClick="ViewDetails"
-          AllowRowClick="true"
-          PaginationItemsTextFormat="{0} - {1} sur {2} bâtiments"
-          ItemsPerPageText="Bâtiments par page"
-          EmptyText="Aucun bâtiment trouvé"
-          EnumFilterSelectText="Selection">
+    TItem="BatimentDTO"
+    DataProvider="BatimentsDataProvider"
+    AllowFiltering="true"
+    AllowPaging="true"
+    PageSize="10"
+    AllowSorting="true"
+    FiltersTranslationProvider="Utils.BlazorBootstrapUtils.Instance.GridFiltersTranslationProvider"
+    Class="table table-hover table-bordered"
+    Responsive="true"
+    AllowSelection="false"
+    OnRowClick="ViewDetails"
+    AllowRowClick="true"
+    PaginationItemsTextFormat="{0} - {1} sur {2} bâtiments"
+    ItemsPerPageText="Bâtiments par page"
+    EmptyText="Aucun bâtiment trouvé"
+    EnumFilterSelectText="Selection">
         <GridColumns>
             <GridColumn TItem="BatimentDTO" HeaderText="Nom" PropertyName="NomBatiment" SortKeySelector="item => item.NomBatiment">
                 @context.NomBatiment
@@ -91,6 +92,7 @@ else
 
     private ConfirmDialog confirmSupprDialog = default!;
     private BatimentDTO? batimentDeleteInConfirmation;
+    List<ToastMessage> messages = new List<ToastMessage>();
     [Inject] ToastService ToastService { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
@@ -121,18 +123,23 @@ else
 
     private async Task SaveBatiment()
     {
+        string confirmMessage = "";
+
         if (BatimentViewModel.BatimentInEdition.IdBatiment == 0)
         {
             await BatimentViewModel.AddBatimentAsync();
+            confirmMessage = "Ajout du bâtiment avec succès !";
         }
         else
         {
             await BatimentViewModel.UpdatebatimentAsync();
+            confirmMessage = "Modification du bâtiment avec succès !";
         }
 
         if (string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
         {
             ClosePopup();
+            ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
     }
