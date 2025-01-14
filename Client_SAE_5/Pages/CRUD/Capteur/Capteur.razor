@@ -220,6 +220,9 @@ else
     private CapteurDTO? capteurDeleteInConfirmation;
     bool isMurLoading = false;
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         if (CapteurViewModel.DBData.Capteurs == null || CapteurViewModel.DBData.Capteurs.Count == 0)
@@ -228,35 +231,56 @@ else
         }
     }
 
-    private async void ClosePopup()
+    /// <summary>
+    /// Permet de fermer la pop up de façon asynchrone
+    /// <see cref="formModal"/>
+    /// </summary>
+    private async Task ClosePopup()
     {
         CapteurViewModel.ResetError();
         await formModal.HideAsync();
     }
 
-    private async void OpenPopup()
+    /// <summary>
+    /// Permet d'ouvrir la pop up de façon asynchrone
+    /// </summary>
+    private async Task OpenPopup()
     {
         await formModal.ShowAsync();
     }
 
+    /// <summary>
+    /// Permet de naviguer sur la page de détails d'un capteur à partir de la grille de capteurs
+    /// </summary>
+    /// <param name="args">Ligne de la GRID</param>
     private void ViewDetails(GridRowEventArgs<CapteurDTO> args)
     {
         Utils.Utils.GoDetail(NavigationManager, "capteurs", args.Item.IdCapteur);
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Permet d'éditer un capteur de façon asynchrone
+    /// </summary>
+    /// <param name="capteur">Capteur DTO à éditer</param>
     private async Task EditCapteur(CapteurDTO capteur)
     {
         await CapteurViewModel.SetupCapteurEdition(capteur.IdCapteur);
-        OpenPopup();
+        await OpenPopup();
     }
 
+    /// <summary>
+    /// Permet d'ajouter un nouveau capteur de façon asynchrone
+    /// </summary>
     private async Task AddNewCapteur()
     {
         await CapteurViewModel.SetupNewCapteur();
-        OpenPopup();
+        await OpenPopup();
     }
 
+    /// <summary>
+    /// Permet de sauvegarder un capteur une fois qu'il a été ajouté ou modifié
+    /// </summary>
     private async Task SaveCapteur()
     {
         string confirmMessage = "";
@@ -274,24 +298,36 @@ else
 
         if (string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
         {
-            ClosePopup();
+            await ClosePopup();
             ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
     }
 
+    /// <summary>
+    /// Permet de démarrer la suppression d'un capteur
+    /// </summary>
+    /// <param name="capteur">Capteur (DTO) à supprimer</param>
     private async Task BeginDeleteConfirmation(CapteurDTO capteur)
     {
         capteurDeleteInConfirmation = capteur;
         await OpenDeleteConfirmation();
     }
 
+    /// <summary>
+    /// Permet de supprimer un capteur, selon son ID, de façon asynchrone
+    /// </summary>
+    /// <param name="idCapteur">ID du capteur à supprimer</param>
     private async Task DeleteCapteur(int idCapteur)
     {
         await CapteurViewModel.DeleteCapteurAsync(idCapteur);
-        await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
+        await RefreshGridAsync();
     }
 
+    /// <summary>
+    /// Ouvrir la fenêtre de confirmation de suppression d'un capteur
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
     private async Task OpenDeleteConfirmation()
     {
         var options = new ConfirmDialogOptions
@@ -319,14 +355,26 @@ else
         }
     }
 
+    /// <summary>
+    /// Rafraîchit la grille de capteurs de façon asynchrone
+    /// </summary>
+    /// <see cref="capteurGrid"></see>
+    /// <exception cref="NullReferenceException"></exception>
     private async Task RefreshGridAsync()
     {
         if (capteurGrid != null)
         {
-            await capteurGrid.RefreshDataAsync(); // Rafraîchir la GRID
+            await capteurGrid.RefreshDataAsync();
+        } else
+        {
+            throw new NullReferenceException("La grille de capteurs n'a pas été trouvé, est null.");
         }
     }
 
+    /// <summary>
+    /// Permet de récupérer les données nécéssaires pour remplir la grille de capteurs
+    /// </summary>
+    /// <param name="request">Requête d'ajout</param>
     private async Task<GridDataProviderResult<CapteurDTO>> CapteursDataProvider(GridDataProviderRequest<CapteurDTO> request)
     {
         // Application des filtres, tri et pagination
@@ -334,13 +382,20 @@ else
         return await Task.FromResult(data);
     }
 
-    private void CancelEdit()
+    /// <summary>
+    /// Annule la modification d'un capteur
+    /// </summary>
+    private async Task CancelEdit()
     {
-        ClosePopup();
+        await ClosePopup();
         CapteurViewModel.AvailableUnites.Clear();
     }
 
-    private async void HandleChange(ChangeEventArgs e)
+    /// <summary>
+    /// Gère l'ajout d'un mur à un capteur, vérification que le mur soit bien chargé
+    /// </summary>
+    /// <param name="e">Arguments</param>
+    private async Task HandleChange(ChangeEventArgs e)
     {
         isMurLoading = true;
         await CapteurViewModel.ChangeMur(int.Parse(e.Value.ToString()));

@@ -1,19 +1,67 @@
 ﻿@page "/grafana"
-@using Microsoft.AspNetCore.Components.Web
-
+@using System.Net.Http
+@using System.Threading.Tasks
 
 <PageTitle>Grafana</PageTitle>
 <h3>Monitoring pour le Client</h3>
 
-<div style="width: 100%; height: 800px;">
-    <iframe src="http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12"
-        width="100%" 
-        height="100%" 
-        frameborder="0"
-        allowfullscreen
-        style="border: 1px solid #ccc;">
-    </iframe>
-    <img src="/images/grafana.png"
-         alt="Image en pleine page"
-         style="width: 80vw; height: 80vh; object-fit: contain;" />
-</div>
+@if (serverCheckFailed)
+{
+    <div style="color: red; text-align: center;">
+        <h4>Erreur : Le serveur Grafana ne répond pas.</h4>
+        <p>Veuillez vérifier la connexion réseau ou réessayez plus tard.</p>
+        <Button class="btn-primary" href="http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12">
+            Accedez directement au tableau de bord
+        </Button>
+    </div>
+}
+else if (isCheckingServer)
+{
+    <div class="d-flex justify-content-center align-items-center flex-column">
+        <h4>Vérification de la connexion au serveur...</h4>
+        <Spinner Size="SpinnerSize.Medium"></Spinner>
+    </div>
+}
+else
+{
+    <div style="width: 100%; height: 800px;">
+        <iframe src="http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12"
+                width="100%"
+                height="100%"
+                frameborder="0"
+                allowfullscreen
+                style="border: 1px solid #ccc;">
+        </iframe>
+    </div>
+}
+
+@code {
+    private bool serverCheckFailed = false;
+    private bool isCheckingServer = true;
+
+    /// <summary>
+    /// Vérifie si Grafana est accessible lors du démarrage de la page
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(5);
+            var response = await httpClient.GetAsync("http://10.103.101.128:3001");
+            if (!response.IsSuccessStatusCode)
+            {
+                serverCheckFailed = true;
+            }
+        }
+        catch
+        {
+            serverCheckFailed = true; // En cas d'erreur (timeout, réseau, etc.)
+        }
+        finally
+        {
+            isCheckingServer = false; // Arrêter l'animation de vérification
+        }
+    }
+}

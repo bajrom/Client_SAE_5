@@ -128,18 +128,34 @@ else
                $"top: {topPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;";
     }
 
-
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page permettant de charger les détails du capteur visualisé
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         await CapteurViewModel.LoadCapteurDetailsAsync(IdCapteur);
     }
 
+    /// <summary>
+    /// Permet de supprimer les unités liées à un capteur
+    /// </summary>
+    /// <param name="idUnite">ID de l'unité lié au capteur à supprimer</param>
+    /// <param name="idCapteur">ID du capteur lié à cette unité</param>
+    /// <exception cref="ArgumentException"/>
     private async Task DeleteUniteLinkWithCapteur(int idUnite, int idCapteur)
     {
+        if (idUnite < 0 || idCapteur < 0)
+        {
+            throw new ArgumentException("L'ID du capteur ou de l'unité ne peut pas être négatif!");
+        }
+
         await CapteurViewModel.DeleteUniteCapteurAsync(idUnite, idCapteur);
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Permet de retourner vers la page précédente
+    /// </summary>
     private void Retour()
     {
         NavigationManager.NavigateTo("/crud/capteurs");

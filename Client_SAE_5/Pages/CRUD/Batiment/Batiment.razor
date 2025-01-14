@@ -94,6 +94,10 @@ else
     List<ToastMessage> messages = new List<ToastMessage>();
     [Inject] ToastService ToastService { get; set; } = default!;
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page
+    /// </summary>
+    /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
         if (BatimentViewModel.DBData.Batiments == null || BatimentViewModel.DBData.Batiments.Count == 0)
@@ -152,7 +156,7 @@ else
 
         if (string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
         {
-            ClosePopup();
+            await ClosePopup();
             ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync();
         }
@@ -243,7 +247,7 @@ else
     /// Permet de fermer une pop up
     /// <see cref="formModal"/>
     /// </summary>
-    private async void ClosePopup()
+    private async Task ClosePopup()
     {
         BatimentViewModel.ResetError();
         await formModal.HideAsync();
@@ -261,8 +265,8 @@ else
     /// <summary>
     /// Permet d'annuler l'édition d'un bâtiment
     /// </summary>
-    private void CancelEdit()
+    private async Task CancelEdit()
     {
-        ClosePopup();
+        await ClosePopup();
     }
 }
