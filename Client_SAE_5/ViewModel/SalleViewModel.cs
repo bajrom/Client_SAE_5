@@ -149,10 +149,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de l'ajout de la salle : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         // Mettre à jour une salle existante
@@ -177,10 +173,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de la mise à jour de la salle : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         // Supprimer une salle
@@ -201,9 +193,22 @@ namespace Client_SAE_5.ViewModel
         // Vérifier si les données de la salle sont valides
         private bool IsValidSalle(SalleSansNavigationDTO salle)
         {
-            return !string.IsNullOrWhiteSpace(salle.NomSalle) &&
-                   salle.IdBatiment > 0 &&
-                   salle.IdTypeSalle > 0;
+            if (string.IsNullOrWhiteSpace(salle.NomSalle))
+            {
+                ErrorMessage = "Nom salle manquant";
+                return false;
+            }
+            else if (salle.IdTypeSalle <= 0)
+            {
+                ErrorMessage = "Veuillez sélectionner un type de salle";
+                return false;
+            }
+            else if (salle.IdBatiment <= 0)
+            {
+                ErrorMessage = "Veuillez sélectionner un batiment";
+                return false;
+            }
+            return true;
         }
         public void ResetError()
         {

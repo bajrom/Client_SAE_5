@@ -84,10 +84,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de l'ajout du type d'équipement : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task UpdateTypeEquipementAsync()
@@ -109,10 +105,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de la mise à jour du type d'équipement : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task DeleteTypeEquipementAsync(int idTypeEquipement)
@@ -131,7 +123,12 @@ namespace Client_SAE_5.ViewModel
 
         private bool IsValidTypeEquipement(TypeEquipementDTO typeEquipement)
         {
-            return !string.IsNullOrWhiteSpace(typeEquipement.NomTypeEquipement);
+            if (string.IsNullOrWhiteSpace(typeEquipement.NomTypeEquipement))
+            {
+                ErrorMessage = "Veuillez donner un nom";
+                return false;
+            }
+            return true;
         }
         public void ResetError()
         {

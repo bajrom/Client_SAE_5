@@ -86,10 +86,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de l'ajout du batiment : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task UpdatebatimentAsync()
@@ -112,10 +108,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de la mise à jour du batiment : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task DeletebatimentAsync(int idBatiment)
@@ -134,7 +126,12 @@ namespace Client_SAE_5.ViewModel
 
         private bool IsValidBatiment(BatimentSansNavigationDTO batiment)
         {
-            return !string.IsNullOrWhiteSpace(batiment.NomBatiment);
+            if (string.IsNullOrWhiteSpace(batiment.NomBatiment))
+            {
+                ErrorMessage = "Veuillez donner un nom";
+                return false;
+            }
+            return true;
         }
         public void ResetError()
         {
