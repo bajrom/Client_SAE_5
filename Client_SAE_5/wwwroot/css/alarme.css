@@ -4,24 +4,28 @@ body {
 }
 
 .toast {
-    font-size: 1.5rem; /* Taille du texte */
-    padding: 20px; /* Plus de marge intérieure */
-    min-width: 300px; /* Taille minimale */
-    max-width: 600px; /* Taille maximale */
-    border-radius: 10px; /* Coins arrondis */
+    font-size: 1.5rem;
+    padding: 20px;
+    min-width: 450px;
+    max-width: 600px;
+    border-radius: 10px;
+}
+
+div#toastComponent{
+    margin-top:5vh !important;
 }
 
 .toast-header {
-    font-size: 1.2rem; /* Taille du texte de l'en-tête */
+    font-size: 1.2rem;
 }
 
 .toast-body {
-    font-size: 1.4rem; /* Taille du texte principal */
-    line-height: 1.5; /* Espacement entre les lignes */
+    font-size: 1.4rem;
+    line-height: 1.5;
 }
 
 .toast-close {
-    font-size: 1.5rem; /* Taille du bouton de fermeture */
+    font-size: 1.5rem;
 }
 
 .alarm-container {

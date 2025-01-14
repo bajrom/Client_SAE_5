@@ -28,6 +28,10 @@ namespace Client_SAE_5.ViewModel
 
         public string ErrorMessage { get; private set; }
 
+        /// <summary>
+        /// Permet de charger tous les bâtiments de façon asynchrone.
+        /// </summary>
+        /// <returns></returns>
         public async Task LoadBatimentsAsync()
         {
             try
@@ -41,6 +45,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de charger les détails d'un bâtiment de façon asynchrone
+        /// </summary>
+        /// <param name="idBatiment">ID du bâtiment à charger</param>
+        /// <returns></returns>
         public async Task LoadBatimentDetailsAsync(int idBatiment)
         {
             try
@@ -54,6 +63,7 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+
         public async Task SetupBatimentEdition(int idBatiment)
         {
             BatimentDetailDTO temp = await _batimentDetailService.GetTAsync("Batiments", idBatiment);
@@ -66,6 +76,10 @@ namespace Client_SAE_5.ViewModel
             BatimentInEdition = new BatimentDetailDTO();
         }
 
+        /// <summary>
+        /// Permet de rajouter un bâtiment de façon asynchrone
+        /// </summary>
+        /// <returns></returns>
         public async Task AddBatimentAsync()
         {
             BatimentSansNavigationDTO newCapteur = new BatimentSansNavigationDTO
@@ -92,6 +106,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de mettre à jour un bâtiment de façon asynchrone
+        /// </summary>
+        /// <returns></returns>
         public async Task UpdatebatimentAsync()
         {
             BatimentSansNavigationDTO newCapteur = new BatimentSansNavigationDTO
@@ -118,6 +136,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de supprimer un bâtiment de façon asynchrone
+        /// </summary>
+        /// <param name="idBatiment">ID du bâtiment à supprimer</param>
+        /// <returns></returns>
         public async Task DeletebatimentAsync(int idBatiment)
         {
             try
@@ -132,10 +155,19 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Vérifie si les propriétés d'un bâtiment sont valides
+        /// </summary>
+        /// <param name="batiment">Batiment dont les propriétés sont à vérifier</param>
+        /// <returns>true s'il est correct, false sinon</returns>
         private bool IsValidBatiment(BatimentSansNavigationDTO batiment)
         {
             return !string.IsNullOrWhiteSpace(batiment.NomBatiment);
         }
+
+        /// <summary>
+        /// Permet de réinitialiser le message d'erreur
+        /// </summary>
         public void ResetError()
         {
             ErrorMessage = "";

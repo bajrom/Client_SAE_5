@@ -54,11 +54,18 @@ else
     [Parameter]
     public int IdBatiment { get; set; }
 
+    /// <summary>
+    /// Charge le bâtiment à visualiser sur la page lorsque l'ID du bâtiment a été trouvé
+    /// </summary>
+    /// <returns></returns>
     protected override async Task OnParametersSetAsync()
     {
         await BatimentViewModel.LoadBatimentDetailsAsync(IdBatiment);
     }
 
+    /// <summary>
+    /// Méthodes permettant de naviguer à la page d'avant
+    /// </summary>
     private void NavigateBack()
     {
         NavigationManager.NavigateTo("/crud/batiments");
