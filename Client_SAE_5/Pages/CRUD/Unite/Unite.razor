@@ -70,6 +70,9 @@ else
             <input type="text" @bind="UniteViewModel.UniteInEdition.NomUnite" class="form-control" />
 
             <label>Sigle :</label>
+            <Tooltip Class="me-4" Title="Annotation raccourci de l'unité" Placement="TooltipPlacement.Right">
+                <Icon Name="IconName.InfoCircleFill"></Icon>
+            </Tooltip>
             <input type="text" @bind="UniteViewModel.UniteInEdition.SigleUnite" class="form-control" />
         </div>
     </BodyTemplate>

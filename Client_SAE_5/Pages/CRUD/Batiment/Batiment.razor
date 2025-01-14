@@ -59,6 +59,12 @@ else
 <!-- Modale pour l'édition -->
 <Modal @ref="formModal" class="editModal" Size="ModalSize.Large" Title="Renseignement des informations du bâtiment">
     <BodyTemplate>
+        @if (!string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @BatimentViewModel.ErrorMessage
+            </div>
+        }
         <div>
             <label>Nom :</label>
             <input type="text" @bind="BatimentViewModel.BatimentInEdition.NomBatiment" class="form-control" />
@@ -73,13 +79,6 @@ else
         else
         {
             <button class="btn btn-primary" id="modifierBatimentBtnDialog" @onclick="SaveBatiment">Modifier</button>
-        }
-
-        @if (!string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
-        {
-            <div class="alert alert-danger">
-                @BatimentViewModel.ErrorMessage
-            </div>
         }
     </FooterTemplate>
 </Modal>
@@ -109,18 +108,33 @@ else
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Permet d'éditer un bâtiment
+    /// </summary>
+    /// <param name="batiment">Bâtiment DTO à modifier</param>
+    /// <returns></returns>
     private async Task EditBatiment(BatimentDTO batiment)
     {
         await BatimentViewModel.SetupBatimentEdition(batiment.IdBatiment);
-        OpenPopup();
+        await OpenPopup();
     }
 
+    /// <summary>
+    /// Permet d'ajouter un nouveau bâtiment
+    /// </summary>
+    /// <returns></returns>
     private async Task AddNewBatiment()
     {
         await BatimentViewModel.SetupNewBatiment();
-        OpenPopup();
+        await OpenPopup();
     }
 
+    /// <summary>
+    /// Permet de sauvegarder un bâtiment. Cette opération peut être réaliser si un bâtiment est à rajouter ou à modifier. Un toast est ensuite affiché
+    /// </summary>
+    /// <see cref="BatimentViewModel"></see>
+    /// <see cref="ToastService"></see>
+    /// <returns></returns>
     private async Task SaveBatiment()
     {
         string confirmMessage = "";
@@ -140,22 +154,37 @@ else
         {
             ClosePopup();
             ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
-            await RefreshGridAsync(); // Rafraîchir la GRID après une modification
+            await RefreshGridAsync();
         }
     }
 
+    /// <summary>
+    /// Commence la procédure de suppression d'un bâtiment
+    /// </summary>
+    /// <param name="batiment">Bâtiment que l'utilisateur voudrait supprimer</param>
+    /// <returns></returns>
     private async Task BeginDeleteConfirmation(BatimentDTO batiment)
     {
         batimentDeleteInConfirmation = batiment;
         await OpenDeleteConfirmation();
     }
 
+    /// <summary>
+    /// Permet de supprimer un bâtiment et de rafraîchir la grille par la suite
+    /// </summary>
+    /// <param name="idBatiment">ID du bâtiment à supprimer</param>
+    /// <returns></returns>
     private async Task DeleteBatiment(int idBatiment)
     {
         await BatimentViewModel.DeletebatimentAsync(idBatiment);
-        await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
+        await RefreshGridAsync();
     }
 
+    /// <summary>
+    /// Permet d'ouvrir la pop up de confirmation de suppression d'un bâtiment'
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"/>
     private async Task OpenDeleteConfirmation()
     {
         var options = new ConfirmDialogOptions
@@ -183,14 +212,26 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de rafraîchir la grille contenant tous les bâtiments
+    /// </summary>
+    /// <exception cref="NullReferenceException"/>
+    /// <returns></returns>
     private async Task RefreshGridAsync()
     {
         if (batimentGrid != null)
         {
-            await batimentGrid.RefreshDataAsync(); // Rafraîchir la GRID
+            await batimentGrid.RefreshDataAsync();
+        } else {
+            throw new NullReferenceException("La grille des bâtiment n'a pas été trouvé");
         }
     }
 
+    /// <summary>
+    /// Récupère les données nécéssaire à l'élément GRID de la page Bâtiment
+    /// </summary>
+    /// <param name="request">Requête</param>
+    /// <returns>Résultat de l'opération</returns>
     private async Task<GridDataProviderResult<BatimentDTO>> BatimentsDataProvider(GridDataProviderRequest<BatimentDTO> request)
     {
         // Application des filtres, tri et pagination
@@ -198,17 +239,28 @@ else
         return await Task.FromResult(data);
     }
 
+    /// <summary>
+    /// Permet de fermer une pop up
+    /// <see cref="formModal"/>
+    /// </summary>
     private async void ClosePopup()
     {
         BatimentViewModel.ResetError();
         await formModal.HideAsync();
     }
 
-    private async void OpenPopup()
+    /// <summary>
+    /// Permet d'ouvrir une pop up
+    /// <see cref="formModal"/>
+    /// </summary>
+    private async Task OpenPopup()
     {
         await formModal.ShowAsync();
     }
 
+    /// <summary>
+    /// Permet d'annuler l'édition d'un bâtiment
+    /// </summary>
     private void CancelEdit()
     {
         ClosePopup();

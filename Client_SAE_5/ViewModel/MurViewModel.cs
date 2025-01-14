@@ -140,10 +140,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de l'ajout du mur : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task UpdateMurAsync()
@@ -170,10 +166,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de la mise à jour du mur : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task DeleteMurAsync(int idMur)
@@ -191,11 +183,32 @@ namespace Client_SAE_5.ViewModel
 
         private bool IsValidMur(MurSansNavigationDTO mur)
         {
-            return mur.IdDirection > 0 &&
-                   mur.IdSalle > 0 &&
-                   mur.Hauteur > 0 &&
-                   mur.Longueur > 0 &&
-                   mur.Orientation >= 0 && mur.Orientation < 360;
+            if (mur.IdDirection <= 0)
+            {
+                ErrorMessage = "Veuillez sélectionner une direction";
+                return false;
+            }
+            else if (mur.IdSalle <= 0)
+            {
+                ErrorMessage = "Veuillez sélectionner une salle";
+                return false;
+            }
+            else if (mur.Hauteur < 1)
+            {
+                ErrorMessage = "Veuillez mettre une hauteur valide (>= 1)";
+                return false;
+            }
+            else if (mur.Longueur < 1)
+            {
+                ErrorMessage = "Veuillez mettre une longueur valide (>= 1)";
+                return false;
+            }
+            else if (mur.Orientation < 0 || mur.Orientation >= 360)
+            {
+                ErrorMessage = "Veuillez mettre une orientation valide (entre 0 et <360)";
+                return false;
+            }
+            return true;
         }
 
         public void ResetError()

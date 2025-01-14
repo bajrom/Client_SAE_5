@@ -15,6 +15,7 @@ namespace Client_SAE_5.ViewModel
         private readonly WSService<UniteDTO> _uniteService;
         private readonly WSService<UniteCapteurSansNavigationDTO> _unitecapteurService;
         private readonly WSService<MurDTO> _murService;
+        private readonly WSService<MurDetailDTO> _murDetailService;
         public DataStorage DBData;
 
         public CapteurViewModel(DataStorage data)
@@ -25,6 +26,7 @@ namespace Client_SAE_5.ViewModel
             _uniteService = new WSService<UniteDTO>();
             _unitecapteurService = new WSService<UniteCapteurSansNavigationDTO>();
             _murService = new WSService<MurDTO>();
+            _murDetailService = new WSService<MurDetailDTO>();
             this.DBData = data;
         }
 
@@ -41,6 +43,7 @@ namespace Client_SAE_5.ViewModel
         public List<string> NomSalles { get; private set; } = new List<string>();
 
         public List<UniteDTO> AvailableUnites { get; private set; } = new List<UniteDTO>();
+        private MurDetailDTO murSelected { get; set; } = new MurDetailDTO();
 
         public string ErrorMessage { get; private set; }
 
@@ -109,7 +112,17 @@ namespace Client_SAE_5.ViewModel
         public async Task SetupCapteurEdition(int idCapteur)
         {
             CapteurDetailDTO temp = await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
-            
+
+            murSelected = new MurDetailDTO
+            {
+                IdMur = temp.Mur.IdMur,
+                IdSalle = temp.Mur.IdSalle,
+                IdDirection = temp.Mur.IdDirection,
+                Longueur = temp.Mur.Longueur,
+                Hauteur = temp.Mur.Hauteur,
+                Orientation = temp.Mur.Orientation,
+            };
+
             if (DBData.Unites == null || DBData.Unites.Count == 0)
             {
                 await LoadUnitesAsync();
@@ -198,10 +211,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de l'ajout du capteur : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task UpdateCapteurAsync()
@@ -248,10 +257,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de la mise à jour du capteur : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
 
@@ -276,7 +281,7 @@ namespace Client_SAE_5.ViewModel
             }
             else
             {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
+                ErrorMessage = "Veuillez sélectionner une unitée.";
             }
         }
 
@@ -313,8 +318,27 @@ namespace Client_SAE_5.ViewModel
 
         private bool IsValidCapteur(CapteurSansNavigationDTO capteur)
         {
-            return !string.IsNullOrWhiteSpace(capteur.NomCapteur) &&
-                   capteur.IdMur > 0;
+            if (string.IsNullOrWhiteSpace(capteur.NomCapteur))
+            {
+                ErrorMessage = "Pas de nom";
+                return false;
+            }
+            else if (capteur.IdMur <= 0)
+            {
+                ErrorMessage = "Pas de mur sélectionné";
+                return false;
+            }
+            else if (capteur.XCapteur < 0 || capteur.XCapteur > murSelected.Longueur)
+            {
+                ErrorMessage = $"X en dehors des limites (Longueur du mur: {murSelected.Longueur} cm)";
+                return false;
+            }
+            else if (capteur.YCapteur < 0 || capteur.YCapteur > murSelected.Hauteur)
+            {
+                ErrorMessage = $"Y en dehors des limites (Hauteur du mur: {murSelected.Hauteur} cm)";
+                return false;
+            }
+            else return true;
         }
 
         private bool IsValidUniteCapteur(UniteCapteurSansNavigationDTO uniteCapteur)
@@ -325,6 +349,12 @@ namespace Client_SAE_5.ViewModel
         public void ResetError()
         {
             ErrorMessage = "";
+        }
+
+        public async Task ChangeMur(int id)
+        {
+            murSelected = await _murDetailService.GetTAsync("Murs", id);
+            CapteurInEdition.Mur.IdMur = id;
         }
     }
 }

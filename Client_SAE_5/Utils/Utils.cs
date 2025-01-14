@@ -3,6 +3,7 @@ using Client_SAE_5.DTO;
 using Client_SAE_5.Pages.CRUD.Equipement;
 using Client_SAE_5.ViewModel;
 using Microsoft.AspNetCore.Components;
+using System.Reflection;
 
 namespace Client_SAE_5.Utils
 {

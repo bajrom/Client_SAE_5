@@ -168,7 +168,7 @@ else
                 {
                     <section>
                         <label>Mur :</label>
-                        <select @bind="CapteurViewModel.CapteurInEdition.Mur.IdMur" class="form-control">
+                        <select class="form-control" @onchange="HandleChange">
                             @if (CapteurViewModel.CapteurInEditionNomSalleSelected != CapteurViewModel.CapteurInEdition.Salle.NomSalle || CapteurViewModel.CapteurInEdition.Mur.IdMur == 0)
                             {
                                 <option selected value="0">--- Sélectionnez un mur ---</option>
@@ -192,14 +192,18 @@ else
     </BodyTemplate>
     <FooterTemplate>
         <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
-        @if (CapteurViewModel.CapteurInEdition.IdCapteur == 0)
-        {
-            <button class="btn btn-success" @onclick="SaveCapteur">Ajouter</button>
-        }
-        else
-        {
-            <button class="btn btn-primary" @onclick="SaveCapteur">Modifier</button>
-        }
+            @if (isMurLoading)
+            {
+                <Spinner Type="SpinnerType.Border" Size="SpinnerSize.Small" />
+            }
+            @if (CapteurViewModel.CapteurInEdition.IdCapteur == 0)
+            {
+                <button class="btn btn-success" @onclick="SaveCapteur" disabled="@isMurLoading">Ajouter</button>
+            }
+            else
+            {
+            <button class="btn btn-primary" @onclick="SaveCapteur" disabled="@isMurLoading">Modifier</button>
+            }
     </FooterTemplate>
 </Modal>
 
@@ -214,6 +218,7 @@ else
     [Inject] ToastService ToastService { get; set; } = default!;
 
     private CapteurDTO? capteurDeleteInConfirmation;
+    bool isMurLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -333,5 +338,13 @@ else
     {
         ClosePopup();
         CapteurViewModel.AvailableUnites.Clear();
+    }
+
+    private async void HandleChange(ChangeEventArgs e)
+    {
+        isMurLoading = true;
+        await CapteurViewModel.ChangeMur(int.Parse(e.Value.ToString()));
+        isMurLoading = false;
+        StateHasChanged();
     }
 }

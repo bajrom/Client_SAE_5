@@ -86,10 +86,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de l'ajout du type de salle : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task UpdateTypeSallesAsync()
@@ -111,10 +107,6 @@ namespace Client_SAE_5.ViewModel
                 {
                     ErrorMessage = $"Erreur lors de la mise à jour du type de salle : {ex.Message}";
                 }
-            }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
             }
         }
 
@@ -139,7 +131,12 @@ namespace Client_SAE_5.ViewModel
 
         private bool IsValidTypeSalle(TypeSalleDTO typeSalle)
         {
-            return !string.IsNullOrWhiteSpace(typeSalle.NomTypeSalle);
+            if (string.IsNullOrWhiteSpace(typeSalle.NomTypeSalle))
+            {
+                ErrorMessage = "Veuillez donner un nom";
+                return false;
+            }
+            return true;
         }
     }
 }

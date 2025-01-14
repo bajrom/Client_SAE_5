@@ -5,7 +5,7 @@
 <PageTitle>Alarme</PageTitle>
 
 <div class="alarm-container">
-    <Toasts class="p-3" Messages="messages" AutoHide="false" Placement="ToastsPlacement.TopRight" />
+    <Toasts id="toastComponent" class="p-3" Messages="messages" AutoHide="false" Placement="ToastsPlacement.TopRight" />
     <div class="alarm-button-container">
         @if (!AlarmTriggered)
         {
@@ -40,7 +40,10 @@
             NoButtonColor = ButtonColor.Primary
         };
 
-    private async void ShowConfirmDialog()
+    /// <summary>
+    /// Permet d'afficher la pop up demandant la confirmation de l'allumage de l'alarme
+    /// </summary>
+    private async Task ShowConfirmDialog()
     {
         var confirmation = await confirmSupprDialog.ShowAsync(
             title: "Avertissement",
@@ -55,12 +58,18 @@
         }
     }
 
+    /// <summary>
+    /// Permet d'activer l'alarme
+    /// </summary>
     private void TriggerAlarm()
     {
         AlarmTriggered = true;
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Permet d'éteindre l'alarme
+    /// </summary>
     private void ResetAlarm()
     {
         ToastService.Notify(new ToastMessage(ToastType.Success, $"L'alarme a été éteinte"));

@@ -55,6 +55,12 @@ else
 <!-- Modale pour l'édition -->
 <Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations du type d'équipement">
     <BodyTemplate>
+        @if (!string.IsNullOrEmpty(TypeEquipementViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @TypeEquipementViewModel.ErrorMessage
+            </div>
+        }
         <div>
             <label>Nom :</label>
             <input type="text" @bind="TypeEquipementViewModel.TypeEquipementInEdition.NomTypeEquipement" class="form-control" />
@@ -69,13 +75,6 @@ else
         else
         {
             <button class="btn btn-primary" @onclick="SaveTypeEquipement">Modifier</button>
-        }
-
-        @if (!string.IsNullOrEmpty(TypeEquipementViewModel.ErrorMessage))
-        {
-            <div class="alert alert-danger">
-                @TypeEquipementViewModel.ErrorMessage
-            </div>
         }
     </FooterTemplate>
 </Modal>

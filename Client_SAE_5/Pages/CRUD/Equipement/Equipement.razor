@@ -48,7 +48,7 @@ else
             <GridColumn TItem="EquipementDTO" HeaderText="Salle" PropertyName="NomSalleEquipement" SortKeySelector="item => item.NomSalleEquipement">
                 @context.NomSalleEquipement
             </GridColumn>
-            <GridColumn TItem="EquipementDTO" HeaderText="Type d'équipement" PropertyName="NomTypeEquipement" SortKeySelector="item => item.NomTypeEquipement" >
+            <GridColumn TItem="EquipementDTO" HeaderText="Type d'équipement" PropertyName="NomTypeEquipement" SortKeySelector="item => item.NomTypeEquipement">
                 @context.NomTypeEquipement
             </GridColumn>
             <GridColumn TItem="EquipementDTO" PropertyName="Dimensions" SortKeySelector="item => item.Dimensions" Filterable="false">
@@ -109,6 +109,12 @@ else
 <!-- Modale pour l'édition -->
 <Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations de l'équipement">
     <BodyTemplate>
+        @if (!string.IsNullOrEmpty(EquipementViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @EquipementViewModel.ErrorMessage
+            </div>
+        }
         <div id="formEquipement">
             <div id="leftPartFormEquipement">
                 <div class="formGroup">
@@ -193,7 +199,7 @@ else
                         {
                             <section>
                                 <label>Mur :</label>
-                                <select @bind="EquipementViewModel.EquipementInEdition.Mur.IdMur" class="form-control">
+                                <select class="form-control" @onchange="HandleChange">
                                     @if (EquipementViewModel.EquipementInEditionNomSalleSelected != EquipementViewModel.EquipementInEdition.Salle.NomSalle || EquipementViewModel.EquipementInEdition.Mur.IdMur == 0)
                                     {
                                         <option selected value="0">--- Sélectionnez un mur ---</option>
@@ -251,20 +257,17 @@ else
     </BodyTemplate>
     <FooterTemplate>
         <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+        @if (isMurLoading)
+        {
+            <Spinner Type="SpinnerType.Border" Size="SpinnerSize.Small" />
+        }
         @if (EquipementViewModel.EquipementInEdition.IdEquipement == 0)
         {
-            <button class="btn btn-success" @onclick="SaveEquipement">Ajouter</button>
+            <button class="btn btn-success" @onclick="SaveEquipement" disabled="@isMurLoading">Ajouter</button>
         }
         else
         {
-            <button class="btn btn-primary" @onclick="SaveEquipement">Modifier</button>
-        }
-
-        @if (!string.IsNullOrEmpty(EquipementViewModel.ErrorMessage))
-        {
-            <div class="alert alert-danger">
-                @EquipementViewModel.ErrorMessage
-            </div>
+            <button class="btn btn-primary" @onclick="SaveEquipement" disabled="@isMurLoading">Modifier</button>
         }
     </FooterTemplate>
 </Modal>
@@ -272,7 +275,13 @@ else
 <ConfirmDialog @ref="confirmSupprDialog" />
 
 @code {
-    private List<String> TypesEquipementNom = [];
+    public enum TypeEquipements
+    {
+        Registered,
+        VerificationPending,
+        Verified
+    };
+
     private Grid<EquipementDTO> equipementGrid;
     private Modal formModal;
 
@@ -281,6 +290,7 @@ else
     [Inject] ToastService ToastService { get; set; } = default!;
 
     private EquipementDTO? equipementDeleteInConfirmation;
+    bool isMurLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -404,5 +414,13 @@ else
     private void CancelEdit()
     {
         ClosePopup();
+    }
+
+    private async void HandleChange(ChangeEventArgs e)
+    {
+        isMurLoading = true;
+        await EquipementViewModel.ChangeMur(int.Parse(e.Value.ToString()));
+        isMurLoading = false;
+        StateHasChanged();
     }
 }

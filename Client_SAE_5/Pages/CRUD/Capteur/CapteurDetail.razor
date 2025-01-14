@@ -70,8 +70,12 @@ else
                 </div>
             </a>
             <p>
-                <strong>Coordonnées (<em>À partir d'en haut à gauche</em>)</strong> (X:@(CapteurViewModel.SelectedCapteurDetail.XCapteur/100)m;
-                                                                                     Y:@(CapteurViewModel.SelectedCapteurDetail.YCapteur/100)m)
+                <strong>Coordonnées</strong>
+                    <Tooltip Class="me-4" Title="À partir d'en haut à gauche" Placement="TooltipPlacement.Right">
+                    <Icon Name="IconName.InfoCircleFill"></Icon>
+                </Tooltip>
+                (X:@(CapteurViewModel.SelectedCapteurDetail.XCapteur/100)m)
+                (Y:@(CapteurViewModel.SelectedCapteurDetail.YCapteur/100)m)
             </p> 
         </span>
             
@@ -106,6 +110,11 @@ else
     private decimal ScaleX => MurLargeurPx / MurLongueurCm; // Pixels par cm en largeur
     private decimal ScaleY => MurHauteurPx / MurHauteurCm; // Pixels par cm en hauteur
 
+    /// <summary>
+    /// Permet de récupérer la chaîne de caractère correspondant à la position du capteur en pixels par les attributs left et top, à ajouter au style CSS.
+    /// </summary>
+    /// <param name="capteur">Capteur dont on veut les coordonnées CSS top et left</param>
+    /// <returns>Style CSS correspondant aux attributs left et top du carré capteur</returns>
     private string GetCapteurPositionStyle(CapteurDetailDTO capteur)
     {
         if (CapteurViewModel.SelectedCapteurDetail.Mur == null) return "";

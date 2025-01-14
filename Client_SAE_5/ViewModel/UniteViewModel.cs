@@ -88,10 +88,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de l'ajout de l'unitée : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task UpdateUniteAsync()
@@ -115,10 +111,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de la mise à jour de l'unitée : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task DeleteUniteAsync(int idUnite)
@@ -137,8 +129,17 @@ namespace Client_SAE_5.ViewModel
         // Vérifier si les données de la salle sont valides
         private bool IsValidUnite(UniteDTO unite)
         {
-            return !string.IsNullOrWhiteSpace(unite.NomUnite) && 
-                   !string.IsNullOrWhiteSpace(unite.SigleUnite);
+            if (string.IsNullOrWhiteSpace(unite.NomUnite))
+            {
+                ErrorMessage = "Veuillez remplir le nom";
+                return false;
+            }
+            else if (string.IsNullOrWhiteSpace(unite.SigleUnite))
+            {
+                ErrorMessage = "Veuillez remplir le sigle";
+                return false;
+            }
+            return true;
         }
 
         public void ResetError()

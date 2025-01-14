@@ -3,6 +3,8 @@
 @inject SalleViewModel SalleViewModel
 @inject Client_SAE_5.ViewModel.MurViewModel MurViewModel
 
+<link href="css/MurStyle.css" rel="stylesheet"/>
+
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
 
 <PageTitle>Gestion des Murs</PageTitle>
@@ -71,13 +73,31 @@ else
         }
 
         <label>Longueur (cm) :</label>
-        <input type="number" @bind="MurViewModel.MurInEdition.Longueur" class="form-control" />
+        <input type="number" @bind="MurViewModel.MurInEdition.Longueur" class="form-control" min="1"/>
 
         <label>Hauteur (cm) :</label>
-        <input type="number" @bind="MurViewModel.MurInEdition.Hauteur" class="form-control" />
+        <input type="number" @bind="MurViewModel.MurInEdition.Hauteur" class="form-control" min="1"/>
 
-        <label>Orientation (°) :</label>
-        <input type="number" @bind="MurViewModel.MurInEdition.Orientation" class="form-control" />
+        <div id="sectionOrientation" class="d-flex justify-content-between flex-row">
+            <section>
+                <label>Orientation (0-360 °) :</label>
+                <input type="number" @bind="MurViewModel.MurInEdition.Orientation" class="form-control" min="0" max="360" />
+            </section>
+
+            <section>
+                <label>Direction :</label>
+                <select @bind="MurViewModel.MurInEdition.IdDirection" class="form-control">
+                    @if (MurViewModel.MurInEdition.IdDirection == 0)
+                    {
+                        <option selected value="0">--- Sélectionnez une direction ---</option>
+                    }
+                    @foreach (var direction in MurViewModel.DBData.Directions)
+                    {
+                        <option value="@direction.IdDirection">@direction.LettresDirection</option>
+                    }
+                </select>
+            </section>
+        </div>
 
         <label>Salle :</label>
         <select @bind="MurViewModel.MurInEdition.IdSalle" class="form-control">
@@ -88,18 +108,6 @@ else
             @foreach (var salle in MurViewModel.DBData.Salles)
             {
                 <option value="@salle.IdSalle">@salle.NomSalle @salle.NomBatiment @salle.NomType</option>
-            }
-        </select>
-
-        <label>Direction :</label>
-        <select @bind="MurViewModel.MurInEdition.IdDirection" class="form-control">
-            @if (MurViewModel.MurInEdition.IdDirection == 0)
-            {
-                <option selected value="0">--- Sélectionnez une direction ---</option>
-            }
-            @foreach (var direction in MurViewModel.DBData.Directions)
-            {
-                <option value="@direction.IdDirection">@direction.LettresDirection</option>
             }
         </select>
     </BodyTemplate>
