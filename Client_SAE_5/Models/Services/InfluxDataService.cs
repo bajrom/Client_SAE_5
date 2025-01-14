@@ -1,9 +1,12 @@
-﻿using System.Net.Http.Json;
+﻿using System.Globalization;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Client_SAE_5.Models.InfluxDB;
 
 namespace Client_SAE_5.Models.Services
 {
-    public class InfluxDataService<T>
+    public class InfluxDataService
     {
         private readonly HttpClient _httpClient;
         private readonly string controllerName;
@@ -17,13 +20,32 @@ namespace Client_SAE_5.Models.Services
             this.controllerName = controllerName;
         }
 
-        public async Task<T> GetTNowAsync(string nomCapteur)
+        // renvoie les dernières mesures (prendre 1ère pour avoir la dernière mesure prise)
+        public async Task<double> GetTNowAsync(string nomCapteur)
         {
-            var response = await _httpClient.GetFromJsonAsync<T>($"{controllerName}_Now?capteur={nomCapteur}");
 
             try
             {
-                return response;
+                var response = await _httpClient.GetAsync($"{controllerName}_Now?capteur={nomCapteur}");
+                string responseString = await response.Content.ReadAsStringAsync();
+                int closingBraceIndex = responseString.IndexOf('}');
+                int startCutIndex = 0;
+                int actualIndex = closingBraceIndex;
+                
+                while(actualIndex > 0)
+                {
+                    actualIndex--;
+                    var caca = responseString[actualIndex];
+                    if (responseString[actualIndex] == ':')
+                    {
+                        startCutIndex = actualIndex + 1;
+                        break;
+                    }
+                }
+
+                string valueString = responseString.Substring(startCutIndex, (closingBraceIndex-startCutIndex));
+
+                return double.Parse(valueString, CultureInfo.InvariantCulture);
             }
 
             catch (JsonException ex)
@@ -32,9 +54,9 @@ namespace Client_SAE_5.Models.Services
             }
         }
 
-        public async Task<List<T>> GetTInTimeIntervalAsync(string nomCapteur, DateTime startDate, DateTime endDate)
+        public async Task<List<decimal>> GetTInTimeIntervalAsync(string nomCapteur, DateTime startDate, DateTime endDate)
         {
-            var response = await _httpClient.GetFromJsonAsync<List<T>>($"{controllerName}?capteur={nomCapteur}&startDate={startDate}&endDAte={endDate}");
+            var response = await _httpClient.GetFromJsonAsync<List<decimal>>($"{controllerName}?capteur={nomCapteur}&startDate={startDate}&endDAte={endDate}");
 
             try
             {

@@ -28,7 +28,14 @@ else
     <h2>Valeurs actuelles :</h2>
 
     <p>Présence de vibrations : @(InfluxViewModel.ActualVibration != 0 ? "oui" : "non")</p>
-
+    <p>Température intérieure : @(InfluxViewModel.ActualTemperatureInt)°C</p>
+    <p>Température extérieure : @(InfluxViewModel.ActualTemperatureExt)°C</p>
+    <p>Taux d'humidité : @(InfluxViewModel.ActualHumidite)%</p>
+    <p>Taux de CO2 : @(InfluxViewModel.ActualTauxCo2)ppm</p>
+    <p>Présence de mouvement : @(InfluxViewModel.ActualPresenceMouvement != 0 ? "oui" : "non")</p>
+    <p>Présence de fumée : @(InfluxViewModel.ActualPresenceFumee != 0 ? "oui" : "non")</p>
+    <p>Taux de luminosité : @(InfluxViewModel.ActualLuminosite)lm</p>
+    <p>Présence de bruit : @(InfluxViewModel.ActualPresenceBruit != 0 ? "oui" : "non")</p>
 
     <h2>Prédictions :</h2>
 
@@ -45,9 +52,10 @@ else
 
     private async Task ChangeCapteurData(string newCapteurName)
     {
-        InfluxViewModel.SelectedCapteurName = newCapteurName;
-        await InfluxViewModel.LoadPredictionsOfCapteurAsync(newCapteurName);
+        //await InfluxViewModel.LoadPredictionsOfCapteurAsync(newCapteurName);
         await InfluxViewModel.LoadActualValuesOfCapteurAsync(newCapteurName);
+        Console.WriteLine("caca");
+        InfluxViewModel.SelectedCapteurName = newCapteurName;
         StateHasChanged();
     }
 
