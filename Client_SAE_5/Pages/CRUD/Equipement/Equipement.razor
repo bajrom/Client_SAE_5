@@ -47,7 +47,7 @@ else
             <GridColumn TItem="EquipementDTO" HeaderText="Salle" PropertyName="NomSalleEquipement" SortKeySelector="item => item.NomSalleEquipement">
                 @context.NomSalleEquipement
             </GridColumn>
-            <GridColumn TItem="EquipementDTO" HeaderText="Type d'équipement" PropertyName="NomTypeEquipement" SortKeySelector="item => item.NomTypeEquipement" >
+            <GridColumn TItem="EquipementDTO" HeaderText="Type d'équipement" PropertyName="NomTypeEquipement" SortKeySelector="item => item.NomTypeEquipement">
                 @context.NomTypeEquipement
             </GridColumn>
             <GridColumn TItem="EquipementDTO" PropertyName="Dimensions" SortKeySelector="item => item.Dimensions" Filterable="false">
@@ -271,7 +271,13 @@ else
 <ConfirmDialog @ref="confirmSupprDialog" />
 
 @code {
-    private List<String> TypesEquipementNom = [];
+    public enum TypeEquipements
+    {
+        Registered,
+        VerificationPending,
+        Verified
+    };
+
     private Grid<EquipementDTO> equipementGrid;
     private Modal formModal;
 

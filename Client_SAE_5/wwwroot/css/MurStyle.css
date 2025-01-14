@@ -35,3 +35,11 @@ div.equipementMurSchema:hover{
     border:1px solid yellow;
     transition:1s all ease;
 }
+
+div#sectionOrientation section {
+    width: 45%;
+}
+
+div#sectionOrientation{
+    gap:0%;
+}

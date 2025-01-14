@@ -19,7 +19,13 @@ else
         <div class="card-body">
             <h5 class="card-title">Informations générales</h5>
             <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.NomEquipement</p>
-            <p><strong>Dimensions :</strong> @EquipementViewModel.SelectedEquipementDetails.Longueur cm x @EquipementViewModel.SelectedEquipementDetails.Largeur cm x @EquipementViewModel.SelectedEquipementDetails.Hauteur cm</p>
+            <p>
+                <strong>Dimensions :</strong>
+                <Tooltip Class="me-4" Title="Longueur * Largeur * Hauteur" Placement="TooltipPlacement.Top">
+                    <Icon Name="IconName.InfoCircleFill"></Icon>
+                </Tooltip>
+                @EquipementViewModel.SelectedEquipementDetails.Longueur cm x @EquipementViewModel.SelectedEquipementDetails.Largeur cm x @EquipementViewModel.SelectedEquipementDetails.Hauteur cm
+            </p>
             <p><strong>Position :</strong> X: @EquipementViewModel.SelectedEquipementDetails.PositionX, Y: @EquipementViewModel.SelectedEquipementDetails.PositionY, Z: @EquipementViewModel.SelectedEquipementDetails.PositionZ</p>
             <p><strong>Etat :</strong> @(Utils.Utils.RenderEtatContent(EquipementViewModel.SelectedEquipementDetails.EstActif))</p>
         </div>

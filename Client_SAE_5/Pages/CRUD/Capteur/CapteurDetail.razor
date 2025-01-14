@@ -70,8 +70,12 @@ else
                 </div>
             </a>
             <p>
-                <strong>Coordonnées (<em>À partir d'en haut à gauche</em>)</strong> (X:@(CapteurViewModel.SelectedCapteurDetail.XCapteur/100)m;
-                                                                                     Y:@(CapteurViewModel.SelectedCapteurDetail.YCapteur/100)m)
+                <strong>Coordonnées</strong>
+                    <Tooltip Class="me-4" Title="À partir d'en haut à gauche" Placement="TooltipPlacement.Right">
+                    <Icon Name="IconName.InfoCircleFill"></Icon>
+                </Tooltip>
+                (X:@(CapteurViewModel.SelectedCapteurDetail.XCapteur/100)m)
+                (Y:@(CapteurViewModel.SelectedCapteurDetail.YCapteur/100)m)
             </p> 
         </span>
             
