@@ -3,80 +3,132 @@
 @inject Client_SAE_5.ViewModel.EquipementViewModel EquipementViewModel
 
 <link rel="stylesheet" href="css/DetailPages.css" />
+<link rel="stylesheet" href="css/CapteurStyle.css" />
 
 <PageTitle>Détails de l'équipement</PageTitle>
 
 <h1>Détails de l'équipement</h1>
+
+<div id="mainContainer">
 @if (EquipementViewModel.SelectedEquipementDetails == null)
 {
     <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails de l'équipement en chargement...</p></p>
 }
 else
 {
-    <h5>Nom de l'équipement: @EquipementViewModel.SelectedEquipementDetails.NomEquipement</h5>
+    <div>
+        <h5>Nom de l'équipement: @EquipementViewModel.SelectedEquipementDetails.NomEquipement</h5>
 
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">Informations générales</h5>
-            <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.NomEquipement</p>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Informations générales</h5>
+                <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.NomEquipement</p>
+                <p>
+                    <strong>Dimensions :</strong>
+                    <Tooltip Class="me-4" Title="Longueur * Largeur * Hauteur" Placement="TooltipPlacement.Top">
+                        <Icon Name="IconName.InfoCircleFill"></Icon>
+                    </Tooltip>
+                    @EquipementViewModel.SelectedEquipementDetails.Longueur cm x @EquipementViewModel.SelectedEquipementDetails.Largeur cm x @EquipementViewModel.SelectedEquipementDetails.Hauteur cm
+                </p>
+                <p><strong>Position :</strong> X: @EquipementViewModel.SelectedEquipementDetails.PositionX, Y: @EquipementViewModel.SelectedEquipementDetails.PositionY, Z: @EquipementViewModel.SelectedEquipementDetails.PositionZ</p>
+                <p><strong>Etat :</strong> @(Utils.Utils.RenderEtatContent(EquipementViewModel.SelectedEquipementDetails.EstActif))</p>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Salle associée</h5>
+                @if (EquipementViewModel.SelectedEquipementDetails.Salle != null)
+                {
+                    <p>
+                        <strong>Nom:</strong> 
+                        <p class="listeCliquable" 
+                            @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", EquipementViewModel.SelectedEquipementDetails.Salle.IdSalle))'>
+                            @EquipementViewModel.SelectedEquipementDetails.Salle.NomSalle
+                        </p>
+                    </p>
+                }
+                else
+                {
+                    <p class="text-muted">Aucune salle associée.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Type d'équipement</h5>
+                @if (EquipementViewModel.SelectedEquipementDetails.TypeEquipement != null)
+                {
+                    <p>
+                        <strong>Nom: </strong>
+                        <p class="listeCliquable" 
+                            @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "typesequipement", EquipementViewModel.SelectedEquipementDetails.TypeEquipement.IdTypeEquipement))'>
+                            @EquipementViewModel.SelectedEquipementDetails.TypeEquipement.NomTypeEquipement
+                        </p>
+                    </p>
+                }
+                else
+                {
+                    <p class="text-muted">Aucun type associé.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (EquipementViewModel.SelectedEquipementDetails.Mur == null || EquipementViewModel.SelectedEquipementDetails == null)
+    {
+        <p><em>Aucun détail disponible pour la position de cet équipement.</em></p>
+    }
+    else
+    {
+        <span>
+            <h1>Position de l'équipement sur le mur</h1>
+            <a href="/crud/murs/@(EquipementViewModel.SelectedEquipementDetails.Mur.IdMur)">
+                <div id="cadreMur" style="width: @(MurLargeurPx + "px"); height: @(MurHauteurPx + "px");">
+                    <div style="@GetEquipementPositionStyle(EquipementViewModel.SelectedEquipementDetails)"
+                         title="Positions: (@EquipementViewModel.SelectedEquipementDetails.PositionX cm; @EquipementViewModel.SelectedEquipementDetails.PositionY cm; @EquipementViewModel.SelectedEquipementDetails.PositionZ cm)">
+                    </div>
+                </div>
+            </a>
             <p>
-                <strong>Dimensions :</strong>
-                <Tooltip Class="me-4" Title="Longueur * Largeur * Hauteur" Placement="TooltipPlacement.Top">
+                <strong>Coordonnées</strong>
+                <Tooltip Class="me-4" Title="À partir d'en haut à gauche" Placement="TooltipPlacement.Right">
                     <Icon Name="IconName.InfoCircleFill"></Icon>
                 </Tooltip>
-                @EquipementViewModel.SelectedEquipementDetails.Longueur cm x @EquipementViewModel.SelectedEquipementDetails.Largeur cm x @EquipementViewModel.SelectedEquipementDetails.Hauteur cm
+                (X:@(EquipementViewModel.SelectedEquipementDetails.PositionX / 100)m)
+                (Y:@(EquipementViewModel.SelectedEquipementDetails.PositionY / 100)m)
             </p>
-            <p><strong>Position :</strong> X: @EquipementViewModel.SelectedEquipementDetails.PositionX, Y: @EquipementViewModel.SelectedEquipementDetails.PositionY, Z: @EquipementViewModel.SelectedEquipementDetails.PositionZ</p>
-            <p><strong>Etat :</strong> @(Utils.Utils.RenderEtatContent(EquipementViewModel.SelectedEquipementDetails.EstActif))</p>
-        </div>
-    </div>
+        </span>
 
-    <div class="card mt-4">
-        <div class="card-body">
-            <h5 class="card-title">Salle associée</h5>
-            @if (EquipementViewModel.SelectedEquipementDetails.Salle != null)
-            {
-                <p>
-                    <strong>Nom:</strong> 
-                    <p class="listeCliquable" 
-                        @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", EquipementViewModel.SelectedEquipementDetails.Salle.IdSalle))'>
-                        @EquipementViewModel.SelectedEquipementDetails.Salle.NomSalle
-                    </p>
-                </p>
-            }
-            else
-            {
-                <p class="text-muted">Aucune salle associée.</p>
-            }
-        </div>
-    </div>
-
-    <div class="card mt-4">
-        <div class="card-body">
-            <h5 class="card-title">Type d'équipement</h5>
-            @if (EquipementViewModel.SelectedEquipementDetails.TypeEquipement != null)
-            {
-                <p>
-                    <strong>Nom: </strong>
-                    <p class="listeCliquable" 
-                        @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "typesequipement", EquipementViewModel.SelectedEquipementDetails.TypeEquipement.IdTypeEquipement))'>
-                        @EquipementViewModel.SelectedEquipementDetails.TypeEquipement.NomTypeEquipement
-                    </p>
-                </p>
-            }
-            else
-            {
-                <p class="text-muted">Aucun type associé.</p>
-            }
-        </div>
-    </div>    
+    }
 }
+</div>
 
 <button class="btn btn-secondary mt-4" @onclick="GoBack">Retour</button>
+
+@if (!string.IsNullOrEmpty(EquipementViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @EquipementViewModel.ErrorMessage
+    </div>
+}
 
 @code {
     [Parameter]
     public int IdEquipement { get; set; }
+
+    // Dimensions du mur en cm (valeurs récupérées depuis le ViewModel ou DTO)
+    private decimal MurLongueurCm => EquipementViewModel.SelectedEquipementDetails.Mur.Longueur; // Exemple : 600 cm
+    private decimal MurHauteurCm => EquipementViewModel.SelectedEquipementDetails.Mur.Hauteur;  // Exemple : 300 cm
+
+    // Dimensions du mur affiché en pixels
+    private const int MurLargeurPx = 600; // Largeur en pixels (à ajuster selon l'interface)
+    private const int MurHauteurPx = 300; // Hauteur en pixels (à ajuster selon l'interface)
+
+    // Échelle pour convertir cm -> pixels
+    private decimal ScaleX => MurLargeurPx / MurLongueurCm; // Pixels par cm en largeur
+    private decimal ScaleY => MurHauteurPx / MurHauteurCm; // Pixels par cm en hauteur
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,5 +138,18 @@ else
     private void GoBack()
     {
         NavigationManager.NavigateTo("/crud/equipements");
+    }
+
+    private string GetEquipementPositionStyle(EquipementDetailDTO equipement)
+    {
+        if (EquipementViewModel.SelectedEquipementDetails.Mur == null) return "";
+
+        // Convertir les coordonnées en pixels
+        decimal leftPx = equipement.PositionX * ScaleX;
+        decimal topPx = equipement.PositionY * ScaleY;
+
+        // Retourner le style CSS avec les positions normalisées
+        return $"left: {leftPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px; " +
+               $"top: {topPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;";
     }
 }

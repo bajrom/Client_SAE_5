@@ -17,6 +17,7 @@ namespace Client_SAE_5.ViewModel
         private readonly WSService<EquipementSansNavigationDTO> _equipementSansNavigationService;
         private readonly WSService<SalleDTO> _salleService;
         private readonly WSService<MurDTO> _murService;
+        private readonly WSService<MurDetailDTO> _murDetailService;
         private readonly WSService<TypeEquipementDTO> _typeequipementService;
         public DataStorage DBData;
 
@@ -27,6 +28,7 @@ namespace Client_SAE_5.ViewModel
             _equipementSansNavigationService = new WSService<EquipementSansNavigationDTO>();
             _salleService = new WSService<SalleDTO>();
             _murService = new WSService<MurDTO>();
+            _murDetailService = new WSService<MurDetailDTO>();
             _typeequipementService = new WSService<TypeEquipementDTO>();
             this.DBData = data;
         }
@@ -45,6 +47,7 @@ namespace Client_SAE_5.ViewModel
 
         public List<TypeEquipementDTO> TypesEquipement { get; private set; } = new List<TypeEquipementDTO>();
 
+        private MurDetailDTO murSelected { get; set; } = new MurDetailDTO();
         public string ErrorMessage { get; private set; }
 
         public async Task LoadEquipementsAsync()
@@ -114,6 +117,16 @@ namespace Client_SAE_5.ViewModel
         {
             EquipementDetailDTO temp = await _equipementDetailService.GetTAsync("Equipement", idEquipement);
 
+            murSelected = new MurDetailDTO
+            {
+                IdMur = temp.Mur.IdMur,
+                IdSalle = temp.Mur.IdSalle,
+                IdDirection = temp.Mur.IdDirection,
+                Longueur = temp.Mur.Longueur,
+                Hauteur = temp.Mur.Hauteur,
+                Orientation = temp.Mur.Orientation,
+            };
+
             if (DBData.Murs == null || DBData.Murs.Count == 0)
             {
                 await LoadMursAsync();
@@ -176,10 +189,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de l'ajout de l'équipement : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task UpdateEquipementAsync()
@@ -210,10 +219,6 @@ namespace Client_SAE_5.ViewModel
                     ErrorMessage = $"Erreur lors de la mise à jour de l'équipement : {ex.Message}";
                 }
             }
-            else
-            {
-                ErrorMessage = "Veuillez remplir tous les champs obligatoires.";
-            }
         }
 
         public async Task DeleteEquipementAsync(int idEquipement)
@@ -232,12 +237,41 @@ namespace Client_SAE_5.ViewModel
 
         private bool IsValidEquipement(EquipementSansNavigationDTO equipement)
         {
-            return !string.IsNullOrWhiteSpace(equipement.NomEquipement) &&
-                   equipement.IdMur > 0 && equipement.IdTypeEquipement > 0;
+            if (string.IsNullOrWhiteSpace(equipement.NomEquipement))
+            {
+                ErrorMessage = "Veuillez donner un nom";
+                return false;
+            }
+            else if (equipement.IdMur <= 0)
+            {
+                ErrorMessage = "Veuillez sélectionner un mur";
+                return false;
+            }
+            else if (equipement.IdTypeEquipement <= 0)
+            {
+                ErrorMessage = "Veuillez sélectionner un type d'équipement";
+                return false;
+            }
+            else if (equipement.XEquipement < 0 || equipement.XEquipement > murSelected.Longueur)
+            {
+                ErrorMessage = $"X en dehors des limites (Longueur du mur: {murSelected.Longueur} cm)";
+                return false;
+            }
+            else if (equipement.YEquipement < 0 || equipement.YEquipement > murSelected.Hauteur)
+            {
+                ErrorMessage = $"Y en dehors des limites (Hauteur du mur: {murSelected.Hauteur} cm)";
+                return false;
+            }
+            return true;
         }
         public void ResetError()
         {
             ErrorMessage = "";
+        }
+        public async Task ChangeMur(int id)
+        {
+            murSelected = await _murDetailService.GetTAsync("Murs", id);
+            EquipementInEdition.Mur.IdMur = id;
         }
     }
 }

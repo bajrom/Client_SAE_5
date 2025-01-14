@@ -112,7 +112,17 @@ namespace Client_SAE_5.ViewModel
         public async Task SetupCapteurEdition(int idCapteur)
         {
             CapteurDetailDTO temp = await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
-            
+
+            murSelected = new MurDetailDTO
+            {
+                IdMur = temp.Mur.IdMur,
+                IdSalle = temp.Mur.IdSalle,
+                IdDirection = temp.Mur.IdDirection,
+                Longueur = temp.Mur.Longueur,
+                Hauteur = temp.Mur.Hauteur,
+                Orientation = temp.Mur.Orientation,
+            };
+
             if (DBData.Unites == null || DBData.Unites.Count == 0)
             {
                 await LoadUnitesAsync();
@@ -320,12 +330,12 @@ namespace Client_SAE_5.ViewModel
             }
             else if (capteur.XCapteur < 0 || capteur.XCapteur > murSelected.Longueur)
             {
-                ErrorMessage = "X en dehors des limites";
+                ErrorMessage = $"X en dehors des limites (Longueur du mur: {murSelected.Longueur} cm)";
                 return false;
             }
             else if (capteur.YCapteur < 0 || capteur.YCapteur > murSelected.Hauteur)
             {
-                ErrorMessage = "Y en dehors des limites";
+                ErrorMessage = $"Y en dehors des limites (Hauteur du mur: {murSelected.Hauteur} cm)";
                 return false;
             }
             else return true;
