@@ -42,8 +42,6 @@ namespace Client_SAE_5.ViewModel
 
         public List<string> NomSalles { get; private set; } = new List<string>();
 
-        public List<UniteDTO> Unites { get; private set; } = new List<UniteDTO>();
-
         public List<UniteDTO> AvailableUnites { get; private set; } = new List<UniteDTO>();
         private MurDetailDTO murSelected { get; set; } = new MurDetailDTO();
 

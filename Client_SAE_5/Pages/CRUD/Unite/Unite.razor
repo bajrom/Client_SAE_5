@@ -2,6 +2,8 @@
 @inject Client_SAE_5.ViewModel.UniteViewModel UniteViewModel
 @inject NavigationManager NavigationManager
 
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Gestion des unités</PageTitle>
 
 <h1>Gestion des unités</h1>
@@ -138,18 +140,23 @@ else
 
     private async Task SaveUnite()
     {
+        string confirmMessage = "";
+
         if (UniteViewModel.UniteInEdition.IdUnite == 0)
         {
             await UniteViewModel.AddUniteAsync();
+            confirmMessage = "Ajout de l'unite avec succès !";
         }
         else
         {
             await UniteViewModel.UpdateUniteAsync();
+            confirmMessage = "Modification de l'unite avec succès !";
         }
 
         if (string.IsNullOrEmpty(UniteViewModel.ErrorMessage))
         {
             ClosePopup();
+            ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
     }

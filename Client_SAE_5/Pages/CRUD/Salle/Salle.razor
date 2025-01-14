@@ -2,6 +2,8 @@
 @inject Client_SAE_5.ViewModel.SalleViewModel SalleViewModel
 @inject NavigationManager NavigationManager
 
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopRight" />
+
 <PageTitle>Gestion des Salles</PageTitle>
 
 <h1>Gestion des Salles</h1>
@@ -160,19 +162,23 @@ else
 
     private async Task SaveSalle()
     {
+        string confirmMessage = "";
+
         if (SalleViewModel.SalleInEdition.IdSalle == 0)
         {
             await SalleViewModel.AddSalleAsync();
+            confirmMessage = "Ajout de la salle avec succès !";
         }
         else
         {
             await SalleViewModel.UpdateSalleAsync();
+            confirmMessage = "Modification de la salle avec succès !";
         }
 
         if (string.IsNullOrEmpty(SalleViewModel.ErrorMessage))
         {
             ClosePopup();
-            StateHasChanged();
+            ToastService.Notify(new ToastMessage(ToastType.Success, confirmMessage));
             await RefreshGridAsync(); // Rafraîchir la GRID après une modification
         }
     }
