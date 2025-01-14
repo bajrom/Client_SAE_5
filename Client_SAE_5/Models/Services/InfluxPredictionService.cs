@@ -20,30 +20,30 @@ namespace Client_SAE_5.Models.Services
             return await response.Content.ReadFromJsonAsync<List<string>>();
         }
 
-        public async Task<bool> GetFenetreOuvertePredAsync()
+        public async Task<bool> GetFenetreOuvertePredAsync(string nomCapteur)
         {
-            var response = await _httpClient.GetAsync("fenetre_ouverte");
+            var response = await _httpClient.GetAsync($"fenetre_ouverte?capteur={nomCapteur}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<bool>();
         }
 
-        public async Task<string> GetNbPersonnePredAsync()
+        public async Task<string> GetNbPersonnePredAsync(string nomCapteur)
         {
-            var response = await _httpClient.GetAsync("nb_personne");
+            var response = await _httpClient.GetAsync($"nb_personne?capteur={nomCapteur}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<string>();
         }
 
-        public async Task<string> GetInconfortPredAsync()
+        public async Task<string> GetInconfortPredAsync(string nomCapteur)
         {
-            var response = await _httpClient.GetAsync("inconfort");
+            var response = await _httpClient.GetAsync($"inconfort?capteur={nomCapteur}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<string>();
         }
 
-        public async Task<List<float>> GetTemperaturesPredAsync()
+        public async Task<List<float>> GetTemperaturesPredAsync(string nomCapteur)
         {
-            var response = await _httpClient.GetAsync("temperature_futur");
+            var response = await _httpClient.GetAsync($"temperature_futur?capteur={nomCapteur}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<List<float>>();
         }

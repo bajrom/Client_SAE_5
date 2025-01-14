@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Divers\InfluxDb\" />
     <Folder Include="Pages\Divers\Visualisation3D\" />
   </ItemGroup>
 

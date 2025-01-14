@@ -1,0 +1,54 @@
+﻿@page "/influxdb"
+@inject Client_SAE_5.ViewModel.InfluxViewModel InfluxViewModel
+
+
+<PageTitle>Visualisation données capteurs</PageTitle>
+
+<h1>Données des capteurs :</h1>
+
+<select @onchange="(e) => ChangeCapteurData((string)e.Value)" class="form-control">
+    @if (string.IsNullOrEmpty(InfluxViewModel.SelectedCapteurName))
+    {
+        <option value="">-- Sélectionnez un capteur --</option>
+    }
+    @foreach (string nomCapteur in InfluxViewModel.NomCapteurs)
+    {
+        <option value="@nomCapteur">@nomCapteur</option>
+    }
+
+</select>
+
+@if (string.IsNullOrEmpty(InfluxViewModel.SelectedCapteurName))
+{
+    <p>toutes les vals</p>
+}
+
+else
+{
+    <h2>Valeurs actuelles :</h2>
+
+    <p>Présence de vibrations : @(InfluxViewModel.ActualVibration != 0 ? "oui" : "non")</p>
+
+
+    <h2>Prédictions :</h2>
+
+    <p>État de la fenêtre : @(InfluxViewModel.PredFenetreOuverte ? "ouverte" : "fermée")</p>
+
+}
+
+@code{
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InfluxViewModel.LoadNomCapteurs();
+    }
+
+    private async Task ChangeCapteurData(string newCapteurName)
+    {
+        InfluxViewModel.SelectedCapteurName = newCapteurName;
+        await InfluxViewModel.LoadPredictionsOfCapteurAsync(newCapteurName);
+        await InfluxViewModel.LoadActualValuesOfCapteurAsync(newCapteurName);
+        StateHasChanged();
+    }
+
+}

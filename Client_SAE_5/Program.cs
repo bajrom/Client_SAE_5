@@ -30,6 +30,8 @@ namespace Client_SAE_5
             builder.Services.AddScoped<EquipementViewModel>();
             builder.Services.AddScoped<TypeEquipementViewModel>();
             builder.Services.AddScoped<UniteViewModel>();
+            
+            builder.Services.AddScoped<InfluxViewModel>();
 
             // Ajout singleton du DataStorage (permet de garder les listes des éléments entre les pages et les avoir à jour quand ajout/modif/suppression)
             builder.Services.AddSingleton<DataStorage>();
