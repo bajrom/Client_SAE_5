@@ -173,6 +173,10 @@ else
         await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
+    /// <summary>
+    /// Ouvre la confirmation de suppression d'une unité
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
     private async Task OpenDeleteConfirmation()
     {
         var options = new ConfirmDialogOptions
@@ -188,9 +192,11 @@ else
             throw new ArgumentNullException("L'unité dont on veut récupérer la confirmation de suppression est NULL.");
         }
 
+        String sigleUnite = uniteDeleteInConfirmation.SigleUnite == null ? "" : '('+uniteDeleteInConfirmation.SigleUnite+')';
+
         var confirmation = await confirmSupprDialog.ShowAsync(
             title: "Confirmer la suppression de l'unité",
-            message1: "Êtes vous sûr de vouloir supprimer l'unité \"" + uniteDeleteInConfirmation.NomUnite + " (" + uniteDeleteInConfirmation.SigleUnite + ") ?",
+            message1: "Êtes vous sûr de vouloir supprimer l'unité \"" + uniteDeleteInConfirmation.NomUnite + " " + sigleUnite +"?",
             confirmDialogOptions: options);
 
         if (confirmation)
