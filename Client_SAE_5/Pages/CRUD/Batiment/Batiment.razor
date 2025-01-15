@@ -57,7 +57,7 @@ else
 }
 
 <!-- Modale pour l'édition -->
-<Modal @ref="formModal" class="editModal" Size="ModalSize.Large" Title="Renseignement des informations du bâtiment">
+<Modal @ref="formModal" class="editModal notshown" Size="ModalSize.Large" Title="Renseignement des informations du bâtiment">
     <BodyTemplate>
         @if (!string.IsNullOrEmpty(BatimentViewModel.ErrorMessage))
         {
