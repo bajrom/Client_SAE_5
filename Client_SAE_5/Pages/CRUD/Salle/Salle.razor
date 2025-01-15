@@ -99,7 +99,7 @@ else
         </div>
     </BodyTemplate>
     <FooterTemplate>
-        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+        <button class="btn btn-secondary" @onclick="ClosePopup">Annuler</button>
         @if (SalleViewModel.SalleInEdition.IdSalle == 0)
         {
             <button class="btn btn-success" @onclick="SaveSalle">Ajouter</button>
@@ -237,10 +237,5 @@ else
         // Application des filtres, tri et pagination
         var data = request.ApplyTo(SalleViewModel.DBData.Salles);
         return await Task.FromResult(data);
-    }
-
-    private void CancelEdit()
-    {
-        ClosePopup();
     }
 }

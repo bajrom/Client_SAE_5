@@ -35,7 +35,11 @@ else
                         <li class="listeCliquable" @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "capteurs", capteur.IdCapteur))">@capteur.NomCapteur</li>
                     }
                 </ul>
-            } else { <p><em>Aucun capteur associée</em></p> }
+            }
+            else
+            {
+                <p><em>Ce mur ne contient aucun capteurs. <a href="/crud/capteurs">Voulez-vous en rajouter un ?</a></em></p>
+            }
 
             <br />
             <h5>Équipements</h5>
@@ -48,7 +52,10 @@ else
                     }
                 </ul>
             }
-            else { <p><em>Aucun équipement associé</em></p> }
+            else
+            {
+                <p><em>Ce mur ne contient aucun équipements. <a href="/crud/equipements">Voulez-vous en rajouter un ?</a></em></p>
+            }
             <br /> 
         </div>
 
