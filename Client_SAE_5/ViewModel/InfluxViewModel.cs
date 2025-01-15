@@ -54,6 +54,9 @@ namespace Client_SAE_5.ViewModel
         public double ActualLuminosite { get; private set; }
         public double ActualPresenceBruit { get; private set; }
 
+        //valeurs dans periode
+        public List<InfluxDataReturn> TemperaturesInTimeInterval { get; private set; }
+
 
         public async Task LoadNomCapteurs()
         {
@@ -67,6 +70,30 @@ namespace Client_SAE_5.ViewModel
                 ErrorMessage = $"Erreur lors du chargement des noms de capteurs : {ex.Message}";
             }
         }
+
+
+
+
+        // load valeurs generales (aujourdhui - 30 jours)
+        public async Task LoadGeneralValuesOfCapteurAsync(string nomCapteur)
+        {
+            await LoadTemperaturesInTimeInterval(nomCapteur, DateTime.Now.AddDays(-30), DateTime.Now); //30 derniers jours
+        }
+
+        public async Task LoadTemperaturesInTimeInterval(string nomCapteur, DateTime start, DateTime end)
+        {
+            try
+            {
+                TemperaturesInTimeInterval = await _vibrationsService.GetTInTimeIntervalAsync(nomCapteur, start, end);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement de la valeur actuelle de vibration mesurée par le capteur {nomCapteur} : {ex.Message}";
+            }
+        }
+
+
 
 
         // load predictions
@@ -104,7 +131,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualVibration = await _vibrationsService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualVibration = await _vibrationsService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -117,7 +144,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualTemperatureInt = await _tempIntService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualTemperatureInt = await _tempIntService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -130,7 +157,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualTemperatureExt = await _tempExtService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualTemperatureExt = await _tempExtService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -143,7 +170,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualHumidite = await _humiditeService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualHumidite = await _humiditeService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -156,7 +183,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualTauxCo2 = await _co2Service.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualTauxCo2 = await _co2Service.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -169,7 +196,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualPresenceMouvement = await _mouvementService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualPresenceMouvement = await _mouvementService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -182,7 +209,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualPresenceFumee = await _fumeeService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualPresenceFumee = await _fumeeService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -195,7 +222,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualLuminosite = await _luminositeService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualLuminosite = await _luminositeService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -208,7 +235,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualPresenceBruit = await _bruitService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualPresenceBruit = await _bruitService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)

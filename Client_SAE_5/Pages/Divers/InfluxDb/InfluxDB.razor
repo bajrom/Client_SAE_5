@@ -1,5 +1,6 @@
 ﻿@page "/influxdb"
 @inject Client_SAE_5.ViewModel.InfluxViewModel InfluxViewModel
+@using Client_SAE_5.Models.InfluxDB
 
 
 <PageTitle>Visualisation données capteurs</PageTitle>
@@ -41,6 +42,10 @@ else
 
     <p>État de la fenêtre : @(InfluxViewModel.PredFenetreOuverte ? "ouverte" : "fermée")</p>
 
+    @foreach(InfluxDataReturn data in InfluxViewModel.TemperaturesInTimeInterval)
+    {
+        <p>@data.value à @data.time</p>
+    }
 }
 
 @code{
@@ -54,7 +59,7 @@ else
     {
         //await InfluxViewModel.LoadPredictionsOfCapteurAsync(newCapteurName);
         await InfluxViewModel.LoadActualValuesOfCapteurAsync(newCapteurName);
-        Console.WriteLine("caca");
+        await InfluxViewModel.LoadGeneralValuesOfCapteurAsync(newCapteurName);
         InfluxViewModel.SelectedCapteurName = newCapteurName;
         StateHasChanged();
     }
