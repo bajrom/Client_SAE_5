@@ -1,0 +1,122 @@
+﻿/* Couleurs principales */
+:root {
+    --primary-color: #ff914d;
+    --secondary-color: #4DBBFF;
+    --text-color: #333;
+}
+
+/* Style de la page */
+body {
+    font-family: Arial, sans-serif;
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    padding: 20px;
+}
+
+/* Titres */
+h1 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    text-align: center;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Sélection du capteur */
+.select-capteur {
+    width: 50%;
+    margin: 0 auto 20px auto;
+    padding: 10px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    border: 2px solid var(--primary-color);
+}
+
+/* Colonnes */
+.data-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Espace entre les colonnes */
+}
+
+.column {
+    flex: 1; /* Chaque colonne prend 50% de l'espace disponible */
+    background-color: var(--secondary-color);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+    .column h2 {
+        text-align: center;
+        color: white;
+    }
+
+/* Liste des données */
+.list-unstyled {
+    list-style: none;
+    padding: 0;
+}
+
+    .list-unstyled li {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        font-size: 1.2rem;
+        color: var(--text-color);
+    }
+
+.icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+}
+
+/* Données ciblées */
+.targeted-data {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    color: white;
+}
+
+    .targeted-data label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+    }
+
+    .targeted-data input {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: none;
+        font-size: 1rem;
+    }
+
+    .targeted-data h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+/* Assurez-vous que la taille minimale est respectée pour éviter l'empilement */
+@media (max-width: 768px) {
+    .data-section {
+        flex-direction: column;
+    }
+}
