@@ -5,12 +5,13 @@
 <PageTitle>Grafana</PageTitle>
 <h3>Monitoring pour le Client</h3>
 
-@if (serverCheckFailed)
+@* @if (serverCheckFailed)
 {
     <div style="color: red; text-align: center;">
         <h4>Erreur : Le serveur Grafana ne répond pas.</h4>
         <p>Veuillez vérifier la connexion réseau ou réessayez plus tard.</p>
-        <Button class="btn-primary" href="http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12">
+        <p>@(exceptionFound)</p>
+        <Button class="btn-primary" @onclick="() => OpenLink()">
             Accedez directement au tableau de bord
         </Button>
     </div>
@@ -23,7 +24,7 @@ else if (isCheckingServer)
     </div>
 }
 else
-{
+{ *@
     <div style="width: 100%; height: 800px;">
         <iframe src="http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12"
                 width="100%"
@@ -33,12 +34,21 @@ else
                 style="border: 1px solid #ccc;">
         </iframe>
     </div>
-}
+@* } *@
 
 @code {
     private bool serverCheckFailed = false;
     private bool isCheckingServer = true;
+    private Exception exceptionFound = null;
+    private void OpenLink()
+    {
+        // Utiliser JavaScript pour ouvrir dans un nouvel onglet
+        var url = "http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12";
+        JSRuntime.InvokeVoidAsync("open", url, "_blank");
+    }
 
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
     /// <summary>
     /// Vérifie si Grafana est accessible lors du démarrage de la page
     /// </summary>
@@ -55,8 +65,9 @@ else
                 serverCheckFailed = true;
             }
         }
-        catch
+        catch (Exception ex)
         {
+            exceptionFound = ex;
             serverCheckFailed = true; // En cas d'erreur (timeout, réseau, etc.)
         }
         finally
