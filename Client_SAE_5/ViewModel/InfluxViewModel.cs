@@ -19,6 +19,9 @@ namespace Client_SAE_5.ViewModel
         private readonly InfluxDataService _luminositeService;
         private readonly InfluxDataService _bruitService;
 
+        public DateTime StartDate = DateTime.Now.AddYears(-1);
+        public DateTime EndDate = DateTime.Now;
+
 
         public InfluxViewModel()
         {

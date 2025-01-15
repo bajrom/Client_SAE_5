@@ -1,47 +1,75 @@
 ﻿@page "/influxdb"
 @inject Client_SAE_5.ViewModel.InfluxViewModel InfluxViewModel
 
+<link rel="stylesheet" href="css/InfluxDB.css" />
 
-<PageTitle>Visualisation données capteurs</PageTitle>
+<PageTitle>Visualisation des données de capteurs</PageTitle>
 
-<h1>Données des capteurs :</h1>
+<div class="container">
+    <h1 class="text-primary">Données des capteurs :</h1>
 
-<select @onchange="(e) => ChangeCapteurData((string)e.Value)" class="form-control">
-    @if (string.IsNullOrEmpty(InfluxViewModel.SelectedCapteurName))
+    <!-- Sélection du capteur -->
+    <div class="form-group">
+        <select @onchange="(e) => ChangeCapteurData((string)e.Value)" class="form-control select-capteur">
+            @if (string.IsNullOrEmpty(InfluxViewModel.SelectedCapteurName))
+            {
+                <option value="">-- Sélectionnez un capteur --</option>
+            }
+            @foreach (string nomCapteur in InfluxViewModel.NomCapteurs)
+            {
+                <option value="@nomCapteur">@nomCapteur</option>
+            }
+        </select>
+    </div>
+
+    @if (!string.IsNullOrEmpty(InfluxViewModel.SelectedCapteurName))
     {
-        <option value="">-- Sélectionnez un capteur --</option>
+        <div class="row data-section">
+            <!-- Colonne "Valeurs actuelles" -->
+            <div class="col-md-6 column">
+                <h2 class="text-primary">Valeurs actuelles :</h2>
+                <ul class="list-unstyled">
+                    <li><Icon Name="IconName.PhoneVibrate" Size="IconSize.x1" /> Présence de vibrations : <strong>@(InfluxViewModel.ActualVibration != 0 ? "oui" : "non")</strong></li>
+                    <li><img src="/images/inside-temperature.png" alt="Température" class="icon" /> Température intérieure : <strong>@(InfluxViewModel.ActualTemperatureInt)°C</strong></li>
+                    <li><img src="/images/outside-temperature.png" alt="Température" class="icon" /> Température extérieure : <strong>@(InfluxViewModel.ActualTemperatureExt)°C</strong></li>
+                    <li><img src="/images/humidity.png" alt="Humidité" class="icon" /> Taux d'humidité : <strong>@(InfluxViewModel.ActualHumidite)%</strong></li>
+                    <li><img src="/images/co2.png" alt="CO2" class="icon" /> Taux de CO2 : <strong>@(InfluxViewModel.ActualTauxCo2)ppm</strong></li>
+                    <li><img src="/images/movement.png" alt="Mouvement" class="icon" /> Présence de mouvement : <strong>@(InfluxViewModel.ActualPresenceMouvement != 0 ? "oui" : "non")</strong></li>
+                    <li><img src="/images/smoke.png" alt="Fumée" class="icon" /> Présence de fumée : <strong>@(InfluxViewModel.ActualPresenceFumee != 0 ? "oui" : "non")</strong></li>
+                    <li><img src="/images/luminosity.png" alt="Luminosité" class="icon" /> Taux de luminosité : <strong>@(InfluxViewModel.ActualLuminosite) lm</strong></li>
+                    <li><Icon Name="IconName.VolumeUp" Size="IconSize.x1" /> Présence de bruit : <strong>@(InfluxViewModel.ActualPresenceBruit != 0 ? "oui" : "non")</strong></li>
+                </ul>
+            </div>
+
+            <!-- Colonne "Prédictions" -->
+            <div class="col-md-6 column">
+                <h2 class="text-secondary">Prédictions :</h2>
+                <ul class="list-unstyled">
+                    <li><img src="/images/windows.png" alt="Fenêtre" class="icon" /> État de la fenêtre : <strong>@(InfluxViewModel.PredFenetreOuverte ? "ouverte" : "fermée")</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section "Données ciblées" -->
+        <div class="targeted-data mt-4">
+            <h2 class="text-secondary">Données ciblées :</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Date de début :</label>
+                    <InputDate @bind-Value="InfluxViewModel.StartDate" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label>Date de fin :</label>
+                    <InputDate @bind-Value="InfluxViewModel.EndDate" class="form-control" />
+                </div>
+            </div>
+        </div>
     }
-    @foreach (string nomCapteur in InfluxViewModel.NomCapteurs)
+    else
     {
-        <option value="@nomCapteur">@nomCapteur</option>
+        <p class="text-muted">Sélectionnez un capteur pour afficher les données.</p>
     }
-
-</select>
-
-@if (string.IsNullOrEmpty(InfluxViewModel.SelectedCapteurName))
-{
-    <p>toutes les vals</p>
-}
-
-else
-{
-    <h2>Valeurs actuelles :</h2>
-
-    <p>Présence de vibrations : @(InfluxViewModel.ActualVibration != 0 ? "oui" : "non")</p>
-    <p>Température intérieure : @(InfluxViewModel.ActualTemperatureInt)°C</p>
-    <p>Température extérieure : @(InfluxViewModel.ActualTemperatureExt)°C</p>
-    <p>Taux d'humidité : @(InfluxViewModel.ActualHumidite)%</p>
-    <p>Taux de CO2 : @(InfluxViewModel.ActualTauxCo2)ppm</p>
-    <p>Présence de mouvement : @(InfluxViewModel.ActualPresenceMouvement != 0 ? "oui" : "non")</p>
-    <p>Présence de fumée : @(InfluxViewModel.ActualPresenceFumee != 0 ? "oui" : "non")</p>
-    <p>Taux de luminosité : @(InfluxViewModel.ActualLuminosite)lm</p>
-    <p>Présence de bruit : @(InfluxViewModel.ActualPresenceBruit != 0 ? "oui" : "non")</p>
-
-    <h2>Prédictions :</h2>
-
-    <p>État de la fenêtre : @(InfluxViewModel.PredFenetreOuverte ? "ouverte" : "fermée")</p>
-
-}
+</div>
 
 @code{
 
