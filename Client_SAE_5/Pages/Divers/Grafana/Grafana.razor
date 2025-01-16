@@ -5,74 +5,34 @@
 <PageTitle>Grafana</PageTitle>
 <h3>Monitoring pour le Client</h3>
 
-@* @if (serverCheckFailed)
-{
-    <div style="color: red; text-align: center;">
-        <h4>Erreur : Le serveur Grafana ne répond pas.</h4>
-        <p>Veuillez vérifier la connexion réseau ou réessayez plus tard.</p>
-        <p>@(exceptionFound)</p>
-        <Button class="btn-primary" @onclick="() => OpenLink()">
-            Accedez directement au tableau de bord
-        </Button>
-    </div>
-}
-else if (isCheckingServer)
-{
-    <div class="d-flex justify-content-center align-items-center flex-column">
-        <h4>Vérification de la connexion au serveur...</h4>
-        <Spinner Size="SpinnerSize.Medium"></Spinner>
-    </div>
-}
-else
-{ *@
-    <div style="width: 100%; height: 800px;">
-        <iframe src="http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12"
-                width="100%"
-                height="100%"
-                frameborder="0"
-                allowfullscreen
-                style="border: 1px solid #ccc;">
-        </iframe>
-    </div>
-@* } *@
+<div class="mb-3">
+    <label for="dashboardSelect" class="form-label">Choisissez un tableau de bord :</label>
+    <select id="dashboardSelect" class="form-select" @bind="SelectedUri">
+        @foreach (var uri in Uris)
+        {
+            <option value="@uri.Value">@uri.Key</option>
+        }
+    </select>
+</div>
+
+<div style="width: 100%; height: 800px;">
+    <iframe src="@SelectedUri"
+            width="100%"
+            height="100%"
+            frameborder="0"
+            allowfullscreen
+            style="border: 1px solid #ccc;">
+    </iframe>
+</div>
 
 @code {
-    private bool serverCheckFailed = false;
-    private bool isCheckingServer = true;
-    private Exception exceptionFound = null;
-    private void OpenLink()
+    // Liste des URIs des tableaux de bord
+    private Dictionary<string, string?> Uris = new Dictionary<string, string?>
     {
-        // Utiliser JavaScript pour ouvrir dans un nouvel onglet
-        var url = "http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12";
-        JSRuntime.InvokeVoidAsync("open", url, "_blank");
-    }
+        { "IUT", "http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12" },
+        { "D251", "http://10.103.101.128:3001/public-dashboards/29c24aab52f24d048139dc57929451dd" }
+    };
 
-    [Inject]
-    private IJSRuntime JSRuntime { get; set; }
-    /// <summary>
-    /// Vérifie si Grafana est accessible lors du démarrage de la page
-    /// </summary>
-    /// <returns></returns>
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            using var httpClient = new HttpClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(5);
-            var response = await httpClient.GetAsync("http://10.103.101.128:3001");
-            if (!response.IsSuccessStatusCode)
-            {
-                serverCheckFailed = true;
-            }
-        }
-        catch (Exception ex)
-        {
-            exceptionFound = ex;
-            serverCheckFailed = true; // En cas d'erreur (timeout, réseau, etc.)
-        }
-        finally
-        {
-            isCheckingServer = false; // Arrêter l'animation de vérification
-        }
-    }
+    // URI actuellement affichée dans l'iframe
+    private string? SelectedUri = "http://10.103.101.128:3001/public-dashboards/31a2f73289ed47178724d1c1f25c6b12"; // IUT par défaut
 }
