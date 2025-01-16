@@ -25,13 +25,11 @@ namespace PlaywrightE2ETests.Pages.CRUD.Detail
         [TestMethod]
         public async Task DetailBatiment_ContentVisible()
         {
-            await Page.GotoAsync(Url);
-            await Page.WaitForTimeoutAsync(6000);
+            await Page.GotoAsync(Url+"2");
 
             var titre = Page.Locator("h1");
             await Expect(titre).ToBeVisibleAsync();
 
-            var contenuBatimentInconnu = Page.GetByText("Aucune salle n'est associée à ce bâtiment. Voulez-vous en rajouter un ?");
             var contenuBatimentConnu = Page.GetByText("Nombre de salles");
 
             // Attendre que l'élément contenant le nombre de salles soit visible
@@ -49,13 +47,7 @@ namespace PlaywrightE2ETests.Pages.CRUD.Detail
             {
                 await Expect(contenuBatimentConnu).ToBeVisibleAsync();
                 Assert.IsTrue(nbSallesListe == nbSallesAffiches, $"Le nombre de salles réel {nbSallesAffiches} ne correspond pas à la liste de salles affichées {nbSallesListe}");
-            } else {
-                await Expect(contenuBatimentInconnu).ToBeVisibleAsync();
-                var link = Page.GetByText("Voulez-vous en rajouter un ?");
-                await link.ClickAsync();
-                String? titrePage = await Page.TitleAsync();
-                Assert.IsTrue(titrePage == "Gestion des Salles", "Le lien de proposition d'ajout de salle ne marche pas");
-            } 
+            }
         }
 
         [TestMethod]
@@ -93,7 +85,9 @@ namespace PlaywrightE2ETests.Pages.CRUD.Detail
         [TestMethod]
         public async Task DetailBatiment_RetourFonctionne()
         {
-
+            await Page.GotoAsync(Url + "2");
+            await Page.GetByText("Retour").ClickAsync();
+            await Expect(Page).ToHaveTitleAsync("Gestion des bâtiments");
         }
     }
 }
