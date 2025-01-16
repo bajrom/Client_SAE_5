@@ -11,109 +11,29 @@
             <NavMenu />
         </div>
     }
-
     <main>
-        <div id="mainMenu" class="header-container d-flex align-items-center position-relative">
-            <div class="logo-container">
-                <NavLink class="nav-link d-flex align-items-center" href="/">
-                    <img src="/images/datacare.png" alt="Logo" class="logo" />
-                </NavLink>
+        <div class="d-flex flex-row justify-content-between" style="background-color:#ff914d">
+            <div class="header-container d-flex align-items-center position-relative" style="background-color:#ff914d">
+                <div class="logo-container d-flex gap-3">
+                    <NavLink class="nav-link align-items-center" href="/">
+                        <img src="/images/datacare.png" alt="Logo" class="logo" />
+                    </NavLink>
+                </div>
+                <h3 style="margin:0px;">
+                    DataCare
+                </h3>
             </div>
-            <div class="menu-links-container top-row px-4 d-flex align-items-center">
-                <a 
-                class="mainMenuOption button" href="/crud/capteurs" 
-                style="
-                background-color: #ff914d; /* Orange */
-                border: none;
-                color: white;
-                padding: 10px 20px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                cursor: pointer;
-                border-radius: 4px;
-                width: 10%;">
-
-                    Gestion CRUD
-
-                </a>
-                <a 
-                class="mainMenuOption" href="/grafana" 
-                style="
-                background-color: #ff914d; /* Orange */
-                border: none;
-                color: white;
-                padding: 10px 20px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                cursor: pointer;
-                border-radius: 4px;
-                width: 10%;">      
-                
-                    Grafana
-
-                </a>
-                <a 
-                class="mainMenuOption" href="/alarme" 
-                style="
-                background-color: #ff914d; /* Orange */
-                border: none;
-                color: white;
-                padding: 10px 20px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                cursor: pointer;
-                border-radius: 4px;
-                width: 10%;">
-
-                    Alarme
-
-                </a>
-                <a 
-                class="button-22" role="button" href="/visu3D" 
-                style="
-                background-color: #ff914d; /* Orange */
-                border: none;
-                color: white;
-                padding: 10px 20px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                cursor: pointer;
-                border-radius: 4px;
-                width: 10%;">
-
-                    Visualisation 3D
-
-                </a>
-                <a class="button-22" role="button" href="/influxdb"
-                   style="
-                background-color: #ff914d; /* Orange */
-                border: none;
-                color: white;
-                padding: 10px 20px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                cursor: pointer;
-                border-radius: 4px;
-                width: 10%;">
-
-                    Donnees capteurs
-
-                </a>
+            <div class="header-container d-flex align-items-center position-relative justify-content-end" style="background-color:#ff914d">
+                        @foreach (var menuItem in menuItems)
+                        {
+                            <a class="mainMenuOption"
+                               href="@menuItem.Link"
+                               style="@menuItem.Style"
+                               @onmouseover="() => ChangeHoverStyle(menuItem, true)"
+                               @onmouseout="() => ChangeHoverStyle(menuItem, false)">
+                                @menuItem.Text
+                            </a>
+                        }
             </div>
         </div>
         <article class="content px-4">
@@ -138,6 +58,63 @@
         String relativePath = NavigationManager.ToBaseRelativePath(uri);
         String[] segments = relativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
         return segments.Length > 0 ? segments[0] : String.Empty;
+    }
+
+    private List<MenuItem> menuItems = new List<MenuItem>
+    {
+        new MenuItem("Gestion CRUD", "/crud/capteurs"),
+        new MenuItem("Grafana", "/grafana"),
+        new MenuItem("Alarme", "/alarme"),
+        new MenuItem("Visualisation 3D", "/visu3D"),
+        new MenuItem("Données capteurs", "/influxdb"),
+    };
+
+    private void ChangeHoverStyle(MenuItem menuItem, bool isHovered)
+    {
+        if (isHovered)
+        {
+            menuItem.Style = $@"
+                background-color: #4DBBFF; /* Couleur secondaire */
+                color: black; /* Texte noir au survol */
+                padding: 15px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                font-weight: bold;
+                transition: all 0.3s ease-in-out;
+            ";
+        }
+        else
+        {
+            menuItem.Style = DefaultStyle;
+        }
+    }
+
+    private const string DefaultStyle = @"
+        background-color: #ff914d; /* Couleur principale */
+        color: white;
+        padding: 15px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s ease-in-out; /* Transition fluide */
+    ";
+
+    private class MenuItem
+    {
+        public string Text { get; }
+        public string Link { get; }
+        public string Style { get; set; }
+
+        public MenuItem(string text, string link)
+        {
+            Text = text;
+            Link = link;
+            Style = DefaultStyle;
+        }
     }
 }
 
