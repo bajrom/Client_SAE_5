@@ -256,7 +256,7 @@ else
         </div>
     </BodyTemplate>
     <FooterTemplate>
-        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+        <button class="btn btn-secondary" @onclick="ClosePopup">Annuler</button>
         @if (isMurLoading)
         {
             <Spinner Type="SpinnerType.Border" Size="SpinnerSize.Small" />
@@ -409,11 +409,6 @@ else
         // Application des filtres, tri et pagination
         var data = request.ApplyTo(EquipementViewModel.DBData.Equipements);
         return await Task.FromResult(data);
-    }
-
-    private void CancelEdit()
-    {
-        ClosePopup();
     }
 
     private async void HandleChange(ChangeEventArgs e)

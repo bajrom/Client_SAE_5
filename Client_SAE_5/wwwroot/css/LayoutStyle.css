@@ -18,27 +18,8 @@
     gap: 15px; /* Espacement entre les liens */
     flex-grow: 1; /* Permet au menu de prendre tout l’espace disponible à droite */
 }
- 
-.mainMenuOption #mainMenu a {
-    background-color: #ff914d !important; /* Orange */
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 4px;
-    width: 10%;
-}
 
 .menu-links-container {
     background-color: #f4f4f4 !important;
     border-bottom: none !important;
-}
-
-#mainMenu {
-    border-bottom: 1px solid #d6d5d5 !important;
 }

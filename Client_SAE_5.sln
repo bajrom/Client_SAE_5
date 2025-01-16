@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client_SAE_5", "Client_SAE_5\Client_SAE_5.csproj", "{919EB06C-0F58-4B70-8EFE-8769C1C94F51}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlaywrightE2ETests", "PlaywrightE2ETests\PlaywrightE2ETests.csproj", "{FF6628ED-C93C-44EC-AB31-9C2B86B6D69E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{919EB06C-0F58-4B70-8EFE-8769C1C94F51} = {919EB06C-0F58-4B70-8EFE-8769C1C94F51}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

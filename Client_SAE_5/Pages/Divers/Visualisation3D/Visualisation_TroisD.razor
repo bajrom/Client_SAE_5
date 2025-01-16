@@ -1,6 +1,10 @@
 ﻿@page "/visu3D"
 @inject SalleViewModel SalleViewModel
 
+
+
+<script src="/js/main.js"></script>
+
 <PageTitle>Visualisation 3D</PageTitle>
 <h3>Visualisation des différentes salles:</h3>
 
@@ -9,6 +13,9 @@
     <option>D351</option>
     <option>D101</option>
 </select>
+
+
+<canvas id="renderer" width="1000" , height="750"></canvas>
 
 @code {
 

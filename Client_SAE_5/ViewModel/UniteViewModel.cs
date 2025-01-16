@@ -62,14 +62,19 @@ namespace Client_SAE_5.ViewModel
             UniteInEdition = temp;
         }
 
+        
         public async Task SetupNewUnite()
         {
             UniteInEdition = new UniteDetailDTO();
+            await Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Ajoute une unité de façon asynchrone
+        /// </summary>
         public async Task AddUniteAsync()
         {
-            UniteDTO newUnite = new UniteDTO
+            UniteDTO newUnite = new ()
             {
                 IdUnite = UniteInEdition.IdUnite,
                 NomUnite = UniteInEdition.NomUnite,
@@ -90,6 +95,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Met à jour une unité de façon asynchrone
+        /// </summary>
         public async Task UpdateUniteAsync()
         {
             UniteDTO newUnite = new UniteDTO
@@ -113,6 +121,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Supprime une unité de façon asynchrone selon son ID
+        /// </summary>
+        /// <param name="idUnite">ID de l'unité à supprimer</param>
         public async Task DeleteUniteAsync(int idUnite)
         {
             try
@@ -126,7 +138,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        // Vérifier si les données de la salle sont valides
+        /// <summary>
+        /// Vérifie si l'unité (DTO) est valide
+        /// </summary>
+        /// <param name="unite">Unite (DTO) dont on veut vérifier les propriétés</param>
+        /// <returns>Booléen true si valide, false si invalide</returns>
         private bool IsValidUnite(UniteDTO unite)
         {
             if (string.IsNullOrWhiteSpace(unite.NomUnite))
@@ -134,14 +150,13 @@ namespace Client_SAE_5.ViewModel
                 ErrorMessage = "Veuillez remplir le nom";
                 return false;
             }
-            else if (string.IsNullOrWhiteSpace(unite.SigleUnite))
-            {
-                ErrorMessage = "Veuillez remplir le sigle";
-                return false;
-            }
+
             return true;
         }
 
+        /// <summary>
+        /// Réinitialise le message d'erreur
+        /// </summary>
         public void ResetError()
         {
             ErrorMessage = "";

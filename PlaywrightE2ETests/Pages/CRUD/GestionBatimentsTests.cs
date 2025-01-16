@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -14,53 +15,14 @@ namespace PlaywrightE2ETests.Pages.CRUD
     {
         private string BaseUrl = TestsConfig.BaseURL;
         private const string BatimentsUrl = "/crud/batiments";
+        private List<BatimentDTO> mockBatiments;
 
         [TestInitialize]
         public async Task TestInitialize()
         {
-            // Mock de la requête GET initiale pour charger les bâtiments
-            await Page.RouteAsync("**/api/Batiments", async route =>
-            {
-                var mockData = new List<BatimentDTO>
-                {
-                    new BatimentDTO
-                    {
-                        IdBatiment = 1,
-                        NomBatiment = "NouveauBâtimentTest",
-                        NbSalle = 5
-                    }
-                };
-
-                await route.FulfillAsync(new()
-                {
-                    Status = 200,
-                    ContentType = "application/json",
-                    Body = JsonSerializer.Serialize(mockData)
-                });
-            });
-
-            // Mock de la requête POST pour l'ajout
-            await Page.RouteAsync("**/api/Batiments", async route =>
-            {
-                if (route.Request.Method == "POST")
-                {
-                    var requestBody = JsonSerializer.Deserialize<BatimentSansNavigationDTO>(
-                        route.Request.PostData);
-
-                    var response = new BatimentSansNavigationDTO
-                    {
-                        IdBatiment = 2, // Simuler un ID auto-incrémenté
-                        NomBatiment = requestBody.NomBatiment
-                    };
-
-                    await route.FulfillAsync(new()
-                    {
-                        Status = 200,
-                        ContentType = "application/json",
-                        Body = JsonSerializer.Serialize(response)
-                    });
-                }
-            });
+            await GestionBatimentTitreCorrect();
+            // Wait for data to load and spinner to disappear
+            await Page.WaitForSelectorAsync(".spinner-border", new() { State = WaitForSelectorState.Hidden, Timeout = 10000 });
         }
 
         [TestMethod]
@@ -73,11 +35,30 @@ namespace PlaywrightE2ETests.Pages.CRUD
         [TestMethod]
         public async Task TableOfBatiments_CorrectNumberColumn()
         {
-            await Page.GotoAsync($"{BaseUrl}{BatimentsUrl}");
-            var table = Page.Locator("table.bb-table");
-            await Expect(table).ToBeVisibleAsync();
-            var columns = table.Locator("thead tr th");
+
+
+            // Wait for Grid component to be rendered (using class from your Blazor component)
+            await Page.WaitForSelectorAsync("table.table.table-hover.table-bordered", new()
+            {
+                State = WaitForSelectorState.Visible,
+                Timeout = 10000
+            });
+
+            // Get all th elements using stable classes
+            var columns = Page.Locator("table.table.table-hover.table-bordered thead tr th");
+
+            // Debug info
+            var columnCount = await columns.CountAsync();
+            Console.WriteLine($"Found {columnCount} columns");
+
+            // Verify column count
             await Expect(columns).ToHaveCountAsync(6);
+
+            // Verify column headers
+            var headers = await columns.AllTextContentsAsync();
+            Assert.IsTrue(headers.Contains("Nom"));
+            Assert.IsTrue(headers.Contains("Nombre de salles"));
+            Assert.IsTrue(headers.Contains("Actions"));
         }
 
         [TestMethod]
@@ -95,51 +76,124 @@ namespace PlaywrightE2ETests.Pages.CRUD
             await Page.Locator(".editModal button.btn-secondary").ClickAsync();
         }
 
-        [TestMethod]
-        public async Task AddBatiment_WithValidData_ShouldSucceed()
+        private async Task DeleteBatimentAsync(string nomBatiment)
         {
+            // Attendre que la page soit prête
+            await Page.WaitForSelectorAsync(".spinner-border", new()
+            {
+                State = WaitForSelectorState.Hidden,
+                Timeout = 10000
+            });
+
+            // Trouver le bâtiment à supprimer dans la grille
+            var batimentCell = Page.Locator("table.table td", new() { HasText = nomBatiment });
+            await Expect(batimentCell).ToBeVisibleAsync();
+
+            // Cliquer sur le bouton de suppression
+            var deleteButton = batimentCell.Locator("..").Locator("button.btn-danger");
+            await deleteButton.ClickAsync();
+
+            // Attendre que la boîte de dialogue de confirmation apparaisse
+            var confirmDialog = Page.GetByText("Confirmer la suppression du bâtiment");
+            await Expect(confirmDialog).ToBeVisibleAsync();
+
+            // Confirmer la suppression
+            var confirmButton = Page.Locator("#confirmDialog button.btn-danger");
+            await confirmButton.ClickAsync();
+
+            // Attendre que la boîte de dialogue de confirmation disparaisse
+            await Page.WaitForSelectorAsync(".confirm-dialog", new() { State = WaitForSelectorState.Hidden, Timeout = 15000 });
+
+            // Vérifier que le bâtiment supprimé n'apparaît plus dans la grille
+            await Expect(batimentCell).Not.ToBeVisibleAsync(new() { Timeout = 30000 });
+        }
+
+        private async Task UpdateBatimentAsync(string ancienNom, string nouveauNom)
+        {
+            // Attendre que la page soit prête
+            await Page.WaitForSelectorAsync(".spinner-border", new()
+            {
+                State = WaitForSelectorState.Hidden,
+                Timeout = 10000
+            });
+
+            // Trouver le bâtiment à modifier dans la grille
+            var batimentCell = Page.Locator("table.table td", new() { HasText = ancienNom });
+            await Expect(batimentCell).ToBeVisibleAsync();
+
+            // Cliquer sur le bouton de modification
+            var editButton = batimentCell.Locator("..").Locator("button.btn-primary");
+            await editButton.ClickAsync();
+
+            // Attendre que la modale de modification soit visible
+            var modal = Page.Locator(".editModal");
+            await Expect(modal).ToBeVisibleAsync();
+
+            // Modifier le nom du bâtiment
+            await modal.Locator("input[type='text']").FillAsync(nouveauNom);
+
+            // Soumettre le formulaire
+            var btnModifierModal = modal.GetByText("Modifier");
+            await btnModifierModal.ClickAsync();
+
+            // Attendre que la modale se ferme
+            await Page.WaitForSelectorAsync(".editModal", new() { State = WaitForSelectorState.Hidden, Timeout = 15000 });
+
+            // Vérifier que le nom modifié apparaît dans la grille
+            var updatedBuildingCell = Page.Locator("table.table td", new() { HasText = nouveauNom });
+            await Expect(updatedBuildingCell).ToBeVisibleAsync(new() { Timeout = 30000 });
+        }
+
+        private async Task<BatimentDTO> AddBatimentAsync(string nomBatiment)
+        {
+            // Naviguer vers la page des bâtiments
             await Page.GotoAsync($"{BaseUrl}{BatimentsUrl}");
-            string nomBatiment = "NouveauBâtimentTest";
 
-            // Ouvrir la modale
-            await Page.ClickAsync("#btnAddBatimentPage");
+            // Attendre que la page soit prête
+            await Page.WaitForSelectorAsync(".spinner-border", new()
+            {
+                State = WaitForSelectorState.Hidden,
+                Timeout = 10000
+            });
 
-            // Attendre que la modale soit visible
-            await Page.WaitForSelectorAsync(".editModal", new() { State = WaitForSelectorState.Visible });
+            // Ouvrir la modale d'ajout(vfrzé
+            var btnAjouter = Page.GetByText("Ajouter un bâtiment");
+            await btnAjouter.ClickAsync();
+            var modal = Page.Locator(".editModal");
+            await Expect(modal).ToBeVisibleAsync();
 
             // Remplir le formulaire
-            await Page.FillAsync("input[type='text']", nomBatiment);
+            await modal.Locator("input[type='text']").FillAsync(nomBatiment);
 
-            // Vérifier l'état initial (pas de toast)
-            var initialToast = await Page.QuerySelectorAsync(".toast");
-            Assert.IsNull(initialToast, "Un toast ne devrait pas être présent avant l'ajout");
+            // Soumettre le formulaire
+            var btnAjouterModal = modal.GetByText("Ajouter");
+            await btnAjouterModal.ClickAsync();
 
-            // Cliquer sur le bouton Ajouter
-            var btnAjout = Page.Locator("button#ajouterBatimentBtnDialog");
-            await btnAjout.ClickAsync();
-
-            // Attendre que le message de succès apparaisse
-            await Page.WaitForSelectorAsync("Renseignement des informations du bâtiment", new()
-            {
-                State = WaitForSelectorState.Hidden,
-                Timeout = 5000
-            });
+            // Attendre que la modale se ferme
+            await Page.WaitForSelectorAsync(".editModal", new() { State = WaitForSelectorState.Hidden, Timeout = 15000 });
 
             // Vérifier que le nouveau bâtiment apparaît dans la grille
-            var texte = Page.Locator(nomBatiment);
-            await Expect(texte).ToBeVisibleAsync();
+            var newBuildingCell = Page.Locator("table.table td", new() { HasText = nomBatiment });
+            await Expect(newBuildingCell).ToBeVisibleAsync(new() { Timeout = 30000 });
 
-            // Vérifier que le modal est effectivement masqué
-            await Page.WaitForSelectorAsync("Renseignement des informations du bâtiment", new()
-            {
-                State = WaitForSelectorState.Hidden,
-                Timeout = 5000
-            });
-
-            // Vérifier que les navigations de l'objet créée marche bien
-            Assert.IsNotNull(texte, "L'objet rajouté est null!");
-            await texte.ClickAsync();
-            Assert.IsTrue(await Page.TitleAsync() == "Détails du bâtiment", "La navigation vers les détails du bâtiment rajouté sont fausses.");
+            // Retourner un objet BatimentDTO simulé (à adapter selon votre implémentation)
+            return new BatimentDTO { NomBatiment = nomBatiment };
         }
+
+        [TestMethod]
+        public async Task Add_Update_Delete_Batiment_ShouldWork()
+        {
+            // Étape 1 : Ajouter un bâtiment
+            const string nomBatiment = "NouveauBâtimentTest";
+            var batimentAjoute = await AddBatimentAsync(nomBatiment);
+
+            // Étape 2 : Modifier le bâtiment ajouté
+            const string nouveauNom = "BâtimentMisÀJour";
+            await UpdateBatimentAsync(nomBatiment, nouveauNom);
+
+            // Étape 3 : Supprimer le bâtiment modifié
+            await DeleteBatimentAsync(nouveauNom);
+        }
+
     }
 }

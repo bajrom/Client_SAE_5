@@ -67,7 +67,7 @@ else
         </div>
     </BodyTemplate>
     <FooterTemplate>
-        <button class="btn btn-secondary" @onclick="CancelEdit">Annuler</button>
+        <button class="btn btn-secondary" @onclick="ClosePopup">Annuler</button>
         @if (TypeEquipementViewModel.TypeEquipementInEdition.IdTypeEquipement == 0)
         {
             <button class="btn btn-success" @onclick="SaveTypeEquipement">Ajouter</button>
@@ -202,10 +202,5 @@ else
     private async void OpenPopup()
     {
         await formModal.ShowAsync();
-    }
-
-    private void CancelEdit()
-    {
-        ClosePopup();
     }
 }

@@ -35,7 +35,11 @@ else
                         <li class="listeCliquable" @onclick="@(e => Utils.Utils.GoDetail(NavigationManager, "capteurs", capteur.IdCapteur))">@capteur.NomCapteur</li>
                     }
                 </ul>
-            } else { <p><em>Aucun capteur associée</em></p> }
+            }
+            else
+            {
+                <p><em>Ce mur ne contient aucun capteurs. <a href="/crud/capteurs">Voulez-vous en rajouter un ?</a></em></p>
+            }
 
             <br />
             <h5>Équipements</h5>
@@ -48,7 +52,10 @@ else
                     }
                 </ul>
             }
-            else { <p><em>Aucun équipement associé</em></p> }
+            else
+            {
+                <p><em>Ce mur ne contient aucun équipements. <a href="/crud/equipements">Voulez-vous en rajouter un ?</a></em></p>
+            }
             <br /> 
         </div>
 
@@ -122,7 +129,13 @@ else
     private const int CapteurHauteurPx = TAILLE_CAPTEUR_PX;
 
 
-
+    /// <summary>
+    /// Permet de faire des opérations à l'initialisation de la page
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        await MurViewModel.LoadMurDetailsAsync(IdMur);
+    }
 
     /// <summary>
     /// Fonction permettant de récupérer la position d'un capteur
@@ -180,6 +193,13 @@ else
         }
     }
 
+    /// <summary>
+    /// Simple méthode pour transcrire l'orientation, la direction, et le nom de la salle
+    /// </summary>
+    /// <param name="Orientation"></param>
+    /// <param name="direction"></param>
+    /// <param name="salle"></param>
+    /// <returns>String d'information</returns>
     private String? RenderOrientationEtSalle(decimal Orientation, DirectionSansNavigationDTO? direction, SalleSansNavigationDTO? salle)
     {
         // Vérification déférencement null
@@ -191,13 +211,11 @@ else
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    /// <summary>
+    /// Permet de retourner à la page précédente (Tous murs)
+    /// </summary>
+    private void GoBack()
     {
-        await MurViewModel.LoadMurDetailsAsync(IdMur);
+        NavigationManager.NavigateTo("/crud/murs");
     }
-
-        private void GoBack()
-        {
-            NavigationManager.NavigateTo("/crud/murs");
-        }
 }
