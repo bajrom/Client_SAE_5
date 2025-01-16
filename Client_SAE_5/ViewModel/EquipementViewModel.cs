@@ -315,7 +315,7 @@ namespace Client_SAE_5.ViewModel
         /// Méthode déclencher quand le mur est changer dans la popup de add/update, il permet de get les détails du mur général sélectionné
         /// (pour vérifier si l'équipement est en x et y dans le mur et pas dehors)
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">ID du mur</param>
         public async Task ChangeMur(int id)
         {
             murSelected = await _murDetailService.GetTAsync("Murs", id);

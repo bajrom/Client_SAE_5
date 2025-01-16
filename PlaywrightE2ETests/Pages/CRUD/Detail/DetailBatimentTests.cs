@@ -53,10 +53,7 @@ namespace PlaywrightE2ETests.Pages.CRUD.Detail
         [TestMethod]
         public async Task DetailBatiment_LiensCorrects()
         {
-            List<int> Ids = new List<int>
-            {
-                2, 28
-            };
+            List<int> Ids = [ 2, 28 ];
 
             for (int i = 0; i <= 1; i++)
             {
@@ -72,10 +69,10 @@ namespace PlaywrightE2ETests.Pages.CRUD.Detail
 
                     foreach (var item in listeSalles)
                     {
-                        String contenuLi = await item.TextContentAsync();
+                        String? contenuLi = await item.TextContentAsync();
                         await item.ClickAsync();
                         var textePage = Page.GetByText(contenuLi);
-                        Expect(textePage).ToBeVisibleAsync();
+                        await Expect(textePage).ToBeVisibleAsync();
                     }
                     await Page.GotoAsync(Url + Ids[i]);
                 }
@@ -89,5 +86,7 @@ namespace PlaywrightE2ETests.Pages.CRUD.Detail
             await Page.GetByText("Retour").ClickAsync();
             await Expect(Page).ToHaveTitleAsync("Gestion des bâtiments");
         }
+
+
     }
 }

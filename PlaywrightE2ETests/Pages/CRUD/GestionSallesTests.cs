@@ -11,20 +11,21 @@ namespace PlaywrightE2ETests.Pages.CRUD
     {
         private string Url = String.Concat(TestsConfig.BaseURL, "/crud/salles");
 
+        [TestInitialize]
+        public async Task Initialize()
+        {
+            await Page.GotoAsync(Url);
+        }
+
         [TestMethod]
         public async Task GestionSalleTitreCorrect()
         {
-            await Page.GotoAsync(Url);
-
-            // Expect a title "to contain" a substring.
             await Expect(Page).ToHaveTitleAsync(new Regex("Gestion des Salles"));
         }
 
         [TestMethod]
         public async Task TableOfSalles_CorrectNumberColumn()
         {
-            await Page.GotoAsync(Url);
-
             // Vérifier que la table des salles est visible
             var table = Page.Locator("table.bb-table");
             await Expect(table).ToBeVisibleAsync();
@@ -32,6 +33,20 @@ namespace PlaywrightE2ETests.Pages.CRUD
             // Vérifier que la table contient des lignes (des salles)
             var columns = table.Locator("thead tr th");
             await Expect(columns).ToHaveCountAsync(8);
+        }
+
+        [TestMethod]
+        public async Task GestionSalles_GridContentOK()
+        {
+            var Pagination = Page.Locator("ul.pagination").First;
+            var indicationPage = Page.Locator("div.bb-grid-pagination-text").First;
+            var nbPage = Page.Locator("li.page-item.active").Locator("a");
+
+            await Expect(nbPage).ToContainTextAsync("1");
+            await Expect(Pagination).ToBeVisibleAsync();
+            await Expect(nbPage).ToBeVisibleAsync();
+            await Expect(indicationPage).ToBeVisibleAsync();
+            await Expect(indicationPage).ToContainTextAsync("salles");
         }
     }
 }

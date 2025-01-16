@@ -56,9 +56,9 @@ namespace PlaywrightE2ETests.Pages.CRUD
 
             // Verify column headers
             var headers = await columns.AllTextContentsAsync();
-            Assert.IsTrue(headers.Contains("Nom"));
-            Assert.IsTrue(headers.Contains("Nombre de salles"));
-            Assert.IsTrue(headers.Contains("Actions"));
+            Assert.IsTrue(headers.Contains("Nom"), "Le nom de la colonne n'est pas Nom");
+            Assert.IsTrue(headers.Contains("Nombre de salles"), "Le nom de la colonne n'est pas 'Nombre de salles'");
+            Assert.IsTrue(headers.Contains("Actions"), "Le nom de la colonne n'est pas 'action'");
         }
 
         [TestMethod]
@@ -195,5 +195,18 @@ namespace PlaywrightE2ETests.Pages.CRUD
             await DeleteBatimentAsync(nouveauNom);
         }
 
+        [TestMethod]
+        public async Task GestionBatiment_GridContentOK()
+        {
+            var Pagination = Page.Locator("ul.pagination").First;
+            var indicationPage = Page.Locator("div.bb-grid-pagination-text").First;
+            var nbPage = Page.Locator("li.page-item.active").Locator("a");
+
+            await Expect(nbPage).ToContainTextAsync("1");
+            await Expect(Pagination).ToBeVisibleAsync();
+            await Expect(nbPage).ToBeVisibleAsync();
+            await Expect(indicationPage).ToBeVisibleAsync();
+            await Expect(indicationPage).ToContainTextAsync("bâtiments");
+        }
     }
 }
