@@ -10,7 +10,12 @@
 
 @if (BatimentViewModel.SelectedBatimentDetails == null)
 {
-    <p id="chargementPageContainer"><Spinner></Spinner> <p id="texteChargementDetail">Détails du bâtiment en chargement...</p></p>
+
+    <p id="chargementPageContainer">
+        <Spinner></Spinner> 
+        <p id="texteChargementDetail">Détails du bâtiment en chargement...</p>
+    </p>
+
 }
 else
 {
@@ -19,18 +24,21 @@ else
         @if (BatimentViewModel.SelectedBatimentDetails.Salles?.Count > 0)
         {
 
-            <p><strong>Nombre de salles :</strong> @BatimentViewModel.SelectedBatimentDetails.Salles?.Count </p>
+            <p><strong>Nombre de salles :</strong> <p id="nbSallesBatiment">@BatimentViewModel.SelectedBatimentDetails.Salles?.Count</p> </p>
 
             <h3>Liste des salles</h3>
 
+            @if (BatimentViewModel.SelectedBatimentDetails.Salles != null){
             <ul>
                 @foreach (var salle in BatimentViewModel.SelectedBatimentDetails.Salles)
                 {
-
-                    <li class="listeCliquable" @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", salle.IdSalle))'>@salle.NomSalle</li>
-
+                    <li class="listeCliquable" 
+                        @onclick='(e=>Utils.Utils.GoDetail(NavigationManager, "salles", salle.IdSalle))'>
+                        @salle.NomSalle
+                    </li>
                 }
             </ul>
+            }
         }
         else
         {
@@ -53,6 +61,7 @@ else
 @code {
     [Parameter]
     public int IdBatiment { get; set; }
+
 
     /// <summary>
     /// Charge le bâtiment à visualiser sur la page lorsque l'ID du bâtiment a été trouvé
