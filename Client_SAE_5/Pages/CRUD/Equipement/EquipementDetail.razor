@@ -86,7 +86,10 @@ else
             <h1>Position de l'équipement sur le mur</h1>
             <a href="/crud/murs/@(EquipementViewModel.SelectedEquipementDetails.Mur.IdMur)">
                 <div id="cadreMur" style="width: @(MurLargeurPx + "px"); height: @(MurHauteurPx + "px");">
-                    <div style="@GetEquipementPositionStyle(EquipementViewModel.SelectedEquipementDetails)"
+                        <div style="width: @((EquipementViewModel.SelectedEquipementDetails.Longueur * ScaleX).ToString(System.Globalization.CultureInfo.InvariantCulture))px;
+                                            height: @((EquipementViewModel.SelectedEquipementDetails.Hauteur * ScaleY).ToString(System.Globalization.CultureInfo.InvariantCulture))px;
+                                            background-color: @(GetEquipementColor(EquipementViewModel.SelectedEquipementDetails.TypeEquipement.IdTypeEquipement));
+                                            @GetEquipementPositionStyle(EquipementViewModel.SelectedEquipementDetails)"
                          title="Positions: (@EquipementViewModel.SelectedEquipementDetails.PositionX cm; @EquipementViewModel.SelectedEquipementDetails.PositionY cm; @EquipementViewModel.SelectedEquipementDetails.PositionZ cm)">
                     </div>
                 </div>
@@ -151,5 +154,27 @@ else
         // Retourner le style CSS avec les positions normalisées
         return $"left: {leftPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px; " +
                $"top: {topPx.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;";
+    }
+
+    /// <summary>
+    /// Récupère la couleur de l'équipement au mur
+    /// </summary>
+    /// <param name="typeEquipementSansNavigationDTO">ID du type d'équipement</param>
+    /// <returns>Une couleur CSS</returns>
+    private string GetEquipementColor(int typeEquipementSansNavigationDTO)
+    {
+        switch (typeEquipementSansNavigationDTO)
+        {
+            case 2:
+                return "gray";
+            case 3:
+                return "lightgray";
+            case 1:
+                return "lightgray";
+            case 5:
+                return "brown";
+            default:
+                return "black";
+        }
     }
 }
