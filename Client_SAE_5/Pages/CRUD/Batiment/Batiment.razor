@@ -97,7 +97,6 @@ else
     /// <summary>
     /// Méthode exécutée lors de l'initialisation de la page
     /// </summary>
-    /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
         if (BatimentViewModel.DBData.Batiments == null || BatimentViewModel.DBData.Batiments.Count == 0)
@@ -106,6 +105,10 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de rediriger vers la page de détails
+    /// </summary>
+    /// <param name="args"></param>
     private void ViewDetails(GridRowEventArgs<BatimentDTO> args)
     {
         Utils.Utils.GoDetail(NavigationManager, "batiments", args.Item.IdBatiment);

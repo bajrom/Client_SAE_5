@@ -47,11 +47,17 @@ else
     [Parameter]
     public int IdTypeEquipement { get; set; }
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page permettant de charger les détails du type d'équipement visualisé
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         await TypeEquipementViewModel.LoadTypeEquipementDetailsAsync(IdTypeEquipement);
     }
 
+    /// <summary>
+    /// Permet de retourner vers la page précédente
+    /// </summary>
     private void GoBack()
     {
         NavigationManager.NavigateTo("/crud/typesequipement");

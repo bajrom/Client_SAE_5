@@ -24,7 +24,6 @@ namespace Client_SAE_5.ViewModel
             this.DBData = data;
         }
 
-        // Détails d'une salle spécifique
         public SalleDetailDTO SelectedSalleDetails { get; private set; }
 
         public SalleDetailDTO SalleInEdition { get; private set; }
@@ -36,10 +35,11 @@ namespace Client_SAE_5.ViewModel
 
         public List<TypeSalleDTO> TypeSalle { get; private set; } = new List<TypeSalleDTO>();
 
-        // Indicateur d'erreur
         public string ErrorMessage { get; private set; }
 
-        // Charger toutes les salles
+        /// <summary>
+        /// Permet de charger toutes les salles de façon asynchrone.
+        /// </summary>
         public async Task LoadSallesAsync()
         {
             try
@@ -53,7 +53,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        // Charger les détails d'une salle
+        /// <summary>
+        /// Permet de charger les détails d'une salle de façon asynchrone
+        /// </summary>
+        /// <param name="idSalle">ID de la salle à charger</param>
         public async Task LoadSalleDetailsAsync(int idSalle)
         {
             try
@@ -67,6 +70,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// permet de charger tous les bâtiments pour faire les clé étrangères
+        /// </summary>
         public async Task LoadBatimentsAsync()
         {
             try
@@ -80,6 +86,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// permet de charger toutes les types de salles pour faire les clé étrangères
+        /// </summary>
         public async Task LoadTypeSalleAsync()
         {
             try
@@ -93,6 +102,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet d'initialiser la salle et ses détails pour son édition
+        /// </summary>
+        /// <param name="idSalle"></param>
         public async Task SetupSalleEdition(int idSalle)
         {
             SalleDetailDTO temp = await _salleDetailService.GetTAsync("Salles", idSalle);
@@ -112,6 +125,9 @@ namespace Client_SAE_5.ViewModel
             SalleInEditionOldTypeSalleId = SalleInEdition.TypeSalle.IdTypeSalle;
         }
 
+        /// <summary>
+        /// Permet de reset l'édition de la salle utilisé quand appui sur annuler
+        /// </summary>
         public async Task SetupNewSalle()
         {
             if (DBData.Batiments == null || DBData.Batiments.Count == 0)
@@ -127,7 +143,9 @@ namespace Client_SAE_5.ViewModel
             SalleInEdition = new SalleDetailDTO();
         }
 
-        // Ajouter une nouvelle salle
+        /// <summary>
+        /// Permet de rajouter une salle de façon asynchrone
+        /// </summary>
         public async Task AddSalleAsync()
         {
             SalleSansNavigationDTO newSalle = new SalleSansNavigationDTO
@@ -151,7 +169,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        // Mettre à jour une salle existante
+        /// <summary>
+        /// Permet de mettre à jour une salle de façon asynchrone
+        /// </summary>
         public async Task UpdateSalleAsync()
         {
             SalleSansNavigationDTO newSalle = new SalleSansNavigationDTO
@@ -175,7 +195,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        // Supprimer une salle
+        /// <summary>
+        /// Permet de supprimer une salle de façon asynchrone
+        /// </summary>
+        /// <param name="idSalle">ID de la salle à supprimer</param>
         public async Task DeleteSalleAsync(int idSalle)
         {
             try
@@ -190,7 +213,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        // Vérifier si les données de la salle sont valides
+        /// <summary>
+        /// Vérifie si les propriétés d'une la salle sont valides
+        /// </summary>
+        /// <param name="salle">Salle dont les propriétés sont à vérifier</param>
+        /// <returns>true s'il est correct, false sinon</returns>
         private bool IsValidSalle(SalleSansNavigationDTO salle)
         {
             if (string.IsNullOrWhiteSpace(salle.NomSalle))
@@ -210,6 +237,10 @@ namespace Client_SAE_5.ViewModel
             }
             return true;
         }
+
+        /// <summary>
+        /// Permet de réinitialiser le message d'erreur
+        /// </summary>
         public void ResetError()
         {
             ErrorMessage = "";

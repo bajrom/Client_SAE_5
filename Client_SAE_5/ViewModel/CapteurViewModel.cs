@@ -47,6 +47,9 @@ namespace Client_SAE_5.ViewModel
 
         public string ErrorMessage { get; private set; }
 
+        /// <summary>
+        /// Permet de charger tous les capteurs de façon asynchrone.
+        /// </summary>
         public async Task LoadCapteursAsync()
         {
             try
@@ -60,6 +63,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// permet de charger toutes les unitées pour faire les clé étrangères
+        /// </summary>
         public async Task LoadUnitesAsync()
         {
             try
@@ -73,6 +79,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de charger les détails d'un capteur de façon asynchrone
+        /// </summary>
+        /// <param name="idCapteur">ID du capteur à charger</param>
         public async Task LoadCapteurDetailsAsync(int idCapteur)
         {
             try
@@ -86,6 +96,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet d'obtenir la liste unique de tous les nom des salles à partir des mur
+        /// </summary>
         public void LoadNomSallesAsync()
         {
             NomSalles = DBData.Murs
@@ -95,7 +108,9 @@ namespace Client_SAE_5.ViewModel
             .ToList();
         }
 
-
+        /// <summary>
+        /// permet de charger tous les murs pour faire les clé étrangères
+        /// </summary>
         public async Task LoadMursAsync()
         {
             try
@@ -109,6 +124,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet d'initialiser le capteur et ses détails pour son édition
+        /// </summary>
+        /// <param name="idCapteur"></param>
         public async Task SetupCapteurEdition(int idCapteur)
         {
             CapteurDetailDTO temp = await _capteurDetailService.GetTAsync("Capteurs", idCapteur);
@@ -142,6 +161,11 @@ namespace Client_SAE_5.ViewModel
             CapteurInEditionOldMurId = CapteurInEdition.Mur.IdMur;
         }
 
+        /// <summary>
+        /// Permet de setup les unitées lié au capteur édité correspondant à la table de liaison UniteCapteur
+        /// </summary>
+        /// <param name="uniteClicked"></param>
+        /// <param name="checkActivated"></param>
         public void ChangeSelectedUnites(UniteDTO uniteClicked, bool checkActivated)
         {
             if (checkActivated)
@@ -155,6 +179,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de reset l'édition de capteur utilisé quand appui sur annuler
+        /// </summary>
         public async Task SetupNewCapteur()
         {
             if (DBData.Unites == null || DBData.Unites.Count == 0)
@@ -181,6 +208,9 @@ namespace Client_SAE_5.ViewModel
             CapteurInEdition = new CapteurDetailDTO();
         }
 
+        /// <summary>
+        /// Permet de rajouter un capteur de façon asynchrone
+        /// </summary>
         public async Task AddCapteurAsync()
         {
             CapteurSansNavigationDTO newCapteur = new CapteurSansNavigationDTO
@@ -213,6 +243,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de mettre à jour un capteur de façon asynchrone
+        /// </summary>
         public async Task UpdateCapteurAsync()
         {
             CapteurSansNavigationDTO newCapteur = new CapteurSansNavigationDTO
@@ -259,7 +292,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-
+        /// <summary>
+        /// Permet d'inséré une unité dans la table de liaison uniteCapteur
+        /// </summary>
+        /// <param name="idCapteur"></param>
+        /// <param name="idUnite"></param>
         public async Task AddUniteCapteurAsync(int idCapteur, int idUnite)
         {
             UniteCapteurSansNavigationDTO uniteCapteur = new UniteCapteurSansNavigationDTO()
@@ -285,6 +322,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de supprimer un capteur de façon asynchrone
+        /// </summary>
+        /// <param name="idCapteur">ID du capteur à supprimer</param>
         public async Task DeleteCapteurAsync(int idCapteur)
         {
             try
@@ -299,6 +340,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de supprimer une uniteCapteur de la table de liaison uniteCapteur correspondant au capteur
+        /// </summary>
+        /// <param name="idCapteur"></param>
+        /// <param name="idUnite"></param>
         public async Task DeleteUniteCapteurAsync(int idCapteur, int idUnite)
         {
             try
@@ -316,6 +362,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Vérifie si les propriétés d'un capteur sont valides
+        /// </summary>
+        /// <param name="capteur">Capteur dont les propriétés sont à vérifier</param>
+        /// <returns>true s'il est correct, false sinon</returns>
         private bool IsValidCapteur(CapteurSansNavigationDTO capteur)
         {
             if (string.IsNullOrWhiteSpace(capteur.NomCapteur))
@@ -341,16 +392,29 @@ namespace Client_SAE_5.ViewModel
             else return true;
         }
 
+        /// <summary>
+        /// Vérifie si les propriétés d'une uniteCapteur sont valides
+        /// </summary>
+        /// <param name="uniteCapteur">UniteCapteur dont les propriétés sont à vérifier</param>
+        /// <returns>true s'il est correct, false sinon</returns>
         private bool IsValidUniteCapteur(UniteCapteurSansNavigationDTO uniteCapteur)
         {
             return uniteCapteur.IdUnite > 0 && uniteCapteur.IdCapteur > 0;
         }
 
+        /// <summary>
+        /// Permet de réinitialiser le message d'erreur
+        /// </summary>
         public void ResetError()
         {
             ErrorMessage = "";
         }
 
+        /// <summary>
+        /// Méthode déclencher quand le mur est changer dans la popup de add/update, il permet de get les détails du mur général sélectionné
+        /// (pour vérifier si le capteur est en x et y dans le mur et pas dehors)
+        /// </summary>
+        /// <param name="id"></param>
         public async Task ChangeMur(int id)
         {
             murSelected = await _murDetailService.GetTAsync("Murs", id);

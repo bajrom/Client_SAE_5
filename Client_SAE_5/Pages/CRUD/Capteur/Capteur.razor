@@ -260,21 +260,21 @@ else
     }
 
     /// <summary>
+    /// Permet d'ajouter un nouveau capteur de façon asynchrone
+    /// </summary>
+    private async Task AddNewCapteur()
+    {
+        await CapteurViewModel.SetupNewCapteur();
+        await OpenPopup();
+    }
+
+    /// <summary>
     /// Permet d'éditer un capteur de façon asynchrone
     /// </summary>
     /// <param name="capteur">Capteur DTO à éditer</param>
     private async Task EditCapteur(CapteurDTO capteur)
     {
         await CapteurViewModel.SetupCapteurEdition(capteur.IdCapteur);
-        await OpenPopup();
-    }
-
-    /// <summary>
-    /// Permet d'ajouter un nouveau capteur de façon asynchrone
-    /// </summary>
-    private async Task AddNewCapteur()
-    {
-        await CapteurViewModel.SetupNewCapteur();
         await OpenPopup();
     }
 
@@ -392,7 +392,7 @@ else
     }
 
     /// <summary>
-    /// Gère l'ajout d'un mur à un capteur, vérification que le mur soit bien chargé
+    /// Change le mur sélectionner et prend ses détails
     /// </summary>
     /// <param name="e">Arguments</param>
     private async Task HandleChange(ChangeEventArgs e)

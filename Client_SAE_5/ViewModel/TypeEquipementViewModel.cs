@@ -28,6 +28,9 @@ namespace Client_SAE_5.ViewModel
 
         public string ErrorMessage { get; private set; }
 
+        /// <summary>
+        /// Permet de charger tous les types d'équipements de façon asynchrone.
+        /// </summary>
         public async Task LoadTypesEquipementAsync()
         {
             try
@@ -41,6 +44,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de charger les détails d'un type d'équipement de façon asynchrone
+        /// </summary>
+        /// <param name="idTypeEquipement">ID du type d'équipement à charger</param>
         public async Task LoadTypeEquipementDetailsAsync(int idTypeEquipement)
         {
             try
@@ -53,6 +60,11 @@ namespace Client_SAE_5.ViewModel
                 ErrorMessage = $"Erreur lors du chargement des détails du type : {ex.Message}";
             }
         }
+
+        /// <summary>
+        /// Permet d'initialiser le type d'équipement et ses détails pour son édition
+        /// </summary>
+        /// <param name="idTypeEquipement"></param>
         public async Task SetupTypeEquipementEdition(int idTypeEquipement)
         {
             TypeEquipementDetailDTO temp = await _typeequipementDetailService.GetTAsync("TypeEquipements", idTypeEquipement);
@@ -60,11 +72,17 @@ namespace Client_SAE_5.ViewModel
             TypeEquipementInEdition = temp;
         }
 
+        /// <summary>
+        /// Permet de reset l'édition du type d'équipement utilisé quand appui sur annuler
+        /// </summary>
         public async Task SetupNewTypeEquipement()
         {
             TypeEquipementInEdition = new TypeEquipementDetailDTO();
         }
 
+        /// <summary>
+        /// Permet de rajouter un type d'équipement de façon asynchrone
+        /// </summary>
         public async Task AddTypeEquipementAsync()
         {
             TypeEquipementDTO newCapteur = new TypeEquipementDTO
@@ -86,6 +104,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de mettre à jour un type d'équipement de façon asynchrone
+        /// </summary>
         public async Task UpdateTypeEquipementAsync()
         {
             TypeEquipementDTO newCapteur = new TypeEquipementDTO
@@ -107,6 +128,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de supprimer un type d'équipement de façon asynchrone
+        /// </summary>
+        /// <param name="idTypeEquipement">ID du type d'équipement à supprimer</param>
         public async Task DeleteTypeEquipementAsync(int idTypeEquipement)
         {
             try
@@ -121,6 +146,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Vérifie si les propriétés d'un type d'équipement sont valides
+        /// </summary>
+        /// <param name="typeEquipement">Type d'équipement dont les propriétés sont à vérifier</param>
+        /// <returns>true s'il est correct, false sinon</returns>
         private bool IsValidTypeEquipement(TypeEquipementDTO typeEquipement)
         {
             if (string.IsNullOrWhiteSpace(typeEquipement.NomTypeEquipement))
@@ -130,6 +160,10 @@ namespace Client_SAE_5.ViewModel
             }
             return true;
         }
+
+        /// <summary>
+        /// Permet de réinitialiser le message d'erreur
+        /// </summary>
         public void ResetError()
         {
             ErrorMessage = "";

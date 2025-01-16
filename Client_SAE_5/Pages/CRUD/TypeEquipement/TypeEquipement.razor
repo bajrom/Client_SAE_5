@@ -90,6 +90,9 @@ else
     List<ToastMessage> messages = new List<ToastMessage>();
     [Inject] ToastService ToastService { get; set; } = default!;
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         if (TypeEquipementViewModel.DBData.TypesEquipement == null || TypeEquipementViewModel.DBData.TypesEquipement.Count == 0)
@@ -98,24 +101,56 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de fermer la pop up de façon asynchrone
+    /// <see cref="formModal"/>
+    /// </summary>
+    private async void ClosePopup()
+    {
+        TypeEquipementViewModel.ResetError();
+        await formModal.HideAsync();
+    }
+
+    /// <summary>
+    /// Permet d'ouvrir la pop up de façon asynchrone
+    /// </summary>
+    private async void OpenPopup()
+    {
+        await formModal.ShowAsync();
+    }
+
+    /// <summary>
+    /// Permet de naviguer sur la page de détails d'un type d'équipement à partir de la grille des type d'équipements
+    /// </summary>
+    /// <param name="args">Ligne de la GRID</param>
     private void ViewDetails(GridRowEventArgs<TypeEquipementDTO> args)
     {
         Utils.Utils.GoDetail(NavigationManager, "typesequipement", args.Item.IdTypeEquipement);
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Permet d'éditer un type d'équipement de façon asynchrone
+    /// </summary>
+    /// <param name="typeEquipement">Type d'équipement DTO à éditer</param>
     private async Task EditTypeEquipement(TypeEquipementDTO typeEquipement)
     {
         await TypeEquipementViewModel.SetupTypeEquipementEdition(typeEquipement.IdTypeEquipement);
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet d'ajouter un nouveau type d'équipement de façon asynchrone
+    /// </summary>
     private async Task AddNewTypeEquipement()
     {
         await TypeEquipementViewModel.SetupNewTypeEquipement();
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet de sauvegarder un type d'équipement une fois qu'il a été ajouté ou modifié
+    /// </summary>
     private async Task SaveTypeEquipement()
     {
         string confirmMessage = "";
@@ -139,18 +174,30 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de démarrer la suppression d'un type d'équipement
+    /// </summary>
+    /// <param name="typeEquipement">Type d'équipement (DTO) à supprimer</param>
     private async Task BeginDeleteConfirmation(TypeEquipementDTO typeEquipement)
     {
         typeequipementDeleteInConfirmation = typeEquipement;
         await OpenDeleteConfirmation();
     }
 
+    /// <summary>
+    /// Permet de supprimer un type d'équipement, selon son ID, de façon asynchrone
+    /// </summary>
+    /// <param name="idTypeEquipement">ID du type d'équipement à supprimer</param>
     private async Task DeleteTypeEquipement(int idTypeEquipement)
     {
         await TypeEquipementViewModel.DeleteTypeEquipementAsync(idTypeEquipement);
         await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
+    /// <summary>
+    /// Ouvrir la fenêtre de confirmation de suppression d'un type d'équipement
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
     private async Task OpenDeleteConfirmation()
     {
         var options = new ConfirmDialogOptions
@@ -178,6 +225,11 @@ else
         }
     }
 
+    /// <summary>
+    /// Rafraîchit la grille de type d'équipements de façon asynchrone
+    /// </summary>
+    /// <see cref="typeEquipementGrid"></see>
+    /// <exception cref="NullReferenceException"></exception>
     private async Task RefreshGridAsync()
     {
         if (typeEquipementGrid != null)
@@ -186,21 +238,14 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de récupérer les données nécéssaires pour remplir la grille des types d'équipements
+    /// </summary>
+    /// <param name="request">Requête d'ajout</param>
     private async Task<GridDataProviderResult<TypeEquipementDTO>> TypesEquipementDataProvider(GridDataProviderRequest<TypeEquipementDTO> request)
     {
         // Application des filtres, tri et pagination
         var data = request.ApplyTo(TypeEquipementViewModel.DBData.TypesEquipement);
         return await Task.FromResult(data);
-    }
-
-    private async void ClosePopup()
-    {
-        TypeEquipementViewModel.ResetError();
-        await formModal.HideAsync();
-    }
-
-    private async void OpenPopup()
-    {
-        await formModal.ShowAsync();
     }
 }

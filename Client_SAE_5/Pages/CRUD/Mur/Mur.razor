@@ -136,6 +136,9 @@ else
 
     private MurDTO? murDeleteInConfirmation;
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         if (MurViewModel.DBData.Murs == null || MurViewModel.DBData.Murs.Count == 0)
@@ -147,35 +150,56 @@ else
         await MurViewModel.LoadSallesAsync();
     }
 
+    /// <summary>
+    /// Permet de fermer la pop up de façon asynchrone
+    /// <see cref="formModal"/>
+    /// </summary>
     private async void ClosePopup()
     {
         MurViewModel.ResetError();
         await formModal.HideAsync();
     }
 
+    /// <summary>
+    /// Permet d'ouvrir la pop up de façon asynchrone
+    /// </summary>
     private async void OpenPopup()
     {
         await formModal.ShowAsync();
     }
 
+    /// <summary>
+    /// Permet de naviguer sur la page de détails d'un mur à partir de la grille de murs
+    /// </summary>
+    /// <param name="args">Ligne de la GRID</param>
     private void ViewDetails(GridRowEventArgs<MurDTO> args)
     {
         Utils.Utils.GoDetail(NavigationManager, "murs", args.Item.IdMur);
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Permet d'éditer un mur de façon asynchrone
+    /// </summary>
+    /// <param name="mur">Mur DTO à éditer</param>
     private async Task EditMur(MurDTO mur)
     {
         await MurViewModel.SetupMurEdition(mur.IdMur);
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet d'ajouter un nouveau mur de façon asynchrone
+    /// </summary>
     private async Task AddNewMur()
     {
         await MurViewModel.SetupNewMur();
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet de sauvegarder un mur une fois qu'il a été ajouté ou modifié
+    /// </summary>
     private async Task SaveMur()
     {
         string confirmMessage = "";
@@ -199,18 +223,30 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de démarrer la suppression d'un mur
+    /// </summary>
+    /// <param name="mur">Mur (DTO) à supprimer</param>
     private async Task BeginDeleteConfirmation(MurDTO mur)
     {
         murDeleteInConfirmation = mur;
         await OpenDeleteConfirmation();
     }
 
+    /// <summary>
+    /// Permet de supprimer un mur, selon son ID, de façon asynchrone
+    /// </summary>
+    /// <param name="idMur">ID du mur à supprimer</param>
     private async Task DeleteMur(int idMur)
     {
         await MurViewModel.DeleteMurAsync(idMur);
         await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
+    /// <summary>
+    /// Ouvrir la fenêtre de confirmation de suppression d'un mur
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
     private async Task OpenDeleteConfirmation()
     {
         var options = new ConfirmDialogOptions
@@ -238,6 +274,11 @@ else
         }
     }
 
+    /// <summary>
+    /// Rafraîchit la grille de murs de façon asynchrone
+    /// </summary>
+    /// <see cref="murGrid"></see>
+    /// <exception cref="NullReferenceException"></exception>
     private async Task RefreshGridAsync()
     {
         if (murGrid != null)
@@ -246,6 +287,10 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de récupérer les données nécéssaires pour remplir la grille de murs
+    /// </summary>
+    /// <param name="request">Requête d'ajout</param>
     private async Task<GridDataProviderResult<MurDTO>> MursDataProvider(GridDataProviderRequest<MurDTO> request)
     {
         // Application des filtres, tri et pagination

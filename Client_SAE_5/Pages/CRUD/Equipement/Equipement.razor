@@ -74,38 +74,6 @@ else
     </Grid>
 }
 
-
-@* @if (EquipementViewModel.SelectedEquipementDetails != null)
-{
-    <h2>Détails de l'équipement</h2>
-    <p><strong>Nom :</strong> @EquipementViewModel.SelectedEquipementDetails.NomEquipement</p>
-    <p><strong>Dimensions :</strong>Longueur: @EquipementViewModel.SelectedEquipementDetails.Longueur (cm), largeur: @EquipementViewModel.SelectedEquipementDetails.Largeur (cm), hauteur: @EquipementViewModel.SelectedEquipementDetails.Hauteur</p>
-    <p><strong>Est actif :</strong> @EquipementViewModel.SelectedEquipementDetails.EstActif</p>
-    <p><strong>X :</strong> @EquipementViewModel.SelectedEquipementDetails.PositionX</p>
-    <p><strong>Y :</strong> @EquipementViewModel.SelectedEquipementDetails.PositionY</p>
-    <p><strong>Z :</strong> @EquipementViewModel.SelectedEquipementDetails.PositionZ</p>
-
-    <h3>Salle</h3>
-    @if (EquipementViewModel.SelectedEquipementDetails.Salle != null)
-    {
-        <p><strong>Hauteur : </strong><li>@EquipementViewModel.SelectedEquipementDetails.Salle.NomSalle</li></p>
-    }
-    else
-    {
-        <p><em>L'éauipement n'est pas dans une salle</em></p>
-    }
-
-    <h3>Type d'équipement</h3>
-    @if (EquipementViewModel.SelectedEquipementDetails.TypeEquipement != null)
-    {
-        <p><strong>Nom : </strong><li>@EquipementViewModel.SelectedEquipementDetails.TypeEquipement.NomTypeEquipement</li></p>
-    }
-    else
-    {
-        <p><em>L'éauipement n'a pas de type d'éauipement</em></p>
-    }
-} *@
-
 <!-- Modale pour l'édition -->
 <Modal @ref="formModal" Size="ModalSize.Large" Title="Renseignement des informations de l'équipement">
     <BodyTemplate>
@@ -292,6 +260,9 @@ else
     private EquipementDTO? equipementDeleteInConfirmation;
     bool isMurLoading = false;
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         if (EquipementViewModel.DBData.Equipements == null || EquipementViewModel.DBData.Equipements.Count == 0)
@@ -300,17 +271,28 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de fermer la pop up de façon asynchrone
+    /// <see cref="formModal"/>
+    /// </summary>
     private async void ClosePopup()
     {
         EquipementViewModel.ResetError();
         await formModal.HideAsync();
     }
 
+    /// <summary>
+    /// Permet d'ouvrir la pop up de façon asynchrone
+    /// </summary>
     private async void OpenPopup()
     {
         await formModal.ShowAsync();
     }
 
+    /// <summary>
+    /// Permet de naviguer sur la page de détails d'un équipement à partir de la grille des équipements
+    /// </summary>
+    /// <param name="args">Ligne de la GRID</param>
     private void ViewDetails(GridRowEventArgs<EquipementDTO> args)
     {
         Utils.Utils.GoDetail(NavigationManager, "equipements", args.Item.IdEquipement);
@@ -318,18 +300,28 @@ else
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Permet d'éditer un équipement de façon asynchrone
+    /// </summary>
+    /// <param name="equipement">Capteur DTO à éditer</param>
     private async Task EditEquipement(EquipementDTO equipement)
     {
         await EquipementViewModel.SetupEquipementEdition(equipement.IdEquipement);
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet d'ajouter un nouveau équipement de façon asynchrone
+    /// </summary>
     private async Task AddNewEquipement()
     {
         await EquipementViewModel.SetupNewEquipement();
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet de sauvegarder un équipement une fois qu'il a été ajouté ou modifié
+    /// </summary>
     private async Task SaveEquipement()
     {
         string confirmMessage = "";
@@ -353,18 +345,30 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de démarrer la suppression d'un équipement
+    /// </summary>
+    /// <param name="equipement">Équipement (DTO) à supprimer</param>
     private async Task BeginDeleteConfirmation(EquipementDTO equipement)
     {
         equipementDeleteInConfirmation = equipement;
         await OpenDeleteConfirmation();
     }
 
+    /// <summary>
+    /// Permet de supprimer un équipement, selon son ID, de façon asynchrone
+    /// </summary>
+    /// <param name="idEquipement">ID du équipement à supprimer</param>
     private async Task DeleteEquipement(int idEquipement)
     {
         await EquipementViewModel.DeleteEquipementAsync(idEquipement);
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Ouvrir la fenêtre de confirmation de suppression d'un équipement
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
     private async Task OpenDeleteConfirmation()
     {
         var options = new ConfirmDialogOptions
@@ -393,6 +397,11 @@ else
         }
     }
 
+    /// <summary>
+    /// Rafraîchit la grille des équipements de façon asynchrone
+    /// </summary>
+    /// <see cref="equipementGrid"></see>
+    /// <exception cref="NullReferenceException"></exception>
     private async Task RefreshGridAsync()
     {
         if (equipementGrid != null)
@@ -404,6 +413,10 @@ else
 
     private HashSet<EquipementDTO> selectedEquipements = new();
 
+    /// <summary>
+    /// Permet de récupérer les données nécéssaires pour remplir la grille des équipements
+    /// </summary>
+    /// <param name="request">Requête d'ajout</param>
     private async Task<GridDataProviderResult<EquipementDTO>> EquipementDataProvider(GridDataProviderRequest<EquipementDTO> request)
     {
         // Application des filtres, tri et pagination
@@ -411,6 +424,10 @@ else
         return await Task.FromResult(data);
     }
 
+    /// <summary>
+    /// Change le mur sélectionner et prend ses détails
+    /// </summary>
+    /// <param name="e">Arguments</param>
     private async void HandleChange(ChangeEventArgs e)
     {
         isMurLoading = true;

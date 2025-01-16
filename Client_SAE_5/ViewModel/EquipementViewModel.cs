@@ -50,6 +50,9 @@ namespace Client_SAE_5.ViewModel
         private MurDetailDTO murSelected { get; set; } = new MurDetailDTO();
         public string ErrorMessage { get; private set; }
 
+        /// <summary>
+        /// Permet de charger tous les équipements de façon asynchrone.
+        /// </summary>
         public async Task LoadEquipementsAsync()
         {
             try
@@ -63,6 +66,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de charger les détails d'un équipement de façon asynchrone
+        /// </summary>
+        /// <param name="idEquipement">ID de l'équipement à charger</param>
         public async Task LoadEquipementDetailsAsync(int idEquipement)
         {
             try
@@ -76,6 +83,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet d'obtenir la liste unique de tous les nom des salles à partir des mur
+        /// </summary>
         public void LoadNomSallesAsync()
         {
             NomSalles = DBData.Murs
@@ -85,6 +95,9 @@ namespace Client_SAE_5.ViewModel
             .ToList();
         }
 
+        /// <summary>
+        /// permet de charger tous les murs pour faire les clé étrangères
+        /// </summary>
         public async Task LoadMursAsync()
         {
             try
@@ -99,6 +112,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// permet de charger tous les type équipements pour faire les clé étrangères
+        /// </summary>
         public async Task LoadTypeEquipementAsync()
         {
             try
@@ -113,6 +129,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet d'initialiser l'équipement et ses détails pour son édition
+        /// </summary>
+        /// <param name="idEquipement"></param>
         public async Task SetupEquipementEdition(int idEquipement)
         {
             EquipementDetailDTO temp = await _equipementDetailService.GetTAsync("Equipement", idEquipement);
@@ -145,6 +165,9 @@ namespace Client_SAE_5.ViewModel
             EquipementInEditionOldTypeEquipementId = EquipementInEdition.TypeEquipement.IdTypeEquipement;
         }
 
+        /// <summary>
+        /// Permet de reset l'édition de l'équipement utilisé quand appui sur annuler
+        /// </summary>
         public async Task SetupNewEquipement()
         {
             if (DBData.Murs == null || DBData.Murs.Count == 0)
@@ -161,6 +184,9 @@ namespace Client_SAE_5.ViewModel
             EquipementInEdition = new EquipementDetailDTO();
         }
 
+        /// <summary>
+        /// Permet de rajouter un équipement de façon asynchrone
+        /// </summary>
         public async Task AddEquipementAsync()
         {
             EquipementSansNavigationDTO newEquipement = new EquipementSansNavigationDTO
@@ -191,6 +217,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de mettre à jour un équipement de façon asynchrone
+        /// </summary>
         public async Task UpdateEquipementAsync()
         {
             EquipementSansNavigationDTO newEquipement = new EquipementSansNavigationDTO
@@ -221,6 +250,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de supprimer un équipement de façon asynchrone
+        /// </summary>
+        /// <param name="idEquipement">ID de l'équipement à supprimer</param>
         public async Task DeleteEquipementAsync(int idEquipement)
         {
             try
@@ -235,6 +268,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Vérifie si les propriétés d'un équipement sont valides
+        /// </summary>
+        /// <param name="equipement">Équipement dont les propriétés sont à vérifier</param>
+        /// <returns>true s'il est correct, false sinon</returns>
         private bool IsValidEquipement(EquipementSansNavigationDTO equipement)
         {
             if (string.IsNullOrWhiteSpace(equipement.NomEquipement))
@@ -264,10 +302,20 @@ namespace Client_SAE_5.ViewModel
             }
             return true;
         }
+
+        /// <summary>
+        /// Permet de réinitialiser le message d'erreur
+        /// </summary>
         public void ResetError()
         {
             ErrorMessage = "";
         }
+
+        /// <summary>
+        /// Méthode déclencher quand le mur est changer dans la popup de add/update, il permet de get les détails du mur général sélectionné
+        /// (pour vérifier si l'équipement est en x et y dans le mur et pas dehors)
+        /// </summary>
+        /// <param name="id"></param>
         public async Task ChangeMur(int id)
         {
             murSelected = await _murDetailService.GetTAsync("Murs", id);

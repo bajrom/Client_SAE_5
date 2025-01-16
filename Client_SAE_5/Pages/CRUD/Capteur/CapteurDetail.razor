@@ -85,7 +85,7 @@ else
 }
 </div>
 
-<button class="btn btn-secondary" @onclick="Retour">Retour</button>
+<button class="btn btn-secondary" @onclick="GoBack">Retour</button>
 
 @if (!string.IsNullOrEmpty(CapteurViewModel.ErrorMessage))
 {
@@ -156,7 +156,7 @@ else
     /// <summary>
     /// Permet de retourner vers la page précédente
     /// </summary>
-    private void Retour()
+    private void GoBack()
     {
         NavigationManager.NavigateTo("/crud/capteurs");
     }

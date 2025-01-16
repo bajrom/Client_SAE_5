@@ -90,11 +90,17 @@ else
     [Parameter]
     public int IdSalle { get; set; }
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page permettant de charger les détails de la salle visualisé
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         await SalleViewModel.LoadSalleDetailsAsync(IdSalle);
     }
 
+    /// <summary>
+    /// Permet de retourner vers la page précédente
+    /// </summary>
     private void GoBack()
     {
         NavigationManager.NavigateTo("/crud/salles");

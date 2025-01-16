@@ -47,6 +47,11 @@
     [Parameter]
     public int IdUnite { get; set; }
 
+    /// <summary>
+    /// Met des parenthèse autour du sigle si il y en a un
+    /// </summary>
+    /// <param name="sigle"></param>
+    /// <returns>String concaténé des "()" avec le sigle</returns>
     private String? sigleRender(String? sigle)
     {
         if (String.IsNullOrEmpty(sigle))
@@ -58,11 +63,17 @@
         }
     }
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page permettant de charger les détails de l'unitée visualisé
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         await UniteViewModel.LoadUniteDetailsAsync(IdUnite);
     }
 
+    /// <summary>
+    /// Permet de retourner vers la page précédente
+    /// </summary>
     private void GoBack()
     {
         NavigationManager.NavigateTo("/crud/unites");

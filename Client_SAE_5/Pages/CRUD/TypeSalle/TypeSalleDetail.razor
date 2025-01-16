@@ -47,11 +47,17 @@ else
     [Parameter]
     public int IdTypeSalle { get; set; }
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page permettant de charger les détails du type de salle visualisé
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         await TypeSalleViewModel.LoadTypeSalleDetailsAsync(IdTypeSalle);
     }
 
+    /// <summary>
+    /// Permet de retourner vers la page précédente
+    /// </summary>
     private void GoBack()
     {
         NavigationManager.NavigateTo("/crud/typessalle");

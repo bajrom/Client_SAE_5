@@ -32,6 +32,9 @@ namespace Client_SAE_5.ViewModel
 
         public string ErrorMessage { get; private set; }
 
+        /// <summary>
+        /// Permet de charger tous les murs de façon asynchrone.
+        /// </summary>
         public async Task LoadMursAsync()
         {
             try
@@ -45,6 +48,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de charger les détails d'un mur de façon asynchrone
+        /// </summary>
+        /// <param name="idMur">ID du Mur à charger</param>
         public async Task LoadMurDetailsAsync(int idMur)
         {
             try
@@ -58,6 +65,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// permet de charger toutes les directions pour faire les clé étrangères
+        /// </summary>
         public async Task LoadDirectionsAsync()
         {
             try
@@ -71,6 +81,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// permet de charger toutes les salles pour faire les clé étrangères
+        /// </summary>
         public async Task LoadSallesAsync()
         {
             try
@@ -84,6 +97,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet d'initialiser un mur et ses détails pour son édition
+        /// </summary>
+        /// <param name="idMur"></param>
         public async Task SetupMurEdition(int idMur)
         {
             MurDetailDTO temp = await _murDetailService.GetTAsync("Murs", idMur);
@@ -101,6 +118,9 @@ namespace Client_SAE_5.ViewModel
             MurInEdition = temp;
         }
 
+        /// <summary>
+        /// Permet de reset l'édition du mur utilisé quand appui sur annuler
+        /// </summary>
         public async Task SetupNewMur()
         {
             if (DBData.Salles == null || DBData.Salles.Count == 0)
@@ -116,6 +136,9 @@ namespace Client_SAE_5.ViewModel
             MurInEdition = new MurDetailDTO();
         }
 
+        /// <summary>
+        /// Permet de rajouter un mur de façon asynchrone
+        /// </summary>
         public async Task AddMurAsync()
         {
             MurSansNavigationDTO newMur = new MurSansNavigationDTO
@@ -142,6 +165,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de mettre à jour un mur de façon asynchrone
+        /// </summary>
         public async Task UpdateMurAsync()
         {
             MurSansNavigationDTO newMur = new MurSansNavigationDTO
@@ -168,6 +194,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de supprimer un mur de façon asynchrone
+        /// </summary>
+        /// <param name="idMur">ID du mur à supprimer</param>
         public async Task DeleteMurAsync(int idMur)
         {
             try
@@ -181,6 +211,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Vérifie si les propriétés d'un myr sont valides
+        /// </summary>
+        /// <param name="mur">mur dont les propriétés sont à vérifier</param>
+        /// <returns>true s'il est correct, false sinon</returns>
         private bool IsValidMur(MurSansNavigationDTO mur)
         {
             if (mur.IdDirection <= 0)
@@ -211,6 +246,9 @@ namespace Client_SAE_5.ViewModel
             return true;
         }
 
+        /// <summary>
+        /// Permet de réinitialiser le message d'erreur
+        /// </summary>
         public void ResetError()
         {
             ErrorMessage = "";

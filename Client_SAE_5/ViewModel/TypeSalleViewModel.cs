@@ -29,6 +29,9 @@ namespace Client_SAE_5.ViewModel
 
         public string ErrorMessage { get; private set; }
 
+        /// <summary>
+        /// permet de charger toutes les types de salles pour faire les clé étrangères
+        /// </summary>
         public async Task LoadTypesSallesAsync()
         {
             try
@@ -42,6 +45,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de charger les détails d'un type de salle de façon asynchrone
+        /// </summary>
+        /// <param name="idTypeSalle">ID du type de salle à charger</param>
         public async Task LoadTypeSalleDetailsAsync(int idTypeSalle)
         {
             try
@@ -55,17 +62,28 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet d'initialiser le type de salle et ses détails pour son édition
+        /// </summary>
+        /// <param name="idTypeSalle"></param>
         public async Task SetupTypeSalleEdition(int idTypeSalle)
         {
             TypeSalleDetailDTO temp = await _typesalleDetailService.GetTAsync("TypeSalles", idTypeSalle);
 
             TypesalleInEdition = temp;
         }
+
+        /// <summary>
+        /// Permet de reset l'édition du type de salle utilisé quand appui sur annuler
+        /// </summary>
         public async Task SetupNewTypeSalle()
         {
             TypesalleInEdition = new TypeSalleDetailDTO();
         }
 
+        /// <summary>
+        /// Permet de rajouter un type de salle de façon asynchrone
+        /// </summary>
         public async Task AddTypeSallesAsync()
         {
             TypeSalleDTO newTypesalle = new TypeSalleDTO
@@ -88,6 +106,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de mettre à jour un type de salle de façon asynchrone
+        /// </summary>
         public async Task UpdateTypeSallesAsync()
         {
             TypeSalleDTO newTypesalle = new TypeSalleDTO
@@ -110,6 +131,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de supprimer un type de salle de façon asynchrone
+        /// </summary>
+        /// <param name="idTypeSalle">ID du type de salle à supprimer</param>
         public async Task DeleteTypeSalleAsync(int idTypeSalle)
         {
             try
@@ -124,11 +149,11 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-        public void ResetError()
-        {
-            ErrorMessage = "";
-        }
-
+        /// <summary>
+        /// Vérifie si les propriétés d'un type de salle sont valides
+        /// </summary>
+        /// <param name="typeSalle">Type de salle dont les propriétés sont à vérifier</param>
+        /// <returns>true s'il est correct, false sinon</returns>
         private bool IsValidTypeSalle(TypeSalleDTO typeSalle)
         {
             if (string.IsNullOrWhiteSpace(typeSalle.NomTypeSalle))
@@ -137,6 +162,14 @@ namespace Client_SAE_5.ViewModel
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Permet de réinitialiser le message d'erreur
+        /// </summary>
+        public void ResetError()
+        {
+            ErrorMessage = "";
         }
     }
 }

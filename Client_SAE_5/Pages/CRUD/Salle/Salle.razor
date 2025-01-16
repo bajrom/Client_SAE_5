@@ -123,6 +123,9 @@ else
 
     private SalleDTO? salleDeleteInConfirmation;
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         if (SalleViewModel.DBData.Salles == null || SalleViewModel.DBData.Salles.Count == 0)
@@ -131,35 +134,56 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de fermer la pop up de façon asynchrone
+    /// <see cref="formModal"/>
+    /// </summary>
     private async void ClosePopup()
     {
         SalleViewModel.ResetError();
         await formModal.HideAsync();
     }
 
+    /// <summary>
+    /// Permet d'ouvrir la pop up de façon asynchrone
+    /// </summary>
     private async void OpenPopup()
     {
         await formModal.ShowAsync();
     }
 
+    /// <summary>
+    /// Permet de naviguer sur la page de détails d'une salle à partir de la grille des salles
+    /// </summary>
+    /// <param name="args">Ligne de la GRID</param>
     private void ViewDetails(GridRowEventArgs<SalleDTO> args)
     {
         Utils.Utils.GoDetail(NavigationManager, "salles", args.Item.IdSalle);
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Permet d'éditer une salle de façon asynchrone
+    /// </summary>
+    /// <param name="salle">Salle DTO à éditer</param>
     private async Task EditSalle(SalleDTO salle)
     {
         await SalleViewModel.SetupSalleEdition(salle.IdSalle);
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet d'ajouter une nouvelle salle de façon asynchrone
+    /// </summary>
     private async Task AddNewSalle()
     {
         await SalleViewModel.SetupNewSalle();
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet de sauvegarder une salle une fois qu'il a été ajouté ou modifié
+    /// </summary>
     private async Task SaveSalle()
     {
         string confirmMessage = "";
@@ -183,18 +207,30 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de démarrer la suppression d'une salle
+    /// </summary>
+    /// <param name="salle">Capteur (DTO) à supprimer</param>
     private async Task BeginDeleteConfirmation(SalleDTO salle)
     {
         salleDeleteInConfirmation = salle;
         await OpenDeleteConfirmation();
     }
 
+    /// <summary>
+    /// Permet de supprimer une salle, selon son ID, de façon asynchrone
+    /// </summary>
+    /// <param name="idSalle">ID de la salle à supprimer</param>
     private async Task DeleteSalle(int idSalle)
     {
         await SalleViewModel.DeleteSalleAsync(idSalle);
         await RefreshGridAsync(); // Rafraîchir la GRID après une suppression
     }
 
+    /// <summary>
+    /// Ouvrir la fenêtre de confirmation de suppression d'une salle
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
     private async Task OpenDeleteConfirmation()
     {
         var options = new ConfirmDialogOptions
@@ -223,6 +259,11 @@ else
         }
     }
 
+    /// <summary>
+    /// Rafraîchit la grille de la salle de façon asynchrone
+    /// </summary>
+    /// <see cref="salleGrid"></see>
+    /// <exception cref="NullReferenceException"></exception>
     private async Task RefreshGridAsync()
     {
         Console.WriteLine(salleGrid == null);
@@ -232,6 +273,10 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de récupérer les données nécéssaires pour remplir la grille des salles
+    /// </summary>
+    /// <param name="request">Requête d'ajout</param>
     private async Task<GridDataProviderResult<SalleDTO>> SallesDataProvider(GridDataProviderRequest<SalleDTO> request)
     {
         // Application des filtres, tri et pagination

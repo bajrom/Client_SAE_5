@@ -31,7 +31,6 @@ namespace Client_SAE_5.ViewModel
         /// <summary>
         /// Permet de charger tous les bâtiments de façon asynchrone.
         /// </summary>
-        /// <returns></returns>
         public async Task LoadBatimentsAsync()
         {
             try
@@ -49,7 +48,6 @@ namespace Client_SAE_5.ViewModel
         /// Permet de charger les détails d'un bâtiment de façon asynchrone
         /// </summary>
         /// <param name="idBatiment">ID du bâtiment à charger</param>
-        /// <returns></returns>
         public async Task LoadBatimentDetailsAsync(int idBatiment)
         {
             try
@@ -63,7 +61,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-
+        /// <summary>
+        /// Permet d'initialiser le batiment et ses détails pour son édition
+        /// </summary>
+        /// <param name="idBatiment"></param>
         public async Task SetupBatimentEdition(int idBatiment)
         {
             BatimentDetailDTO temp = await _batimentDetailService.GetTAsync("Batiments", idBatiment);
@@ -71,6 +72,9 @@ namespace Client_SAE_5.ViewModel
             BatimentInEdition = temp;
         }
 
+        /// <summary>
+        /// Permet de reset l'édition de batiment utilisé quand appui sur annuler
+        /// </summary>
         public async Task SetupNewBatiment()
         {
             BatimentInEdition = new BatimentDetailDTO();
@@ -79,7 +83,6 @@ namespace Client_SAE_5.ViewModel
         /// <summary>
         /// Permet de rajouter un bâtiment de façon asynchrone
         /// </summary>
-        /// <returns></returns>
         public async Task AddBatimentAsync()
         {
             BatimentSansNavigationDTO newCapteur = new BatimentSansNavigationDTO
@@ -105,7 +108,6 @@ namespace Client_SAE_5.ViewModel
         /// <summary>
         /// Permet de mettre à jour un bâtiment de façon asynchrone
         /// </summary>
-        /// <returns></returns>
         public async Task UpdatebatimentAsync()
         {
             BatimentSansNavigationDTO newCapteur = new BatimentSansNavigationDTO
@@ -132,7 +134,6 @@ namespace Client_SAE_5.ViewModel
         /// Permet de supprimer un bâtiment de façon asynchrone
         /// </summary>
         /// <param name="idBatiment">ID du bâtiment à supprimer</param>
-        /// <returns></returns>
         public async Task DeletebatimentAsync(int idBatiment)
         {
             try

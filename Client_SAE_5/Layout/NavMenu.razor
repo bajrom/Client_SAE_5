@@ -64,6 +64,9 @@
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
+    /// <summary>
+    /// Permet d'afficher ou non le menu de gestion CRUD
+    /// </summary>
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;

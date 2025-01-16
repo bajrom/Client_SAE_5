@@ -101,6 +101,9 @@ else
 
     private UniteDTO? uniteDeleteInConfirmation;
 
+    /// <summary>
+    /// Méthode exécutée lors de l'initialisation de la page
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         if (UniteViewModel.DBData.Unites == null || UniteViewModel.DBData.Unites.Count == 0)
@@ -109,35 +112,56 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de fermer la pop up de façon asynchrone
+    /// <see cref="formModal"/>
+    /// </summary>
     private async void ClosePopup()
     {
         UniteViewModel.ResetError();
         await formModal.HideAsync();
     }
 
+    /// <summary>
+    /// Permet d'ouvrir la pop up de façon asynchrone
+    /// </summary>
     private async void OpenPopup()
     {
         await formModal.ShowAsync();
     }
 
+    /// <summary>
+    /// Permet de naviguer sur la page de détails d'une unitée à partir de la grille des unitées
+    /// </summary>
+    /// <param name="args">Ligne de la GRID</param>
     private void ViewDetails(GridRowEventArgs<UniteDTO> args)
     {
         Utils.Utils.GoDetail(NavigationManager, "unites", args.Item.IdUnite);
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Permet d'ajouter une nouvelle unitée de façon asynchrone
+    /// </summary>
     private async Task AddNewUnite()
     {
         await UniteViewModel.SetupNewUnite();
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet d'éditer une unitée de façon asynchrone
+    /// </summary>
+    /// <param name="unite">Unite DTO à éditer</param>
     private async Task EditUnite(UniteDTO unite)
     {
         await UniteViewModel.SetupUniteEdition(unite.IdUnite);
         OpenPopup();
     }
 
+    /// <summary>
+    /// Permet de sauvegarder une unitée une fois qu'il a été ajouté ou modifié
+    /// </summary>
     private async Task SaveUnite()
     {
         string confirmMessage = "";
@@ -161,12 +185,20 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de démarrer la suppression d'une unitée
+    /// </summary>
+    /// <param name="unite">Unite (DTO) à supprimer</param>
     private async Task BeginDeleteConfirmation(UniteDTO unite)
     {
         uniteDeleteInConfirmation = unite;
         await OpenDeleteConfirmation();
     }
 
+    /// <summary>
+    /// Permet de supprimer une unitée, selon son ID, de façon asynchrone
+    /// </summary>
+    /// <param name="idUnite">ID de l'unitée à supprimer</param>
     private async Task DeleteUnite(int idUnite)
     {
         await UniteViewModel.DeleteUniteAsync(idUnite);
@@ -206,6 +238,11 @@ else
         }
     }
 
+    /// <summary>
+    /// Rafraîchit la grille d'unitées de façon asynchrone
+    /// </summary>
+    /// <see cref="uniteGrid"></see>
+    /// <exception cref="NullReferenceException"></exception>
     private async Task RefreshGridAsync()
     {
         if (uniteGrid != null)
@@ -214,6 +251,10 @@ else
         }
     }
 
+    /// <summary>
+    /// Permet de récupérer les données nécéssaires pour remplir la grille des unitées
+    /// </summary>
+    /// <param name="request">Requête d'ajout</param>
     private async Task<GridDataProviderResult<UniteDTO>> UnitesDataProvider(GridDataProviderRequest<UniteDTO> request)
     {
         // Application des filtres, tri et pagination

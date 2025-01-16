@@ -24,6 +24,9 @@ namespace Client_SAE_5.ViewModel
 
         public string ErrorMessage { get; private set; }
 
+        /// <summary>
+        /// Permet de charger tous les unitées de façon asynchrone.
+        /// </summary>
         public async Task LoadUnitesAsync()
         {
             try
@@ -37,6 +40,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet de charger les détails de l'unitée de façon asynchrone
+        /// </summary>
+        /// <param name="idUnite">ID de l'unitée à charger</param>
         public async Task LoadUniteDetailsAsync(int idUnite)
         {
             try
@@ -50,6 +57,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Permet d'initialiser l'unitée et ses détails pour son édition
+        /// </summary>
+        /// <param name="idUnite"></param>
         public async Task SetupUniteEdition(int idUnite)
         {
             UniteDetailDTO temp = await _uniteDetailService.GetTAsync("Unites", idUnite);
@@ -62,7 +73,9 @@ namespace Client_SAE_5.ViewModel
             UniteInEdition = temp;
         }
 
-        
+        /// <summary>
+        /// Permet de reset l'édition de l'unitée utilisé quand appui sur annuler
+        /// </summary>
         public async Task SetupNewUnite()
         {
             UniteInEdition = new UniteDetailDTO();
