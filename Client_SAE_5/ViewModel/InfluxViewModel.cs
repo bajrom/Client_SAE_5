@@ -19,9 +19,6 @@ namespace Client_SAE_5.ViewModel
         private readonly InfluxDataService _luminositeService;
         private readonly InfluxDataService _bruitService;
 
-        public DateTime StartDate = DateTime.Now.AddYears(-1);
-        public DateTime EndDate = DateTime.Now;
-
 
         public InfluxViewModel()
         {
@@ -44,7 +41,13 @@ namespace Client_SAE_5.ViewModel
         public string ErrorMessage { get; private set; }
 
         //predictions
+        public string PredType { get; set; } = "";
+        public string PredResultString = "";
+        public List<string> PredResultMultipleStrings = new List<string>();
         public bool PredFenetreOuverte { get; private set; }
+        public string EtatNbPersonne { get; private set; }
+        public string EtatInconfort {  get; private set; }
+        public List<float> PredTemperature { get; private set; }
 
         //valeurs actuelles
         public double ActualVibration { get; private set; }
@@ -56,6 +59,12 @@ namespace Client_SAE_5.ViewModel
         public double ActualPresenceFumee { get; private set; }
         public double ActualLuminosite { get; private set; }
         public double ActualPresenceBruit { get; private set; }
+
+        //valeurs dans periode
+        public DateTime GraphStartTime { get; set; } = DateTime.Now.AddDays(-7);
+        public DateTime GraphEndTime { get; set; } = DateTime.Now;
+        public List<InfluxDataReturn> GraphData { get; private set; } = new List<InfluxDataReturn>();
+        public string GraphDataType { get; set; }
 
 
         public async Task LoadNomCapteurs()
@@ -72,24 +81,157 @@ namespace Client_SAE_5.ViewModel
         }
 
 
-        // load predictions
-        public async Task LoadPredictionsOfCapteurAsync(string nomCapteur)
+
+
+        // load valeurs dans un intervale de temps
+        public async Task LoadGraphValuesAsync()
         {
-            await LoadPredFenetreOuverteAsync(nomCapteur);
+            switch (GraphDataType)
+            {
+                case "Presence de vibrations":
+                    await LoadInTimeInterval(SelectedCapteurName, _vibrationsService, GraphStartTime, GraphEndTime);
+                    break;
+
+                case "Temperature interieure":
+                    await LoadInTimeInterval(SelectedCapteurName, _tempIntService, GraphStartTime, GraphEndTime);
+                    break;
+
+                case "Temperature exterieure":
+                    await LoadInTimeInterval(SelectedCapteurName, _tempExtService, GraphStartTime, GraphEndTime);
+                    break;
+
+                case "Taux d'humidite":
+                    await LoadInTimeInterval(SelectedCapteurName, _humiditeService, GraphStartTime, GraphEndTime);
+                    break;
+
+                case "Taux de co2":
+                    await LoadInTimeInterval(SelectedCapteurName, _co2Service, GraphStartTime, GraphEndTime);
+                    break;
+
+                case "Presence de mouvement":
+                    await LoadInTimeInterval(SelectedCapteurName, _mouvementService, GraphStartTime, GraphEndTime);
+                    break;
+
+                case "Presence de fumee":
+                    await LoadInTimeInterval(SelectedCapteurName, _fumeeService, GraphStartTime, GraphEndTime);
+                    break;
+
+                case "Taux de luminosite":
+                    await LoadInTimeInterval(SelectedCapteurName, _luminositeService, GraphStartTime, GraphEndTime);
+                    break;
+
+                case "Presence de bruit":
+                    await LoadInTimeInterval(SelectedCapteurName, _bruitService, GraphStartTime, GraphEndTime);
+                    break;
+            }
         }
 
-        public async Task LoadPredFenetreOuverteAsync(string nomCapteur)
+        public async Task LoadInTimeInterval(string nomCapteur, InfluxDataService service, DateTime start, DateTime end)
         {
             try
             {
-                PredFenetreOuverte = await _predictionService.GetFenetreOuvertePredAsync(nomCapteur);
+                GraphData = await service.GetTInTimeIntervalAsync(nomCapteur, start, end);
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors du chargement de la prediction de fenetre ouverte du capteur {nomCapteur} : {ex.Message}";
+                ErrorMessage = $"Erreur lors du chargement des valeurs pour le graphique du capteur {nomCapteur} : {ex.Message}";
             }
         }
+
+
+
+
+        // load predictions
+        public async Task PredictData()
+        {
+            switch (PredType)
+            {
+                case "fenetre":
+                    await LoadPredFenetreOuverteAsync();
+                    PredResultString = PredFenetreOuverte ? "La fenêtre est ouverte" : "La fenêtre est fermée";
+                    break;
+
+                case "nbPersonnes":
+                    await LoadPredNbPersonnesAsync();
+                    PredResultString = "Il y a " + EtatNbPersonne;
+                    break;
+
+                case "inconfort":
+                    await LoadPredInconfortAsync();
+                    PredResultString = "Inconfort : " + EtatInconfort;
+                    break;
+
+                case "temp":
+                    await LoadPredTemperatureAsync();
+                    PredResultString = "Temperature des 10 prochaines heures :";
+                    foreach (float temp in PredTemperature)
+                    {
+                        PredResultMultipleStrings.Add($"{temp}°C");
+                    }
+                    break;
+            }
+        }
+
+        public async Task RefreshPredData()
+        {
+            PredResultString = "";
+            PredResultMultipleStrings = new List<string>();
+        }
+
+        public async Task LoadPredFenetreOuverteAsync()
+        {
+            try
+            {
+                PredFenetreOuverte = await _predictionService.GetFenetreOuvertePredAsync(SelectedCapteurName);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement de la prediction de fenetre ouverte du capteur {SelectedCapteurName} : {ex.Message}";
+            }
+        }
+
+        public async Task LoadPredNbPersonnesAsync()
+        {
+            try
+            {
+                EtatNbPersonne = await _predictionService.GetNbPersonnePredAsync(SelectedCapteurName);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement de la prediction du nombre de personne du capteur {SelectedCapteurName} : {ex.Message}";
+            }
+        }
+
+        public async Task LoadPredInconfortAsync()
+        {
+            try
+            {
+                EtatInconfort = await _predictionService.GetInconfortPredAsync(SelectedCapteurName);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement de la prediction d'inconfort du capteur {SelectedCapteurName} : {ex.Message}";
+            }
+        }
+
+        public async Task LoadPredTemperatureAsync()
+        {
+            try
+            {
+                PredTemperature = await _predictionService.GetTemperaturesPredAsync(SelectedCapteurName);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement de la prediction de temperature du capteur {SelectedCapteurName} : {ex.Message}";
+            }
+        }
+
+
 
         // load valeurs actuelles
         public async Task LoadActualValuesOfCapteurAsync(string nomCapteur)
@@ -107,7 +249,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualVibration = await _vibrationsService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualVibration = await _vibrationsService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -120,7 +262,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualTemperatureInt = await _tempIntService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualTemperatureInt = await _tempIntService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -133,7 +275,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualTemperatureExt = await _tempExtService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualTemperatureExt = await _tempExtService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -146,7 +288,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualHumidite = await _humiditeService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualHumidite = await _humiditeService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -159,7 +301,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualTauxCo2 = await _co2Service.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualTauxCo2 = await _co2Service.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -172,7 +314,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualPresenceMouvement = await _mouvementService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualPresenceMouvement = await _mouvementService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -185,7 +327,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualPresenceFumee = await _fumeeService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualPresenceFumee = await _fumeeService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -198,7 +340,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualLuminosite = await _luminositeService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualLuminosite = await _luminositeService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -211,7 +353,7 @@ namespace Client_SAE_5.ViewModel
         {
             try
             {
-                ActualPresenceBruit = await _bruitService.GetTNowAsync(nomCapteur); //sortir la valeur
+                ActualPresenceBruit = await _bruitService.GetTNowAsync(nomCapteur); 
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)

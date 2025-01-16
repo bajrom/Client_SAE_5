@@ -131,7 +131,7 @@ else
                     <select @bind="CapteurViewModel.CapteurInEditionNomSalleSelected" class="form-control">
                         @if (string.IsNullOrEmpty(CapteurViewModel.CapteurInEditionNomSalleSelected))
                         {
-                            <option value="">-- Sélectionnez une salle --</option>
+                            <option value="">--- Sélectionnez une salle ---</option>
                         }
                         @foreach (string nomSalle in CapteurViewModel.NomSalles)
                         {
