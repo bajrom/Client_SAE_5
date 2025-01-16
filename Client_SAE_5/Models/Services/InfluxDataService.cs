@@ -42,7 +42,6 @@ namespace Client_SAE_5.Models.Services
         {
             try
             {
-                var test = $"{controllerName}?capteur={nomCapteur}&startDate={HttpUtility.UrlEncode(startDate.ToString("o"))}&endDate={HttpUtility.UrlEncode(endDate.ToString("o"))}";
                 var response = await _httpClient.GetAsync($"{controllerName}?capteur={nomCapteur}&startDate={HttpUtility.UrlEncode(startDate.ToString("o"))}&endDate={HttpUtility.UrlEncode(endDate.ToString("o"))}");
                 string responseString = await response.Content.ReadAsStringAsync();
                 return GetAllValues(responseString);
