@@ -133,16 +133,19 @@ else
     private decimal ScaleX => MurLargeurPx / MurLongueurCm; // Pixels par cm en largeur
     private decimal ScaleY => MurHauteurPx / MurHauteurCm; // Pixels par cm en hauteur
 
+    /// <summary>
+    /// Permet de faire des opérations à l'initialisation de la page
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         await EquipementViewModel.LoadEquipementDetailsAsync(IdEquipement);
     }
 
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo("/crud/equipements");
-    }
-
+    /// <summary>
+    /// Permet d'obtenir la position stocké dans la classe EquipementDetailDTO
+    /// </summary>
+    /// <param name="equipement"></param>
+    /// <returns>String de la position valide en css sous la forme x (left: _px) et y (top: _px)</returns>
     private string GetEquipementPositionStyle(EquipementDetailDTO equipement)
     {
         if (EquipementViewModel.SelectedEquipementDetails.Mur == null) return "";
@@ -160,7 +163,7 @@ else
     /// Récupère la couleur de l'équipement au mur
     /// </summary>
     /// <param name="typeEquipementSansNavigationDTO">ID du type d'équipement</param>
-    /// <returns>Une couleur CSS</returns>
+    /// <returns>Une couleur valide CSS en string</returns>
     private string GetEquipementColor(int typeEquipementSansNavigationDTO)
     {
         switch (typeEquipementSansNavigationDTO)
@@ -176,5 +179,13 @@ else
             default:
                 return "black";
         }
+    }
+
+    /// <summary>
+    /// Permet de retourner à la page précédente (Tous équipements)
+    /// </summary>
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/crud/equipements");
     }
 }
