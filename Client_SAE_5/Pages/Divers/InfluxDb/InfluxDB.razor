@@ -1,5 +1,6 @@
 ﻿@page "/influxdb"
 @inject Client_SAE_5.ViewModel.InfluxViewModel InfluxViewModel
+@using Client_SAE_5.Models.InfluxDB
 
 <link rel="stylesheet" href="css/InfluxDB.css" />
 
@@ -22,69 +23,251 @@
         </select>
     </div>
 
-    @if (!string.IsNullOrEmpty(InfluxViewModel.SelectedCapteurName))
+    @if (DataIsLoading)
     {
-        <div class="row data-section">
-            <!-- Colonne "Valeurs actuelles" -->
-            <div class="col-md-6 column">
-                <h2 class="text-primary">Valeurs actuelles :</h2>
-                <ul class="list-unstyled">
-                    <li><Icon Name="IconName.PhoneVibrate" Size="IconSize.x1" /> Présence de vibrations : <strong>@(InfluxViewModel.ActualVibration != 0 ? "oui" : "non")</strong></li>
-                    <li><img src="/images/inside-temperature.png" alt="Température" class="icon" /> Température intérieure : <strong>@(InfluxViewModel.ActualTemperatureInt)°C</strong></li>
-                    <li><img src="/images/outside-temperature.png" alt="Température" class="icon" /> Température extérieure : <strong>@(InfluxViewModel.ActualTemperatureExt)°C</strong></li>
-                    <li><img src="/images/humidity.png" alt="Humidité" class="icon" /> Taux d'humidité : <strong>@(InfluxViewModel.ActualHumidite)%</strong></li>
-                    <li><img src="/images/co2.png" alt="CO2" class="icon" /> Taux de CO2 : <strong>@(InfluxViewModel.ActualTauxCo2)ppm</strong></li>
-                    <li><img src="/images/movement.png" alt="Mouvement" class="icon" /> Présence de mouvement : <strong>@(InfluxViewModel.ActualPresenceMouvement != 0 ? "oui" : "non")</strong></li>
-                    <li><img src="/images/smoke.png" alt="Fumée" class="icon" /> Présence de fumée : <strong>@(InfluxViewModel.ActualPresenceFumee != 0 ? "oui" : "non")</strong></li>
-                    <li><img src="/images/luminosity.png" alt="Luminosité" class="icon" /> Taux de luminosité : <strong>@(InfluxViewModel.ActualLuminosite) lm</strong></li>
-                    <li><Icon Name="IconName.VolumeUp" Size="IconSize.x1" /> Présence de bruit : <strong>@(InfluxViewModel.ActualPresenceBruit != 0 ? "oui" : "non")</strong></li>
-                </ul>
-            </div>
-
-            <!-- Colonne "Prédictions" -->
-            <div class="col-md-6 column">
-                <h2 class="text-secondary">Prédictions :</h2>
-                <ul class="list-unstyled">
-                    <li><img src="/images/windows.png" alt="Fenêtre" class="icon" /> État de la fenêtre : <strong>@(InfluxViewModel.PredFenetreOuverte ? "ouverte" : "fermée")</strong></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Section "Données ciblées" -->
-        <div class="targeted-data mt-4">
-            <h2 class="text-secondary">Données ciblées :</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <label>Date de début :</label>
-                    <InputDate @bind-Value="InfluxViewModel.StartDate" class="form-control" />
-                </div>
-                <div class="col-md-6">
-                    <label>Date de fin :</label>
-                    <InputDate @bind-Value="InfluxViewModel.EndDate" class="form-control" />
-                </div>
-            </div>
+        <div class="d-flex justify-content-center">
+            <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
         </div>
     }
     else
     {
-        <p class="text-muted">Sélectionnez un capteur pour afficher les données.</p>
+        @if (!string.IsNullOrEmpty(InfluxViewModel.SelectedCapteurName))
+        {
+            <div class="row data-section">
+                <!-- Colonne "Valeurs actuelles" -->
+                <div class="col-md-6 column">
+                    <h2 class="text-primary">Valeurs actuelles :</h2>
+                    <ul class="list-unstyled">
+                        <li><Icon Name="IconName.PhoneVibrate" Style="margin-right: 10px;" Size="IconSize.x1" /> Présence de vibrations : <strong>@(InfluxViewModel.ActualVibration != 0 ? "oui" : "non")</strong></li>
+                        <li><img src="/images/inside-temperature.png" alt="TempératureInt" class="icon" /> Température intérieure : <strong>@(InfluxViewModel.ActualTemperatureInt)°C</strong></li>
+                        <li><img src="/images/outside-temperature.png" alt="TempératureExt" class="icon" /> Température extérieure : <strong>@(InfluxViewModel.ActualTemperatureExt)°C</strong></li>
+                        <li><img src="/images/humidity.png" alt="Humidité" class="icon" /> Taux d'humidité : <strong>@(InfluxViewModel.ActualHumidite)%</strong></li>
+                        <li><img src="/images/co2.png" alt="CO2" class="icon" /> Taux de CO2 : <strong>@(InfluxViewModel.ActualTauxCo2)ppm</strong></li>
+                        <li><img src="/images/movement.png" alt="Mouvement" class="icon" /> Présence de mouvement : <strong>@(InfluxViewModel.ActualPresenceMouvement != 0 ? "oui" : "non")</strong></li>
+                        <li><img src="/images/smoke.png" alt="Fumée" class="icon" /> Présence de fumée : <strong>@(InfluxViewModel.ActualPresenceFumee != 0 ? "oui" : "non")</strong></li>
+                        <li><img src="/images/luminosity.png" alt="Luminosité" class="icon" /> Taux de luminosité : <strong>@(InfluxViewModel.ActualLuminosite) lm</strong></li>
+                        <li><Icon Name="IconName.VolumeUp" Style="margin-right: 10px;"  Size="IconSize.x1" /> Présence de bruit : <strong>@(InfluxViewModel.ActualPresenceBruit != 0 ? "oui" : "non")</strong></li>
+                    </ul>
+                </div>
+
+                <!-- Colonne "Prédictions" -->
+                <div class="col-md-6 column">
+                    <h2 class="text-secondary">Prédictions :</h2>
+                    <select @bind="InfluxViewModel.PredType">
+                        <option selected value=""> --- Sélectionnez une prédiction --- </option>
+                        <option value="fenetre">Fenêtre ouverte</option>
+                        <option value="nbPersonnes">Présence et quantité de personnes</option>
+                        <option value="inconfort">État d'inconfort</option>
+                        <option value="temp">Températures</option>
+                    </select>
+                    <button class="btn btn-primary" @onclick="LaunchPrediction" disabled="@PredictionIsLoading">Lancer la prédiction</button>
+
+                    @if (PredictionIsLoading)
+                    {
+                        <br />
+                        <br />
+                         <div class="d-flex justify-content-center">
+                            <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
+                        </div>
+                    }
+                    else
+                    {
+                        @if (!string.IsNullOrEmpty(InfluxViewModel.PredResultString))
+                        {
+                            @if (InfluxViewModel.PredResultMultipleStrings.Count() != 0)
+                            {
+                                <ul class="list-unstyled">
+                                    <li>@InfluxViewModel.PredResultString</li>
+                                    @foreach (string tempString in InfluxViewModel.PredResultMultipleStrings)
+                                    {
+                                        <li>@tempString</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <ul class="list-unstyled">
+                                    <li>@InfluxViewModel.PredResultString</li>
+                                </ul>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Section "Données ciblées" -->
+            <div class="targeted-data mt-4">
+                <h2 class="text-secondary">Graphique de données du capteur :</h2>
+                <select @bind="InfluxViewModel.GraphDataType">
+                    <option value="" selected> --- Sélectionnez un type de donnée --- </option>
+                    <option value="Presence de vibrations">Vibrations</option>
+                    <option value="Temperature interieure">Température intérieure</option>
+                    <option value="Temperature exterieure">Température extérieure</option>
+                    <option value="Taux d'humidite">Taux d'humidité</option>
+                    <option value="Taux de co2">Taux de CO2</option>
+                    <option value="Presence de mouvement">Présence de mouvement</option>
+                    <option value="Presence de fumee">Présence de fumée</option>
+                    <option value="Taux de luminosite">Taux de luminosité</option>
+                    <option value="Presence de bruit">Bruit</option>
+                </select>
+
+                <p>Interval de temps :</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Date de début :</label>
+                        <InputDate @bind-Value="InfluxViewModel.GraphStartTime" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Date de fin :</label>
+                        <InputDate @bind-Value="InfluxViewModel.GraphEndTime" class="form-control" />
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" @onclick="async () => await GenerateGraph()" disabled="@GraphIsLoading">Générer le graphique</button>
+
+                @if (GraphIsLoading)
+                {
+                    <br />
+                    <br />
+                    <div class="d-flex justify-content-center">
+                        <Spinner Type="SpinnerType.Border" Size="SpinnerSize.ExtraLarge" />
+                    </div>
+                }
+
+                @if (InfluxViewModel.GraphData.Count != 0)
+                {
+
+@*                     @foreach(InfluxDataReturn data in InfluxViewModel.GraphData)
+                    {
+                        <p>@data.value à @data.time</p>
+                    } *@
+                }
+
+            </div>
+        }
+
+        else
+        {
+            <p class="d-flex justify-content-center text-muted">Sélectionnez un capteur pour afficher les données.</p>
+        }
     }
+
+    <div style="@(InfluxViewModel.GraphData.Count != 0 ? "display: block;" : "display: none;")" class="container-fluid overflow-x-auto">
+        <LineChart @ref="lineChart" Width="800" />
+    </div>
 </div>
 
 @code{
+    private bool DataIsLoading;
+    private bool GraphIsLoading;
+    private bool PredictionIsLoading;
+
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+    private List<string> labels = default!;
 
     protected override async Task OnInitializedAsync()
     {
         await InfluxViewModel.LoadNomCapteurs();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await SetupBaseGraph();
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
     private async Task ChangeCapteurData(string newCapteurName)
     {
-        //await InfluxViewModel.LoadPredictionsOfCapteurAsync(newCapteurName);
+        DataIsLoading = true;
         await InfluxViewModel.LoadActualValuesOfCapteurAsync(newCapteurName);
-        Console.WriteLine("caca");
         InfluxViewModel.SelectedCapteurName = newCapteurName;
+        DataIsLoading = false;
         StateHasChanged();
+    }
+
+    private async Task GenerateGraph()
+    {
+        GraphIsLoading = true;
+        await InfluxViewModel.LoadGraphValuesAsync();
+        await UpdateGraph();
+        GraphIsLoading = false;
+    }
+
+    private async Task LaunchPrediction()
+    {
+        PredictionIsLoading = true;
+        await InfluxViewModel.RefreshPredData();
+        await InfluxViewModel.PredictData();
+        PredictionIsLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task SetupBaseGraph()
+    {
+        labels = new List<string> { "1" };
+        lineChartOptions = new LineChartOptions();
+        lineChartOptions.Interaction.Mode = InteractionMode.Index;
+        lineChartOptions.Plugins.Title = new ChartPluginsTitle { Text = "BaseGraph", Display = true, Font = new ChartFont { Size = 20 } };
+        lineChartOptions.Responsive = true;
+        lineChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "X", Display = true };
+        lineChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Y", Display = true };
+
+        var datasets = new List<IChartDataset>
+        {
+            new LineChartDataset
+            {
+                Label = "Data",
+                Data = new List<double?>(),
+                BackgroundColor = "rgb(88, 80, 141)",
+                BorderColor = "rgb(88, 80, 141)",
+                BorderWidth = 2,
+                HoverBorderWidth = 4,
+            }
+        };
+
+        chartData = new ChartData { Labels = labels, Datasets = datasets };
+    }
+
+    private async Task UpdateGraph()
+    {
+        List<string> graphLabels = new List<string>();
+        List<double?> graphValues = new List<double?>();
+        foreach(InfluxDataReturn data in InfluxViewModel.GraphData)
+        {
+            graphLabels.Add(data.time.ToString("dd'/'MM'/'yyyy"));
+            graphValues.Add(data.value);
+        }
+
+        // options
+        lineChartOptions = new LineChartOptions();
+        lineChartOptions.Interaction.Mode = InteractionMode.Index;
+        lineChartOptions.Plugins.Title = new ChartPluginsTitle { Text = "Mesures " + InfluxViewModel.GraphDataType + " du capteur " + InfluxViewModel.SelectedCapteurName, Display = true, Font = new ChartFont { Size = 20 } };
+        lineChartOptions.Responsive = true;
+        lineChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Date", Display = true };
+        lineChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = InfluxViewModel.GraphDataType, Display = true };
+
+        // data
+        labels = graphLabels;
+        var datasets = new List<IChartDataset>{
+                                                   new LineChartDataset
+                                                   {
+                                                        Label = InfluxViewModel.SelectedCapteurName,
+                                                        Data = graphValues,
+                                                        BackgroundColor = "rgb(255, 166, 0)",
+                                                        BorderColor = "rgb(255, 166, 0)",
+                                                        BorderWidth = 2,
+                                                        HoverBorderWidth = 4,
+                                                   },
+                                              };
+        chartData = new ChartData { Labels = labels, Datasets = datasets };
+
+        lineChart.UpdateAsync(chartData, lineChartOptions);
     }
 
 }

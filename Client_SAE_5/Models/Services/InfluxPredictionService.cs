@@ -43,7 +43,7 @@ namespace Client_SAE_5.Models.Services
 
         public async Task<List<float>> GetTemperaturesPredAsync(string nomCapteur)
         {
-            var response = await _httpClient.GetAsync($"temperature_futur?capteur={nomCapteur}");
+            var response = await _httpClient.GetAsync($"temperture_futur?capteur={nomCapteur}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<List<float>>();
         }

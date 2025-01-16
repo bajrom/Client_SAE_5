@@ -3,6 +3,12 @@
     public class InfluxDataReturn
     {
         public DateTime time;
-        public decimal value;
+        public double value;
+
+        public InfluxDataReturn(DateTime time, double value)
+        {
+            this.time = time;
+            this.value = value;
+        }
     }
 }

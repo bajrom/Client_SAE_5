@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Web;
 using Client_SAE_5.Models.InfluxDB;
 
 namespace Client_SAE_5.Models.Services
@@ -28,24 +29,7 @@ namespace Client_SAE_5.Models.Services
             {
                 var response = await _httpClient.GetAsync($"{controllerName}_Now?capteur={nomCapteur}");
                 string responseString = await response.Content.ReadAsStringAsync();
-                int closingBraceIndex = responseString.IndexOf('}');
-                int startCutIndex = 0;
-                int actualIndex = closingBraceIndex;
-                
-                while(actualIndex > 0)
-                {
-                    actualIndex--;
-                    var caca = responseString[actualIndex];
-                    if (responseString[actualIndex] == ':')
-                    {
-                        startCutIndex = actualIndex + 1;
-                        break;
-                    }
-                }
-
-                string valueString = responseString.Substring(startCutIndex, (closingBraceIndex-startCutIndex));
-
-                return double.Parse(valueString, CultureInfo.InvariantCulture);
+                return GetLastValue(responseString);
             }
 
             catch (JsonException ex)
@@ -54,18 +38,67 @@ namespace Client_SAE_5.Models.Services
             }
         }
 
-        public async Task<List<decimal>> GetTInTimeIntervalAsync(string nomCapteur, DateTime startDate, DateTime endDate)
+        public async Task<List<InfluxDataReturn>> GetTInTimeIntervalAsync(string nomCapteur, DateTime startDate, DateTime endDate)
         {
-            var response = await _httpClient.GetFromJsonAsync<List<decimal>>($"{controllerName}?capteur={nomCapteur}&startDate={startDate}&endDAte={endDate}");
-
             try
             {
-                return response;
+                var response = await _httpClient.GetAsync($"{controllerName}?capteur={nomCapteur}&startDate={HttpUtility.UrlEncode(startDate.ToString("o"))}&endDate={HttpUtility.UrlEncode(endDate.ToString("o"))}");
+                string responseString = await response.Content.ReadAsStringAsync();
+                return GetAllValues(responseString);
             }
             catch (JsonException ex)
             {
                 throw new InvalidOperationException($"Erreur lors de la désérialisation du JSON (GetTInTimeIntervalAsync) : {ex.Message}", ex);
             }
+        }
+
+        private double GetLastValue(string jsonString)
+        {
+            int closingBraceIndex = jsonString.IndexOf('}');
+            int startCutIndex = 0;
+            int actualIndex = closingBraceIndex;
+
+            while (actualIndex > 0)
+            {
+                actualIndex--;
+                if (jsonString[actualIndex] == ':')
+                {
+                    startCutIndex = actualIndex + 1;
+                    break;
+                }
+            }
+
+            string valueString = jsonString.Substring(startCutIndex, (closingBraceIndex - startCutIndex));
+
+            return double.Parse(valueString, CultureInfo.InvariantCulture);
+        }
+
+        private List<InfluxDataReturn> GetAllValues(string jsonString)
+        {
+            int actualIndex = 0;
+            int startCutIndex = 0;
+            int endCutIndex = 0;
+
+            List<InfluxDataReturn> values = new List<InfluxDataReturn>();
+
+            while(jsonString.IndexOf("value", endCutIndex) != -1) //-1 si pas trouvé donc que il ne reste plus de value à récupérer
+            {
+                startCutIndex = jsonString.IndexOf("time", endCutIndex) + 7;
+                endCutIndex = jsonString.IndexOf(",", startCutIndex) -1;
+
+                string dateString = jsonString.Substring(startCutIndex, (endCutIndex - startCutIndex));
+                DateTime date = DateTime.Parse(dateString);
+
+                startCutIndex = jsonString.IndexOf("value", endCutIndex) + 7;
+                endCutIndex = jsonString.IndexOf("}", startCutIndex);
+
+                string valueString = jsonString.Substring(startCutIndex, (endCutIndex - startCutIndex));
+                double value = double.Parse(valueString, CultureInfo.InvariantCulture);
+
+                values.Add(new InfluxDataReturn(date, value));
+            }
+
+            return values;
         }
     }
 }
