@@ -28,7 +28,10 @@ Ce projet est une application permettant de visualiser et gérer les données de
 ---
 
 ## Prérequis
-- Un Raspberry Pi connecté à l'IUT.
+- Une Raspberry Pi connecté à l'IUT en salle D101.
+    - Identifiant: boo.
+    - Mot de passe : 1234.
+    - Pour lire la suite d'instruction de la Raspberry faite la commande cd ~/Desktop/SAE_5A.01/Capiteur/Capiteur_SAE5 et le Readme se trouve dedans.
 - Avoir **Visual Studio 2022** installé.
 - Disposer d'un navigateur web.
 
@@ -47,7 +50,8 @@ Appuyer sur les touches [CTRL + R, A] ou avec l'invite de commande: dotnet test
 
 L'application contient une page d'acceuil, un menu général (en haut) pour naviguer vers : "Gestion CRUD", "Grafana", "Alarme", "Visualisation 3D", "Données capteurs"
 
-Gestion CRUD:
+# Gestion CRUD:
+
     dans la naviguation de la gestion CRUD (/crud) un menu de naviguation (à gauche) permet de naviguer vers les difféntes tables de la BD, par défaut sur les capteurs (/crud/capteurs).
 
     Chaque tables à sa page de gestion et de détails sauf UniteCapteur qui est la seule table de liaison qui est géré dans add et update de capteurs.
@@ -60,17 +64,19 @@ Gestion CRUD:
     
     La page de détail des équipements, des capteurs, des murs donnent une visualisation CSS de leur positions et tailles. La page de détail d'une salle donne une visualisation de la salle avec un générateur de SVG (méthode GenererPlanSalleSVG à \Utils\SVG_Generator.cs)
 
-Grafana:
+# Grafana:
+
     Connexion au dashboard public avec un iframe
 
-Alarme:
+# Alarme:
+
     Alarme est une page entièrement en CSS qui permet d'allumer (fictivement) une alarme. Pour allumer l'allarme, une popup ConfirmDialog demande confirmation. Une popup Toasts bootstrap confirme que l'alarme est allumé ou éteinte
 
-Page de visualisation 3D:
+# Page de visualisation 3D:
+
     La page est un canva utilisant babylon.js pour afficher les modèles 3D
 
-Page de prédiction de l'IA:
+# Page de prédiction de l'IA:
+
     Pour la page, utilisation boostrap d'un spinner, des input et de LineChart.
     Le ligne chart est définie au chargement de la page comme vide, puis lorsque l'utilisateur sélectionne la data, il est remplit.
-Licence
-Ce projet est sous licence MIT.
