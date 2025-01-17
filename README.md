@@ -67,6 +67,7 @@ Page de visualisation 3D:
     La page est un canva utilisant babylon.js pour afficher les modèles 3D
 
 Page de prédiction de l'IA:
-    Pour la page, utilisation boostrap d'un spinner, des input et de LineChart
+    Pour la page, utilisation boostrap d'un spinner, des input et de LineChart.
+    Le ligne chart est définie au chargement de la page comme vide, puis lorsque l'utilisateur sélectionne la data, il est remplit.
 Licence
 Ce projet est sous licence MIT.
