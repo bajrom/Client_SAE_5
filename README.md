@@ -44,7 +44,7 @@ Appuyer sur les touches [CTRL + R, A] ou avec l'invite de commande: dotnet test
 
 L'application contient une page d'acceuil, un menu général (en haut) pour naviguer vers : "Gestion CRUD", "Grafana", "Alarme", "Visualisation 3D", "Données capteurs"
 
-Gestion CRUD:
+Page de gestion des données structurelles gestion CRUD:
     dans la naviguation de la gestion CRUD (/crud) un menu de naviguation (à gauche) permet de naviguer vers les difféntes tables de la BD, par défaut sur les capteurs (/crud/capteurs).
 
     Chaque tables à sa page de gestion et de détails sauf UniteCapteur qui est la seule table de liaison qui est géré dans add et update de capteurs.
@@ -57,11 +57,16 @@ Gestion CRUD:
     
     La page de détail des équipements, des capteurs, des murs donnent une visualisation CSS de leur positions et tailles. La page de détail d'une salle donne une visualisation de la salle avec un générateur de SVG (méthode GenererPlanSalleSVG à \Utils\SVG_Generator.cs)
 
-Grafana:
+Page graphique grafana:
     Connexion au dashboard public avec un iframe
 
-Alarme:
+Page d'alarme:
     Alarme est une page entièrement en CSS qui permet d'allumer (fictivement) une alarme. Pour allumer l'allarme, une popup ConfirmDialog demande confirmation. Une popup Toasts bootstrap confirme que l'alarme est allumé ou éteinte
 
+Page de visualisation 3D:
+    La page est un canva utilisant babylon.js pour afficher les modèles 3D
+
+Page de prédiction de l'IA:
+    Pour la page, utilisation boostrap d'un spinner, des input et de LineChart
 Licence
 Ce projet est sous licence MIT.

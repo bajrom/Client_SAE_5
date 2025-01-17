@@ -66,7 +66,9 @@ namespace Client_SAE_5.ViewModel
         public List<InfluxDataReturn> GraphData { get; private set; } = new List<InfluxDataReturn>();
         public string GraphDataType { get; set; }
 
-
+        /// <summary>
+        /// Méthode pour charger les nom des cpateurs de l'API de l'IA
+        /// </summary>
         public async Task LoadNomCapteurs()
         {
             try
@@ -84,6 +86,9 @@ namespace Client_SAE_5.ViewModel
 
 
         // load valeurs dans un intervale de temps
+        /// <summary>
+        /// Méthode pour load les bonnes données de l'API
+        /// </summary>
         public async Task LoadGraphValuesAsync()
         {
             switch (GraphDataType)
@@ -126,6 +131,13 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Get les valeurs de l'API dans un intervalle du type sélectionner du capteur sélectionner pour les mettres dans un graph visuel
+        /// </summary>
+        /// <param name="nomCapteur"></param>
+        /// <param name="service"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
         public async Task LoadInTimeInterval(string nomCapteur, InfluxDataService service, DateTime start, DateTime end)
         {
             try
@@ -142,7 +154,9 @@ namespace Client_SAE_5.ViewModel
 
 
 
-        // load predictions
+        /// <summary>
+        /// Charge la prédiction sélectionnée
+        /// </summary>
         public async Task PredictData()
         {
             switch (PredType)
@@ -154,7 +168,7 @@ namespace Client_SAE_5.ViewModel
 
                 case "nbPersonnes":
                     await LoadPredNbPersonnesAsync();
-                    PredResultString = "Il y a " + EtatNbPersonne;
+                    PredResultString = "Il y a " + EtatNbPersonne +" personnes";
                     break;
 
                 case "inconfort":
@@ -173,12 +187,18 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Reset la data des prédictions
+        /// </summary>
         public async Task RefreshPredData()
         {
             PredResultString = "";
             PredResultMultipleStrings = new List<string>();
         }
 
+        /// <summary>
+        /// Méthode pour get les prédictions de type fenêtre ouverte
+        /// </summary>
         public async Task LoadPredFenetreOuverteAsync()
         {
             try
@@ -192,6 +212,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get les prédictions de type nombres de personnes
+        /// </summary>
         public async Task LoadPredNbPersonnesAsync()
         {
             try
@@ -205,6 +228,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get les prédictions de type inconfort
+        /// </summary>
         public async Task LoadPredInconfortAsync()
         {
             try
@@ -218,6 +244,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get les prédictions de type température
+        /// </summary>
         public async Task LoadPredTemperatureAsync()
         {
             try
@@ -231,9 +260,10 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
-
-
-        // load valeurs actuelles
+        /// <summary>
+        /// Méthode déclencher dès la sélection d'une salle pour afficher toutes ses données actuelles
+        /// </summary>
+        /// <param name="nomCapteur"></param>
         public async Task LoadActualValuesOfCapteurAsync(string nomCapteur)
         {
             await LoadActualVibrationAsync(nomCapteur);
@@ -245,6 +275,9 @@ namespace Client_SAE_5.ViewModel
             await LoadActualPresenceBruitAsync(nomCapteur);
         }
 
+        /// <summary>
+        /// Méthode pour get la donnée de vibration actuel de la salle sélectionnée
+        /// </summary>
         public async Task LoadActualVibrationAsync(string nomCapteur)
         {
             try
@@ -258,6 +291,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get la donnée de température intérieure actuel de la salle sélectionnée
+        /// </summary>
         public async Task LoadActualTempIntAsync(string nomCapteur)
         {
             try
@@ -271,6 +307,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get la donnée de température extérieure actuel de la salle sélectionnée
+        /// </summary>
         public async Task LoadActualTempExtAsync(string nomCapteur)
         {
             try
@@ -284,6 +323,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get la donnée d'humiditée actuel de la salle sélectionnée
+        /// </summary>
         public async Task LoadActualHumiditeAsync(string nomCapteur)
         {
             try
@@ -297,6 +339,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get la donnée de taux de CO2 actuel de la salle sélectionnée
+        /// </summary>
         public async Task LoadActualTauxCO2Async(string nomCapteur)
         {
             try
@@ -310,6 +355,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get la donnée de mouvements actuel de la salle sélectionnée
+        /// </summary>
         public async Task LoadActualPresenceMouvementAsync(string nomCapteur)
         {
             try
@@ -323,6 +371,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get la donnée de présence de fumée actuel de la salle sélectionnée
+        /// </summary>
         public async Task LoadActualPresenceFumeeAsync(string nomCapteur)
         {
             try
@@ -336,6 +387,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get la donnée de luminositée actuel de la salle sélectionnée
+        /// </summary>
         public async Task LoadActualLuminositeAsync(string nomCapteur)
         {
             try
@@ -349,6 +403,9 @@ namespace Client_SAE_5.ViewModel
             }
         }
 
+        /// <summary>
+        /// Méthode pour get la donnée de bruits actuel de la salle sélectionnée
+        /// </summary>
         public async Task LoadActualPresenceBruitAsync(string nomCapteur)
         {
             try

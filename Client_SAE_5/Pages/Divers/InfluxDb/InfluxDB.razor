@@ -139,7 +139,6 @@
 
                 @if (InfluxViewModel.GraphData.Count != 0)
                 {
-
 @*                     @foreach(InfluxDataReturn data in InfluxViewModel.GraphData)
                     {
                         <p>@data.value à @data.time</p>
@@ -154,9 +153,8 @@
             <p class="d-flex justify-content-center text-muted">Sélectionnez un capteur pour afficher les données.</p>
         }
     }
-
-    <div style="@(InfluxViewModel.GraphData.Count != 0 ? "display: block;" : "display: none;")" class="container-fluid overflow-x-auto">
-        <LineChart @ref="lineChart" Width="800" />
+    <div style="@(InfluxViewModel.GraphData.Count != 0 ? "display: block; text-align: center;" : "display: none;")" class="container-fluid overflow-x-auto">
+        <LineChart @ref="lineChart" Style="width:70%;" />
     </div>
 </div>
 
@@ -170,11 +168,18 @@
     private ChartData chartData = default!;
     private List<string> labels = default!;
 
+    /// <summary>
+    /// Méthode déclencher à l'initialisation
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         await InfluxViewModel.LoadNomCapteurs();
     }
 
+    /// <summary>
+    /// Méthode délchencher pour des tâches spécifiques au DOM pour garantir une exécution propre et efficace.
+    /// </summary>
+    /// <param name="firstRender"></param>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -185,6 +190,10 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    /// <summary>
+    /// Méthode déclencher lors d'un changement de capteur à tout moment
+    /// </summary>
+    /// <param name="newCapteurName"></param>
     private async Task ChangeCapteurData(string newCapteurName)
     {
         DataIsLoading = true;
@@ -194,6 +203,9 @@
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Méthode pour générer le graphique de visualisation avec la data
+    /// </summary>
     private async Task GenerateGraph()
     {
         GraphIsLoading = true;
@@ -202,6 +214,9 @@
         GraphIsLoading = false;
     }
 
+    /// <summary>
+    /// Méthode pour charger les prédictions de l'API de l'IA
+    /// </summary>
     private async Task LaunchPrediction()
     {
         PredictionIsLoading = true;
@@ -211,6 +226,9 @@
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Définie le premier graphique pour le rendu
+    /// </summary>
     private async Task SetupBaseGraph()
     {
         labels = new List<string> { "1" };
@@ -237,6 +255,9 @@
         chartData = new ChartData { Labels = labels, Datasets = datasets };
     }
 
+    /// <summary>
+    /// Méthode pour changer le grpahe
+    /// </summary>
     private async Task UpdateGraph()
     {
         List<string> graphLabels = new List<string>();
