@@ -53,15 +53,16 @@
                 <!-- Colonne "Prédictions" -->
                 <div class="col-md-6 column">
                     <h2 class="text-secondary">Prédictions :</h2>
-                    <select @bind="InfluxViewModel.PredType">
-                        <option selected value=""> --- Sélectionnez une prédiction --- </option>
-                        <option value="fenetre">Fenêtre ouverte</option>
-                        <option value="nbPersonnes">Présence et quantité de personnes</option>
-                        <option value="inconfort">État d'inconfort</option>
-                        <option value="temp">Températures</option>
-                    </select>
-                    <button class="btn btn-primary" @onclick="LaunchPrediction" disabled="@PredictionIsLoading">Lancer la prédiction</button>
-
+                    <div>
+                        <select @bind="InfluxViewModel.PredType">
+                            <option selected value=""> --- Sélectionnez une prédiction --- </option>
+                            <option value="fenetre">Fenêtre ouverte</option>
+                            <option value="nbPersonnes">Présence et quantité de personnes</option>
+                            <option value="inconfort">État d'inconfort</option>
+                            <option value="temp">Températures</option>
+                        </select>
+                        <button class="btn btn-primary justify-content-end" @onclick="LaunchPrediction" disabled="@PredictionIsLoading">Lancer la prédiction</button>
+                    </div>
                     @if (PredictionIsLoading)
                     {
                         <br />

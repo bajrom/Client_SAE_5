@@ -16,7 +16,7 @@ Structure :
 
 Prérequis:
     RaspberryPI connecté à l'IUT
-    Avoir Visual studio 2022, un navuguateur
+    Avoir Visual studio 2022, un naviguateur
 
 Démarrer (projet en HTTP):
 Lancer le projet :
