@@ -53,15 +53,17 @@
                 <!-- Colonne "Prédictions" -->
                 <div class="col-md-6 column">
                     <h2 class="text-secondary">Prédictions :</h2>
-                    <div>
-                        <select @bind="InfluxViewModel.PredType">
+
+                    <!-- Sélection de la prédiction -->
+                    <div class="form-group d-flex">
+                        <select @bind="InfluxViewModel.PredType" class="form-control select-capteur justify-content-start" style="height: 50px;">
                             <option selected value=""> --- Sélectionnez une prédiction --- </option>
                             <option value="fenetre">Fenêtre ouverte</option>
                             <option value="nbPersonnes">Présence et quantité de personnes</option>
                             <option value="inconfort">État d'inconfort</option>
                             <option value="temp">Températures</option>
                         </select>
-                        <button class="btn btn-primary justify-content-end" @onclick="LaunchPrediction" disabled="@PredictionIsLoading">Lancer la prédiction</button>
+                        <button class="btn btn-primary justify-content-end" @onclick="LaunchPrediction" disabled="@PredictionIsLoading" style="height: 50px;">Lancer la prédiction</button>
                     </div>
                     @if (PredictionIsLoading)
                     {
@@ -99,7 +101,7 @@
             <!-- Section "Données ciblées" -->
             <div class="targeted-data mt-4">
                 <h2 class="text-secondary">Graphique de données du capteur :</h2>
-                <select @bind="InfluxViewModel.GraphDataType">
+                <select @bind="InfluxViewModel.GraphDataType" class="form-control select-capteur justify-content-start">
                     <option value="" selected> --- Sélectionnez un type de donnée --- </option>
                     <option value="Presence de vibrations">Vibrations</option>
                     <option value="Temperature interieure">Température intérieure</option>
@@ -112,8 +114,8 @@
                     <option value="Presence de bruit">Bruit</option>
                 </select>
 
-                <p>Interval de temps :</p>
                 <div class="row">
+                    <label>Interval de temps :</label>
                     <div class="col-md-6">
                         <label>Date de début :</label>
                         <InputDate @bind-Value="InfluxViewModel.GraphStartTime" class="form-control" />
@@ -124,7 +126,7 @@
                     </div>
                 </div>
 
-                <button class="btn btn-primary" @onclick="async () => await GenerateGraph()" disabled="@GraphIsLoading">Générer le graphique</button>
+                <button class="btn btn-primary" @onclick="async () => await GenerateGraph()" disabled="@GraphIsLoading" style="margin-top:10px;">Générer le graphique</button>
 
                 @if (GraphIsLoading)
                 {
