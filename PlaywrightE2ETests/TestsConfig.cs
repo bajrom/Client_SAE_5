@@ -8,8 +8,7 @@ namespace PlaywrightE2ETests
 {
     public class TestsConfig
     {
-        //public static string BaseURL => Environment.GetEnvironmentVariable("URL") ?? "https://localhost:5258";
-        public static string BaseURL => Environment.GetEnvironmentVariable("URL") ?? "https://data-care.azurewebsites.net";
+        public static string BaseURL => Environment.GetEnvironmentVariable("URL") ?? "https://localhost:5258";
 
     }
 }
