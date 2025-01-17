@@ -52,31 +52,31 @@ L'application contient une page d'acceuil, un menu général (en haut) pour navi
 
 # Gestion CRUD:
 
-    dans la naviguation de la gestion CRUD (/crud) un menu de naviguation (à gauche) permet de naviguer vers les difféntes tables de la BD, par défaut sur les capteurs (/crud/capteurs).
+  dans la naviguation de la gestion CRUD (/crud) un menu de naviguation (à gauche) permet de naviguer vers les difféntes tables de la BD, par défaut sur les capteurs (/crud/capteurs).
 
-    Chaque tables à sa page de gestion et de détails sauf UniteCapteur qui est la seule table de liaison qui est géré dans add et update de capteurs.
+  Chaque tables à sa page de gestion et de détails sauf UniteCapteur qui est la seule table de liaison qui est géré dans add et update de capteurs.
 
-    Chaque tables contient une page pour ajouter (popup), modifier (le même popup), supprimer (avec confirmation) et ainsi qu'une autre page pour avoir plus de détails.
+  Chaque tables contient une page pour ajouter (popup), modifier (le même popup), supprimer (avec confirmation) et ainsi qu'une autre page pour avoir plus de détails.
 
-    Chaque page générale contient des informations clé qui est une Grid blazor bootstrap qui est traduit en français car le texte est de base en anglais (méthode GridFiltersTranslationProvider à \Utils\BlazorBootstrapUtils.cs). Quand un élément est ajouter, modifier et supprimer un Toasts de bootstrap est affiché pour confirmer. Pendant qu'un élément est en train d'être ajouter ou modifier une popup Modal bootstrap est afficher. Une popup ConfirmDialog de suppretion demande la confirmation pour suppretion d'un élément.
+  Chaque page générale contient des informations clé qui est une Grid blazor bootstrap qui est traduit en français car le texte est de base en anglais (méthode GridFiltersTranslationProvider à \Utils\BlazorBootstrapUtils.cs). Quand un élément est ajouter, modifier et supprimer un Toasts de bootstrap est affiché pour confirmer. Pendant qu'un élément est en train d'être ajouter ou modifier une popup Modal bootstrap est afficher. Une popup ConfirmDialog de suppretion demande la confirmation pour suppretion d'un élément.
 
-    Vérification si les coordonnées x et y ne sont pas en dehors du mur dans add/update des capteurs et équipements, cela nécessite de prendre les détails du mur sélectionner (fetch by id) pour avoir la longueur et hauteur du mur.
-    
-    La page de détail des équipements, des capteurs, des murs donnent une visualisation CSS de leur positions et tailles. La page de détail d'une salle donne une visualisation de la salle avec un générateur de SVG (méthode GenererPlanSalleSVG à \Utils\SVG_Generator.cs)
+  Vérification si les coordonnées x et y ne sont pas en dehors du mur dans add/update des capteurs et équipements, cela nécessite de prendre les détails du mur sélectionner (fetch by id) pour avoir la longueur et hauteur du mur.
+  
+  La page de détail des équipements, des capteurs, des murs donnent une visualisation CSS de leur positions et tailles. La page de détail d'une salle donne une visualisation de la salle avec un générateur de SVG (méthode GenererPlanSalleSVG à \Utils\SVG_Generator.cs)
 
 # Grafana:
 
-    Connexion au dashboard public avec un iframe
+  Connexion au dashboard public avec un iframe
 
 # Alarme:
 
-    Alarme est une page entièrement en CSS qui permet d'allumer (fictivement) une alarme. Pour allumer l'allarme, une popup ConfirmDialog demande confirmation. Une popup Toasts bootstrap confirme que l'alarme est allumé ou éteinte
+  Alarme est une page entièrement en CSS qui permet d'allumer (fictivement) une alarme. Pour allumer l'allarme, une popup ConfirmDialog demande confirmation. Une popup Toasts bootstrap confirme que l'alarme est allumé ou éteinte
 
 # Page de visualisation 3D:
 
-    La page est un canva utilisant babylon.js pour afficher les modèles 3D
+  La page est un canva utilisant babylon.js pour afficher les modèles 3D
 
 # Page de prédiction de l'IA:
 
-    Pour la page, utilisation boostrap d'un spinner, des input et de LineChart.
-    Le ligne chart est définie au chargement de la page comme vide, puis lorsque l'utilisateur sélectionne la data, il est remplit.
+  Pour la page, utilisation boostrap d'un spinner, des input et de LineChart.
+  Le ligne chart est définie au chargement de la page comme vide, puis lorsque l'utilisateur sélectionne la data, il est remplit.
