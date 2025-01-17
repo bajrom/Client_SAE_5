@@ -1,22 +1,33 @@
-Client de Visualisation et gestion des données capteurs et structures
+# Client de Visualisation et Gestion des Données Capteurs et Structures
 
 Ce projet est une application permettant de visualiser et gérer les données de capteurs et de structures, ainsi que d’effectuer des prédictions basées sur l’intelligence artificielle.
 
-Structure :
-    Backend :
-        .NET 8
-        BD distante PostgreSQL sur Always data pour les données de structure ainsi que son API C# Restful (EndPoints: https://api-ovhiutannecy-sae5-gwbxhugwhjb2aqdu.canadacentral-01.azurewebsites.net/api/)
-        BD locale InfluxDB pour les données de capteurs sur RaspberryPI
-    Frontend :
-        Blazor pour l’interface utilisateur
-        Babylon.js pour la visualisation 3D des salles
-        Grafana pour la visualisation des données capteurs
-    Autres :
-        API de prédiction IA avec des données fictives (EndPoints: http://10.103.101.128:5173/api/InfluxData/data/)
+## Structure
 
-Prérequis:
-    RaspberryPI connecté à l'IUT
-    Avoir Visual studio 2022, un naviguateur
+### Backend :
+- **Technologies** :
+  - .NET 8
+  - Base de données distante PostgreSQL sur AlwaysData pour les données de structure.
+  - API C# Restful :
+    [https://api-ovhiutannecy-sae5-gwbxhugwhjb2aqdu.canadacentral-01.azurewebsites.net/api/](https://api-ovhiutannecy-sae5-gwbxhugwhjb2aqdu.canadacentral-01.azurewebsites.net/api/)
+  - Base de données locale InfluxDB pour les données de capteurs sur Raspberry Pi.
+
+### Frontend :
+- **Technologies** :
+  - Blazor pour l’interface utilisateur.
+  - Babylon.js pour la visualisation 3D des salles.
+  - Grafana pour la visualisation des données capteurs.
+
+### Autres :
+- API de prédiction IA avec des données fictives :
+  [http://10.103.101.128:5173/api/InfluxData/data/](http://10.103.101.128:5173/api/InfluxData/data/)
+
+---
+
+## Prérequis
+- Un Raspberry Pi connecté à l'IUT.
+- Avoir **Visual Studio 2022** installé.
+- Disposer d'un navigateur web.
 
 Démarrer (projet en HTTP):
 Lancer le projet :

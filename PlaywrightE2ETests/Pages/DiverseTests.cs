@@ -31,6 +31,16 @@ namespace PlaywrightE2ETests.Pages
         }
 
         [TestMethod]
+        public async Task Click3DViz_PageWorks()
+        {
+            await Page.GotoAsync(TestsConfig.BaseURL);
+            await Page.GetByText("Visualisation 3D").ClickAsync();
+            await Expect(Page).ToHaveTitleAsync("Visualisation 3D");
+            await Expect(Page.GetByText("Visualisation 3D de la D351")).ToBeVisibleAsync();
+            await Expect(Page.Locator("canvas")).ToBeVisibleAsync();
+        }
+
+        [TestMethod]
         public async Task ClickDatacare_GoHome()
         {
             await Page.GotoAsync(TestsConfig.BaseURL + "/crud/batiments");
@@ -38,9 +48,8 @@ namespace PlaywrightE2ETests.Pages
             var dataCare = Page.Locator("a.navbar-brand");
             await dataCare.IsVisibleAsync();
 
-            dataCare.ClickAsync();
+            await dataCare.ClickAsync();
             await Expect(Page).ToHaveTitleAsync("Datacare");
-
         }
     }
 }
